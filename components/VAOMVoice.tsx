@@ -28,7 +28,7 @@ type Props = {
 export function VAOMVoice({
   text,
   moment,
-  typingSpeed = 12,
+  typingSpeed = 24,
   showMute = true,
   label = "VAOM",
 }: Props) {
