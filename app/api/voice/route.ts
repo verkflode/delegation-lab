@@ -21,8 +21,8 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const REGION = process.env.AZURE_SPEECH_REGION ?? "swedencentral";
-// audio-24khz-48kbitrate-mono-opus per spec — good quality, low bandwidth
-const OUTPUT_FORMAT = "audio-24khz-48kbitrate-mono-opus";
+// DragonHD voices don't support opus — use mp3 which works across all voice types
+const OUTPUT_FORMAT = "audio-24khz-96kbitrate-mono-mp3";
 
 // ── Rate limiting ──────────────────────────────────────────────────────────
 const buckets = new Map<string, { count: number; reset: number }>();
@@ -102,7 +102,7 @@ export async function POST(req: Request) {
     return new Response(azureRes.body, {
       status: 200,
       headers: {
-        "Content-Type": "audio/ogg",
+        "Content-Type": "audio/mpeg",
         "Cache-Control": "no-store",
       },
     });
