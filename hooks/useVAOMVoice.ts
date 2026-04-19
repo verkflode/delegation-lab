@@ -3,20 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GameMoment } from "../lib/ssml";
 
-/**
- * useVAOMVoice — manages spoken VAOM narration.
- *
- * - Calls /api/voice with plain text + game moment
- * - Plays the returned audio stream
- * - Handles mute toggle (persisted across rounds)
- * - Graceful: if /api/voice returns 503 (no key configured), no error is
- *   shown — the game just runs text-only, which is the baseline.
- *
- * Browsers block autoplay until a user gesture has occurred. The title
- * screen "Start" button satisfies that — speak() should not be called
- * before the player clicks Start.
- */
-
 export type VoiceStatus = "idle" | "loading" | "playing" | "error";
 
 const MUTE_KEY = "delegation-lab:muted";
@@ -26,8 +12,8 @@ export function useVAOMVoice() {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const urlRef = useRef<string | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
-  // Hydrate mute preference from localStorage on mount
   useEffect(() => {
     if (typeof window === "undefined") return;
     const saved = window.localStorage.getItem(MUTE_KEY);
@@ -42,6 +28,11 @@ export function useVAOMVoice() {
   }, []);
 
   const stop = useCallback(() => {
+    // Abort any in-flight fetch so it never resolves and plays
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
+    }
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = "";
@@ -57,20 +48,30 @@ export function useVAOMVoice() {
   const speak = useCallback(
     async (text: string, moment: GameMoment) => {
       if (muted || !text) return;
+      // Cancel any previous in-flight request + audio
       stop();
+
+      const controller = new AbortController();
+      abortRef.current = controller;
       setStatus("loading");
+
       try {
         const res = await fetch("/api/voice", {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({ text, moment }),
+          signal: controller.signal,
         });
+        // If aborted while waiting, fetch throws — caught below
         if (!res.ok) {
-          // 503 → voice not configured. Quiet failure.
           setStatus("idle");
           return;
         }
         const blob = await res.blob();
+
+        // Check if we were aborted during blob download
+        if (controller.signal.aborted) return;
+
         const url = URL.createObjectURL(blob);
         urlRef.current = url;
         const audio = new Audio(url);
@@ -86,13 +87,15 @@ export function useVAOMVoice() {
         audio.onerror = () => setStatus("error");
         await audio.play().catch(() => setStatus("error"));
       } catch {
-        setStatus("idle");
+        // AbortError or network failure — silent
+        if (!controller.signal.aborted) {
+          setStatus("idle");
+        }
       }
     },
     [muted, stop]
   );
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => stop();
   }, [stop]);
@@ -104,7 +107,7 @@ export function useVAOMVoice() {
     stop,
     toggleMute: () => {
       persistMuted(!muted);
-      if (!muted) stop(); // muting cancels current playback
+      if (!muted) stop();
     },
   };
 }
