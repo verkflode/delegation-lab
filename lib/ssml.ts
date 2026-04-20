@@ -43,8 +43,25 @@ const STYLE_FOR_MOMENT: Record<GameMoment, string> = {
 };
 
 /**
- * Light prosody pass: slow VAOM concept names, insert short breaks at
- * paragraph boundaries, and pace key phrases.
+ * Pronunciation map — words that need a `<sub alias>` hint because the
+ * TTS engine can't pronounce them from spelling alone. Add entries here
+ * for brand names, vendor names, or any term VAOM mispronounces.
+ */
+const PRONUNCIATION: Record<string, string> = {
+  "Verkflöde": "Vairk flur deh",
+  "Verkflode": "Vairk flur deh",
+  "VAOM": "V A O M",
+  // Swedish/European vendor names from the fallback scenarios
+  "Nordström": "Nord strum",
+  "Båtsman": "Boats man",
+  "Lumière": "Loo mee air",
+  "Aalto": "Aal toh",
+  "Stadsbyggnad": "Stads big nad",
+};
+
+/**
+ * Light prosody pass: apply pronunciation hints, slow VAOM concept names,
+ * insert short breaks at paragraph boundaries, and pace key phrases.
  */
 function applyProsody(text: string): string {
   // Escape XML special chars first
@@ -52,6 +69,15 @@ function applyProsody(text: string): string {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
+
+  // Apply pronunciation substitutions before any other SSML wrapping
+  for (const [word, alias] of Object.entries(PRONUNCIATION)) {
+    const pattern = new RegExp(
+      word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
+      "gi"
+    );
+    s = s.replace(pattern, `<sub alias="${alias}">${word}</sub>`);
+  }
 
   // Insert breath pauses at paragraph breaks
   s = s.replace(/\n\n+/g, ' <break time="500ms"/> ');
