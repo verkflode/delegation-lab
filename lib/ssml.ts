@@ -43,21 +43,23 @@ const STYLE_FOR_MOMENT: Record<GameMoment, string> = {
 };
 
 /**
- * Pronunciation map — words that need a `<sub alias>` hint because the
- * TTS engine can't pronounce them from spelling alone. Add entries here
- * for brand names, vendor names, or any term VAOM mispronounces.
+ * Pronunciation map — plain text replacements applied BEFORE the text
+ * is wrapped in SSML. DragonHD voices ignore/garble <sub> tags, so we
+ * swap the words directly. The player sees the real spelling on screen;
+ * only the audio text is replaced.
  */
-const PRONUNCIATION: Record<string, string> = {
-  "Verkflöde": "Vairk flur deh",
-  "Verkflode": "Vairk flur deh",
-  "VAOM": "V A O M",
+const PRONUNCIATION: [RegExp, string][] = [
+  [/Verkflöde/gi, "Vairk flur deh"],
+  [/Verkflode/gi, "Vairk flur deh"],
+  [/\bVAOM\b/g, "V A O M"],
+  [/\bINV-(\d+)\b/g, "I N V $1"],
   // Swedish/European vendor names from the fallback scenarios
-  "Nordström": "Nord strum",
-  "Båtsman": "Boats man",
-  "Lumière": "Loo mee air",
-  "Aalto": "Aal toh",
-  "Stadsbyggnad": "Stads big nad",
-};
+  [/Nordström/gi, "Nord strum"],
+  [/Båtsman/gi, "Boats man"],
+  [/Lumière/gi, "Loo mee air"],
+  [/Aalto/gi, "Aal toh"],
+  [/Stadsbyggnad/gi, "Stads big nad"],
+];
 
 /**
  * Light prosody pass: apply pronunciation hints, slow VAOM concept names,
@@ -70,13 +72,10 @@ function applyProsody(text: string): string {
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;");
 
-  // Apply pronunciation substitutions before any other SSML wrapping
-  for (const [word, alias] of Object.entries(PRONUNCIATION)) {
-    const pattern = new RegExp(
-      word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"),
-      "gi"
-    );
-    s = s.replace(pattern, `<sub alias="${alias}">${word}</sub>`);
+  // Apply pronunciation replacements in the plain text (before SSML tags).
+  // DragonHD ignores <sub> tags, so we swap the words directly.
+  for (const [pattern, replacement] of PRONUNCIATION) {
+    s = s.replace(pattern, replacement);
   }
 
   // Insert breath pauses at paragraph breaks
