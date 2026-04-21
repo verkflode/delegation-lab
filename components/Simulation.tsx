@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Activity } from "lucide-react";
 import { useGame } from "../lib/game-state";
 import { fetchScenario } from "../lib/api";
-import { fallbackBatch } from "../data/fallback-rounds";
+import { fallbackBatchForScenario } from "../data/fallback-scenarios";
+import { SCENARIOS } from "../data/scenarios";
 import { recomputeComposites, routeRound1, routeRound2, routeRound3, scoreRound } from "../lib/scoring";
 import { detectAntiPatterns, detectMultiAgentFailures } from "../lib/anti-patterns";
 import type { Invoice, ProcessedInvoice, RoundResult } from "../lib/types";
@@ -19,6 +20,7 @@ import { Dashboard } from "./Dashboard";
  */
 export function Simulation() {
   const { state, recordResult, advance } = useGame();
+  const scenario = SCENARIOS[state.scenario];
   const [invoices, setInvoices] = useState<Invoice[] | null>(null);
   const [processed, setProcessed] = useState<ProcessedInvoice[]>([]);
   const [streamed, setStreamed] = useState<ProcessedInvoice[]>([]);
@@ -29,7 +31,7 @@ export function Simulation() {
   useEffect(() => {
     let cancelled = false;
     // Show fallback first to keep the screen alive even if Claude is slow
-    const seed = fallbackBatch(state.round);
+    const seed = fallbackBatchForScenario(state.scenario, state.round);
     setInvoices(seed);
     fetchScenario(state.round).then((batch) => {
       if (cancelled) return;
@@ -130,7 +132,7 @@ export function Simulation() {
               Round {state.round} · Simulation
             </div>
             <h1 className="font-mono text-[24px] md:text-[30px] font-bold text-mint mt-1">
-              Invoices flowing
+              {scenario.itemNounPlural.charAt(0).toUpperCase() + scenario.itemNounPlural.slice(1)} flowing
             </h1>
           </div>
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">
@@ -144,14 +146,14 @@ export function Simulation() {
           <div className="surface-strong px-5 py-5">
             <div className="flex items-center gap-2 mb-4">
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold">
-                Invoice pipeline
+                {scenario.itemNoun.charAt(0).toUpperCase() + scenario.itemNoun.slice(1)} pipeline
               </div>
               <div className="flex-1 h-px bg-white/8" />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[60vh] overflow-y-auto scroll-slim pr-1">
               {streamed.length === 0 && (
                 <div className="col-span-full text-center py-12 font-mono text-[11px] text-muted-2">
-                  Waiting for first invoice…
+                  Waiting for first {scenario.itemNoun}…
                 </div>
               )}
               {streamed.map((p) => (

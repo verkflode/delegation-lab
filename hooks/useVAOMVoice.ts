@@ -8,15 +8,13 @@ export type VoiceStatus = "idle" | "loading" | "playing" | "error";
 /**
  * useVAOMVoice — manages spoken VAOM narration with chunked playback.
  *
- * To reduce perceived latency, the text is split into a short first
- * chunk (first 1-2 sentences) and the rest. Both chunks are sent to
- * Azure in parallel. The first chunk plays as soon as it arrives
- * (~2-3s), and the rest is queued to play immediately after.
+ * Supports an optional `cachedUrl` for pre-generated audio (e.g. Round 1
+ * briefings cached in public/audio/). When provided, playback is instant.
+ * Otherwise, text is split into chunks and sent to Azure TTS in parallel.
  */
 export function useVAOMVoice() {
   const [status, setStatus] = useState<VoiceStatus>("idle");
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const queueRef = useRef<HTMLAudioElement | null>(null);
   const urlsRef = useRef<string[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -29,11 +27,6 @@ export function useVAOMVoice() {
       audioRef.current.pause();
       audioRef.current.src = "";
       audioRef.current = null;
-    }
-    if (queueRef.current) {
-      queueRef.current.pause();
-      queueRef.current.src = "";
-      queueRef.current = null;
     }
     for (const url of urlsRef.current) {
       URL.revokeObjectURL(url);
@@ -70,24 +63,31 @@ export function useVAOMVoice() {
   };
 
   const speak = useCallback(
-    async (text: string, moment: GameMoment) => {
+    async (text: string, moment: GameMoment, cachedUrl?: string) => {
       if (!text) return;
       stop();
+
+      // If a pre-cached audio file is available, play it instantly
+      if (cachedUrl) {
+        setStatus("loading");
+        const audio = new Audio(cachedUrl);
+        audioRef.current = audio;
+        audio.onplay = () => setStatus("playing");
+        audio.onended = () => setStatus("idle");
+        audio.onerror = () => setStatus("error");
+        await audio.play().catch(() => setStatus("error"));
+        return;
+      }
 
       const controller = new AbortController();
       abortRef.current = controller;
       setStatus("loading");
 
-      // Split into first chunk (~first 2 sentences) and the rest.
-      // Short first chunk → fast Azure synthesis → audio starts quickly.
       const chunks = splitIntoChunks(text);
-
-      // Fire all chunks in parallel
       const promises = chunks.map((chunk) =>
         fetchChunk(chunk, moment, controller.signal)
       );
 
-      // Wait for the first chunk and play immediately
       const firstAudio = await promises[0];
       if (controller.signal.aborted || !firstAudio) {
         if (!controller.signal.aborted) setStatus("idle");
@@ -96,7 +96,6 @@ export function useVAOMVoice() {
 
       audioRef.current = firstAudio;
 
-      // If there's a second chunk, set it up to play after the first ends
       if (promises.length > 1) {
         firstAudio.onended = async () => {
           if (controller.signal.aborted) return;
@@ -106,7 +105,6 @@ export function useVAOMVoice() {
             return;
           }
           audioRef.current = nextAudio;
-          queueRef.current = null;
           nextAudio.onended = () => setStatus("idle");
           nextAudio.onerror = () => setStatus("error");
           await nextAudio.play().catch(() => setStatus("idle"));
@@ -125,22 +123,12 @@ export function useVAOMVoice() {
   return { status, speak, stop };
 }
 
-/**
- * Split text into two chunks: a short first part (1-2 sentences, max ~200 chars)
- * for fast initial playback, and the rest. If the text is short enough,
- * returns a single chunk.
- */
 function splitIntoChunks(text: string): string[] {
   if (text.length <= 250) return [text];
-
-  // Find a good split point: end of first or second sentence
   const sentences = text.match(/[^.!?]+[.!?]+/g);
   if (!sentences || sentences.length <= 2) return [text];
-
-  // Take first 2 sentences as the opening chunk
   const first = sentences.slice(0, 2).join("").trim();
   const rest = text.slice(first.length).trim();
-
   if (!rest) return [first];
   return [first, rest];
 }

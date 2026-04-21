@@ -6,6 +6,15 @@ import { useGame } from "../lib/game-state";
 import { fetchBriefing } from "../lib/api";
 import { briefingFallback } from "../data/vaom-text";
 import { VAOMVoice } from "./VAOMVoice";
+import type { ScenarioDomain } from "../lib/types";
+
+/** Pre-generated Round 1 briefing audio per scenario. Instant playback. */
+const CACHED_R1_AUDIO: Record<ScenarioDomain, string> = {
+  invoice_processing: "/audio/briefing-r1-invoice.mp3",
+  customer_complaints: "/audio/briefing-r1-complaints.mp3",
+  aml_triage: "/audio/briefing-r1-aml.mp3",
+  hr_investigation: "/audio/briefing-r1-hr.mp3",
+};
 
 const ROUND_TITLES: Record<1 | 2 | 3, { kicker: string; title: string; concept: string }> = {
   1: { kicker: "Round 1", title: "The Basics", concept: "Confidence Gate · Decision Inventory" },
@@ -49,7 +58,12 @@ export function Briefing() {
           {meta.concept}
         </div>
 
-        <VAOMVoice text={text} moment="round_briefing" label={`VAOM · ${meta.kicker} briefing`} />
+        <VAOMVoice
+          text={text}
+          moment="round_briefing"
+          label={`VAOM · ${meta.kicker} briefing`}
+          cachedAudioUrl={state.round === 1 ? CACHED_R1_AUDIO[state.scenario] : undefined}
+        />
 
         <div className="mt-8 flex items-center justify-between">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">
