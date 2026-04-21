@@ -27,7 +27,7 @@ import type {
  */
 
 type Action =
-  | { type: "start" }
+  | { type: "start"; scenario?: ScenarioDomain }
   | { type: "advance"; phase: GamePhase }
   | { type: "set_round"; round: RoundNumber }
   | { type: "set_scenario"; domain: ScenarioDomain }
@@ -49,7 +49,7 @@ const initialState: GameState = {
 function reducer(state: GameState, action: Action): GameState {
   switch (action.type) {
     case "start":
-      return { ...state, phase: "briefing", round: 1 };
+      return { ...state, phase: "briefing", round: 1, scenario: action.scenario ?? state.scenario };
     case "advance":
       return { ...state, phase: action.phase };
     case "set_round":
@@ -75,7 +75,7 @@ function reducer(state: GameState, action: Action): GameState {
 
 type GameContextValue = {
   state: GameState;
-  start: () => void;
+  start: (scenario?: ScenarioDomain) => void;
   advance: (phase: GamePhase) => void;
   setRound: (round: RoundNumber) => void;
   setScenario: (domain: ScenarioDomain) => void;
@@ -95,7 +95,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
   const value = useMemo<GameContextValue>(
     () => ({
       state,
-      start: () => dispatch({ type: "start" }),
+      start: (scenario) => dispatch({ type: "start", scenario }),
       advance: (phase) => dispatch({ type: "advance", phase }),
       setRound: (round) => dispatch({ type: "set_round", round }),
       setScenario: (domain) => dispatch({ type: "set_scenario", domain }),

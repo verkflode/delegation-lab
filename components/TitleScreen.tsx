@@ -24,8 +24,7 @@ export function TitleScreen() {
   const [selectedScenario, setSelectedScenario] = useState<ScenarioDomain>("invoice_processing");
 
   const handleStart = () => {
-    setScenario(selectedScenario);
-    start();
+    start(selectedScenario);
   };
 
   return (
