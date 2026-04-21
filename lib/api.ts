@@ -18,6 +18,7 @@ import type {
   R2Policy,
   R3PreEvents,
   RoundNumber,
+  ScenarioDomain,
   ScoreBreakdown,
 } from "./types";
 import { compositeConfidence } from "./scoring";
@@ -54,16 +55,16 @@ async function callClaude(payload: unknown): Promise<unknown> {
 // Briefing
 // ────────────────────────────────────────────────────────────────────────────
 
-export async function fetchBriefing(round: RoundNumber): Promise<string> {
+export async function fetchBriefing(round: RoundNumber, scenario?: ScenarioDomain): Promise<string> {
   try {
     const data = (await withTimeout(
-      callClaude({ kind: "briefing", round }),
+      callClaude({ kind: "briefing", round, scenario }),
       TIMEOUT_MS
     )) as { text?: string };
     if (data?.text && typeof data.text === "string") return data.text;
     throw new Error("no text");
   } catch {
-    return briefingFallback(round);
+    return briefingFallback(round, scenario);
   }
 }
 

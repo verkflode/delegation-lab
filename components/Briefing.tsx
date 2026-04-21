@@ -33,7 +33,7 @@ export function Briefing() {
   useEffect(() => {
     let cancelled = false;
     setText(briefingFallback(state.round, state.scenario));
-    fetchBriefing(state.round).then((dynamic) => {
+    fetchBriefing(state.round, state.scenario).then((dynamic) => {
       if (cancelled) return;
       if (dynamic && dynamic.length > 20) setText(dynamic);
     });
