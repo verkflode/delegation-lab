@@ -8,6 +8,7 @@ import type {
   R3PreEvents,
   RoundNumber,
   RoundResult,
+  ScenarioDomain,
   ScoreBreakdown,
 } from "../lib/types";
 import { totalNumeric } from "../lib/scoring";
@@ -48,11 +49,19 @@ function humanizeFlag(flag: string): string {
 // Briefings — pre-round narration
 // ────────────────────────────────────────────────────────────────────────────
 
-export function briefingFallback(round: RoundNumber): string {
+const SCENARIO_R1_FLAVOR: Record<string, { items: string; verb: string }> = {
+  invoice_processing: { items: "vendor invoices", verb: "auto-approves" },
+  customer_complaints: { items: "customer complaints", verb: "auto-classifies" },
+  aml_triage: { items: "transaction monitoring alerts", verb: "auto-dismisses" },
+  hr_investigation: { items: "reported HR cases", verb: "auto-classifies" },
+};
+
+export function briefingFallback(round: RoundNumber, scenario?: ScenarioDomain): string {
+  const flavor = SCENARIO_R1_FLAVOR[scenario ?? "invoice_processing"];
   if (round === 1) {
     return [
       "Banks have managed structured decision authority for decades. Risk bands determine which loans are auto-approved, which need an underwriter, and which go to committee. They separate statistical risk scores from institutional authority. They log every decision. They recalibrate against outcomes. VAOM brings the same discipline to AI. Your job: design the delegation policy for this workflow. Let's see what you learn.",
-      "Round one is the simplest case. A stream of vendor invoices will arrive. You will set a single confidence threshold. Above the threshold, the agent acts. Below it, a human reviews.",
+      `Round one is the simplest case. A stream of ${flavor.items} will arrive. You will set a single confidence threshold. Above the threshold, the agent ${flavor.verb}. Below it, a human reviews.`,
       "Pay attention to what this configuration cannot express. Your workflow contains more decision points than the obvious ones. You will need that observation for what comes next.",
     ].join("\n\n");
   }
