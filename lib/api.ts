@@ -99,17 +99,7 @@ function normalizeInvoice(raw: RawClaudeInvoice, fallbackId: string): Invoice | 
     anomalySignal: clamp01(dim.anomaly_signal ?? 0.1),
   };
   const composite = compositeConfidence(confidence);
-  const validTypes = [
-    "standard",
-    "high_value",
-    "duplicate",
-    "modified_terms",
-    "new_vendor",
-    "split_invoice",
-  ] as const;
-  const type = (validTypes as readonly string[]).includes(raw.type ?? "")
-    ? (raw.type as Invoice["type"])
-    : "standard";
+  const type = (raw.type ?? "standard") as Invoice["type"];
   return {
     id: raw.id ?? fallbackId,
     vendor: raw.vendor ?? "Vendor",
@@ -166,6 +156,7 @@ export async function fetchDebrief(args: {
   processed: ProcessedInvoice[];
   score: ScoreBreakdown;
   policy: { r1?: R1Policy; r2?: R2Policy; r3?: R3PreEvents };
+  scenario?: ScenarioDomain;
 }): Promise<string> {
   try {
     const data = (await withTimeout(

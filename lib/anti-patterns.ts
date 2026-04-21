@@ -146,8 +146,11 @@ export function detectMultiAgentFailures(
 ): MultiAgentFailureMode[] {
   const failures: MultiAgentFailureMode[] = [];
 
-  // Find split invoices
-  const splits = processed.filter((p) => p.invoice.type === "split_invoice");
+  // Find paired/split items (split invoices, split complaints, cross-border alerts, etc.)
+  // These are items with hidden flags referencing a companion item.
+  const splits = processed.filter((p) =>
+    p.invoice.hiddenFlags.some((f) => f.startsWith("paired_with_") || f.includes("split") || f.includes("cross_border") || f.includes("multi_department"))
+  );
 
   if (splits.length >= 2) {
     const bothAutoApproved = splits.every((p) => p.band === "auto_approve");
@@ -175,12 +178,12 @@ export function detectMultiAgentFailures(
     failures.push("cascading_confidence_erosion");
   }
 
-  // Escalation gap not fixed → authority conflict on modified terms
+  // Escalation gap not fixed → authority conflict on any hazardous auto-approve
   if (pre?.escalationFix === "ignore") {
-    const modTermsAutoApproved = processed.some(
-      (p) => p.invoice.type === "modified_terms" && p.band === "auto_approve"
+    const hazardAutoApproved = processed.some(
+      (p) => p.invoice.hiddenFlags.length > 0 && p.band === "auto_approve"
     );
-    if (modTermsAutoApproved && !failures.includes("authority_conflict")) {
+    if (hazardAutoApproved && !failures.includes("authority_conflict")) {
       failures.push("authority_conflict");
     }
   }
