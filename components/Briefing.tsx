@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useGame } from "../lib/game-state";
 import { fetchBriefing } from "../lib/api";
@@ -29,13 +29,19 @@ export function Briefing() {
   // arrives. The text-typing animation will start over only if the text
   // actually changes.
   const [text, setText] = useState(() => briefingFallback(state.round, state.scenario));
+  const mountedAt = useRef(Date.now());
 
   useEffect(() => {
     let cancelled = false;
+    mountedAt.current = Date.now();
     setText(briefingFallback(state.round, state.scenario));
     fetchBriefing(state.round, state.scenario).then((dynamic) => {
       if (cancelled) return;
-      if (dynamic && dynamic.length > 20) setText(dynamic);
+      // Only swap if Claude responded fast enough that the player hasn't
+      // started reading yet (~1.5s). Otherwise let the fallback finish.
+      if (dynamic && dynamic.length > 20 && Date.now() - mountedAt.current < 1500) {
+        setText(dynamic);
+      }
     });
     return () => {
       cancelled = true;

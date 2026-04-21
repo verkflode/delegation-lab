@@ -85,9 +85,11 @@ export function InvoiceCard({ p, compact = false }: { p: ProcessedInvoice; compa
           </div>
         </div>
         <div className="text-right flex-shrink-0">
-          <div className="font-sans text-[14px] font-bold text-ink tabular-nums">
-            €{p.invoice.amount.toLocaleString("de-DE")}
-          </div>
+          {p.invoice.amount > 0 && (
+            <div className="font-sans text-[14px] font-bold text-ink tabular-nums">
+              €{p.invoice.amount.toLocaleString("de-DE")}
+            </div>
+          )}
           <div className="font-sans text-[10px] text-muted-2 tabular-nums">
             {(p.invoice.composite * 100).toFixed(0)}% confidence
           </div>
