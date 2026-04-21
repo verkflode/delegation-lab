@@ -40,7 +40,7 @@ export function Briefing() {
     return () => {
       cancelled = true;
     };
-  }, [state.round]);
+  }, [state.round, state.scenario]);
 
   const meta = ROUND_TITLES[state.round];
   const nextPhase = state.round === 3 ? "preEvents" : "config";

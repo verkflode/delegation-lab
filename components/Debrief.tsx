@@ -49,6 +49,7 @@ export function Debrief() {
       processed: result.processed,
       score: result.score,
       policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
+      scenario: state.scenario,
     }).then((dynamic) => {
       if (cancelled) return;
       if (dynamic && dynamic.length > 50) setText(dynamic);

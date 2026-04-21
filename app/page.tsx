@@ -37,7 +37,7 @@ function Screen({ phase, round }: { phase: string; round: number }) {
     case "briefing":
       return <Briefing />;
     case "config":
-      return round === 1 ? <ConfigBasic /> : <ConfigMatrix />;
+      return round === 1 ? <ConfigBasic /> : <ConfigMatrix key={phase + round} />;
     case "preEvents":
       return <ConfigAudit />;
     case "simulation":

@@ -230,14 +230,15 @@ export function routeRound3(
       reason = "Auto-approved with minimal evidence — auditor cannot reconstruct rationale.";
     }
 
-    // Escalation gap
+    // Escalation gap — triggers on any hazardous item that auto-approved
+    // when the escalation path was never fixed
     if (
       pre.escalationFix === "ignore" &&
-      p.invoice.type === "modified_terms" &&
+      p.invoice.hiddenFlags.length > 0 &&
       p.band === "auto_approve"
     ) {
       outcome = "risky";
-      reason = "Escalation path was never defined — modified-terms invoice slipped.";
+      reason = "Escalation path was never defined — a hazardous item slipped through.";
     }
 
     return { ...p, outcome, reason };
@@ -259,15 +260,16 @@ export function scoreRound(
   const wasteful = processed.filter((p) => p.outcome === "wasteful").length;
   const missed = processed.filter((p) => p.outcome === "missed").length;
 
-  // Efficiency: high when standard invoices auto-approved, low when over-routed.
+  // Efficiency: high when routine items auto-approved correctly, low when over-routed.
+  // "Routine" = no hidden flags and good outcome (scenario-agnostic).
   const efficient = processed.filter(
     (p) =>
-      p.invoice.type === "standard" &&
+      p.invoice.hiddenFlags.length === 0 &&
       p.band === "auto_approve" &&
       p.outcome === "good"
   ).length;
-  const standardCount = processed.filter((p) => p.invoice.type === "standard").length || 1;
-  const efficiency = Math.round((efficient / standardCount) * 25 - wasteful * 1.5);
+  const routineCount = processed.filter((p) => p.invoice.hiddenFlags.length === 0).length || 1;
+  const efficiency = Math.round((efficient / routineCount) * 25 - wasteful * 1.5);
 
   // Risk Control: high when hazards were caught.
   const hazards = processed.filter(
