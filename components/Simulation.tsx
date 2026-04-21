@@ -33,7 +33,7 @@ export function Simulation() {
     // Show fallback first to keep the screen alive even if Claude is slow
     const seed = fallbackBatchForScenario(state.scenario, state.round);
     setInvoices(seed);
-    fetchScenario(state.round).then((batch) => {
+    fetchScenario(state.round, state.scenario).then((batch) => {
       if (cancelled) return;
       // Only swap if we actually got something different
       if (batch && batch.length > 0) setInvoices(batch);

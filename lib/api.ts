@@ -5,7 +5,7 @@
  * with no API keys present — Claude is enrichment, not the floor.
  */
 
-import { fallbackBatch } from "../data/fallback-rounds";
+import { fallbackBatchForScenario } from "../data/fallback-scenarios";
 import {
   briefingFallback,
   debriefFallback,
@@ -134,22 +134,26 @@ function clamp01(n: unknown): number {
   return Math.max(0, Math.min(1, n));
 }
 
-export async function fetchScenario(round: RoundNumber): Promise<Invoice[]> {
+export async function fetchScenario(round: RoundNumber, scenario?: ScenarioDomain): Promise<Invoice[]> {
+  const prefix = scenario === "customer_complaints" ? "COMP"
+    : scenario === "aml_triage" ? "ALR"
+    : scenario === "hr_investigation" ? "HR"
+    : "INV";
   try {
     const data = (await withTimeout(
-      callClaude({ kind: "scenario", round }),
+      callClaude({ kind: "scenario", round, scenario }),
       TIMEOUT_MS
     )) as { invoices?: RawClaudeInvoice[] };
     if (!Array.isArray(data?.invoices)) throw new Error("no invoices");
     const out: Invoice[] = [];
     data.invoices.forEach((raw, i) => {
-      const inv = normalizeInvoice(raw, `INV-${round}${String(i + 1).padStart(3, "0")}`);
+      const inv = normalizeInvoice(raw, `${prefix}-${round}${String(i + 1).padStart(3, "0")}`);
       if (inv) out.push(inv);
     });
     if (out.length === 0) throw new Error("empty");
     return out;
   } catch {
-    return fallbackBatch(round);
+    return fallbackBatchForScenario(scenario ?? "invoice_processing", round);
   }
 }
 
