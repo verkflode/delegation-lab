@@ -29,16 +29,35 @@ import { ANTI_PATTERN_DEFS, MULTI_AGENT_FAILURE_DEFS } from "../lib/anti-pattern
  */
 function humanizeFlag(flag: string): string {
   const map: Record<string, string> = {
+    // Invoice processing
     modified_terms_net15_with_2pct_discount:
       "modified payment terms — a shift from net-30 to net-15 with an early-payment discount",
     unverified_vendor: "an unverified vendor with no prior history",
     above_5k_threshold: "an amount above the five-thousand-euro threshold",
-    matches_invoice_INV_2003: "a near-duplicate of another invoice in the same batch",
-    possible_resend: "a possible duplicate re-send from the vendor",
-    paired_with_INV_3011: "a companion invoice that together exceeds the threshold",
-    paired_with_INV_3012: "a companion invoice that together exceeds the threshold",
+    matches_invoice_INV_2003: "a near-duplicate of another item in the same batch",
+    possible_resend: "a possible duplicate re-send",
+    paired_with_INV_3011: "a companion item that together exceeds the threshold",
+    paired_with_INV_3012: "a companion item that together exceeds the threshold",
+    // Customer complaints
+    regulatory_reporting_obligation: "a regulatory reporting obligation hidden in the complaint language",
+    ombudsman_threat: "a customer threatening to escalate to the financial ombudsman",
+    vulnerable_customer: "a vulnerable customer indicator requiring special handling",
+    systemic_issue_pattern: "a pattern suggesting a systemic issue across multiple complaints",
+    compensation_above_authority: "a compensation request above the delegated authority threshold",
+    // AML triage
+    cross_border_element: "a cross-border element requiring multi-jurisdiction coordination",
+    known_typology_match: "a match against a known money laundering typology",
+    structuring_pattern: "a structuring pattern — multiple transactions below the reporting threshold",
+    sar_filing_deadline: "an approaching SAR filing deadline with regulatory consequences",
+    shell_company_indicator: "shell company indicators in the transaction chain",
+    // HR investigation
+    involves_c_suite_executive: "involvement of a C-suite executive — escalation required",
+    pattern_not_isolated: "evidence suggesting a pattern of behaviour, not an isolated incident",
+    conflict_of_interest: "a conflict of interest — the accused is the investigator's manager",
+    non_delegable_outcome: "a non-delegable outcome decision affecting careers",
+    media_sensitivity: "media sensitivity requiring communications team coordination",
+    multi_department_scope: "a multi-department scope requiring cross-team coordination",
   };
-  // Token may contain dashes (INV-2003) — normalize for the lookup.
   const normalized = flag.replace(/-/g, "_");
   if (map[normalized]) return map[normalized];
   // Fallback: turn snake_case into readable text.
@@ -74,7 +93,7 @@ export function briefingFallback(round: RoundNumber, scenario?: ScenarioDomain):
   }
   return [
     "Three things have happened since you last sat at this console.",
-    "Your AI provider has pushed a foundation model update. A regulator has requested decision evidence for fifty automated invoice approvals from Q1. And an invoice was auto-approved last week down a path your escalation rules never defined.",
+    "Your AI provider has pushed a foundation model update. A regulator has requested decision evidence for fifty automated decisions from Q1. And an item was auto-processed last week down a path your escalation rules never defined.",
     "This round tests whether your delegation design is governance-ready, not just operationally functional. Address the three pre-events. Then run the simulation.",
   ].join("\n\n");
 }
@@ -90,10 +109,19 @@ export type DebriefArgs = {
   policy?: { r1?: R1Policy; r2?: R2Policy; r3?: R3PreEvents };
   antiPatterns?: DetectedAntiPattern[];
   multiAgentFailures?: MultiAgentFailureMode[];
+  scenario?: ScenarioDomain;
+};
+
+const SCENARIO_NOUNS: Record<string, { singular: string; plural: string }> = {
+  invoice_processing: { singular: "invoice", plural: "invoices" },
+  customer_complaints: { singular: "complaint", plural: "complaints" },
+  aml_triage: { singular: "alert", plural: "alerts" },
+  hr_investigation: { singular: "case", plural: "cases" },
 };
 
 export function debriefFallback(args: DebriefArgs): string {
   const { round, processed, score } = args;
+  const nouns = SCENARIO_NOUNS[args.scenario ?? "invoice_processing"];
   const risky = processed.filter((p) => p.outcome === "risky");
   const wasteful = processed.filter((p) => p.outcome === "wasteful");
   const good = processed.filter((p) => p.outcome === "good");
@@ -106,7 +134,7 @@ export function debriefFallback(args: DebriefArgs): string {
   if (round === 1 && args.policy?.r1) {
     const slipped = risky.find((p) => p.band === "auto_approve");
     paragraphs.push(
-      `You set your threshold at ${args.policy.r1.threshold} percent. ${autoApproved} of ${total} invoices auto-approved. ${
+      `You set your threshold at ${args.policy.r1.threshold} percent. ${autoApproved} of ${total} ${nouns.plural} auto-processed. ${
         slipped
           ? `That number includes ${slipped.invoice.id} — and it should not have.`
           : "Nothing slipped through that should not have."
@@ -114,7 +142,7 @@ export function debriefFallback(args: DebriefArgs): string {
     );
   } else {
     paragraphs.push(
-      `${total} invoices processed. ${autoApproved} auto-approved, ${good.length} routed appropriately, ${risky.length} flagged as risky in retrospect, ${wasteful.length} routed more conservatively than they needed to be.`
+      `${total} ${nouns.plural} processed. ${autoApproved} auto-processed, ${good.length} routed appropriately, ${risky.length} flagged as risky in retrospect, ${wasteful.length} routed more conservatively than they needed to be.`
     );
   }
 
@@ -125,11 +153,11 @@ export function debriefFallback(args: DebriefArgs): string {
       ? humanizeFlag(r.invoice.hiddenFlags[0])
       : "category risk that confidence alone could not surface";
     paragraphs.push(
-      `${r.invoice.id} from ${r.invoice.vendor} carried ${flagText}. Confidence on that invoice was ${(r.invoice.composite * 100).toFixed(0)} percent — high enough to clear most thresholds, and your agent acted on it. Confidence was never the problem. Authority was.`
+      `${r.invoice.id} from ${r.invoice.vendor} carried ${flagText}. Confidence on that ${nouns.singular} was ${(r.invoice.composite * 100).toFixed(0)} percent — high enough to clear most thresholds, and your agent acted on it. Confidence was never the problem. Authority was.`
     );
   } else if (wasteful.length > 2) {
     paragraphs.push(
-      `${wasteful.length} invoices were routed to human review when the underlying decomposition profile permitted autonomous action. Your humans did work the system was designed to spare them. Pattern selection is not overhead — it is the delegation design.`
+      `${wasteful.length} ${nouns.plural} were routed to human review when the underlying decomposition profile permitted autonomous action. Your humans did work the system was designed to spare them. Pattern selection is not overhead — it is the delegation design.`
     );
   } else {
     paragraphs.push(

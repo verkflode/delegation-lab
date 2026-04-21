@@ -26,6 +26,7 @@ export function Debrief() {
           policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
           antiPatterns: result.antiPatterns,
           multiAgentFailures: result.multiAgentFailures,
+          scenario: state.scenario,
         })
       : ""
   );
