@@ -28,11 +28,11 @@ export function Briefing() {
   // never feels empty, then swap in the dynamic Claude version when it
   // arrives. The text-typing animation will start over only if the text
   // actually changes.
-  const [text, setText] = useState(() => briefingFallback(state.round));
+  const [text, setText] = useState(() => briefingFallback(state.round, state.scenario));
 
   useEffect(() => {
     let cancelled = false;
-    setText(briefingFallback(state.round));
+    setText(briefingFallback(state.round, state.scenario));
     fetchBriefing(state.round).then((dynamic) => {
       if (cancelled) return;
       if (dynamic && dynamic.length > 20) setText(dynamic);
