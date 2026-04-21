@@ -38,11 +38,14 @@ export function FinalScore() {
 
   useEffect(() => {
     let cancelled = false;
+    const t0 = Date.now();
     fetchProfile({
       totals,
       rounds: state.results.map((r) => ({ round: r.round, score: r.score })),
     }).then((p) => {
       if (cancelled || !p) return;
+      // Only swap if Claude was fast enough (~1.5s) to avoid jarring mid-read resets
+      if (Date.now() - t0 > 1500) return;
       setProfile((cur) => ({
         ...cur,
         name: typeof p.name === "string" && p.name ? p.name : cur.name,

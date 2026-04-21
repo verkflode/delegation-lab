@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Trophy } from "lucide-react";
 import { useGame } from "../lib/game-state";
 import { fetchDebrief } from "../lib/api";
@@ -31,9 +31,12 @@ export function Debrief() {
       : ""
   );
 
+  const mountedAt = useRef(Date.now());
+
   useEffect(() => {
     if (!result) return;
     let cancelled = false;
+    mountedAt.current = Date.now();
     setText(
       debriefFallback({
         round: state.round,
@@ -42,6 +45,7 @@ export function Debrief() {
         policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
         antiPatterns: result.antiPatterns,
         multiAgentFailures: result.multiAgentFailures,
+        scenario: state.scenario,
       })
     );
     fetchDebrief({
@@ -52,12 +56,14 @@ export function Debrief() {
       scenario: state.scenario,
     }).then((dynamic) => {
       if (cancelled) return;
-      if (dynamic && dynamic.length > 50) setText(dynamic);
+      if (dynamic && dynamic.length > 50 && Date.now() - mountedAt.current < 1500) {
+        setText(dynamic);
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [result, state.round, state.r1, state.r2, state.r3]);
+  }, [result, state.round, state.r1, state.r2, state.r3, state.scenario]);
 
   if (!result) return null;
 
