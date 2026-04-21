@@ -101,18 +101,21 @@ export function TitleScreen() {
                     key={sc.id}
                     disabled={!sc.available}
                     onClick={() => sc.available && setSelectedScenario(sc.id)}
-                    className={`text-left surface px-4 py-3 border transition focus-ring ${
+                    className={`text-left rounded-2xl px-4 py-3 transition focus-ring ${
                       selectedScenario === sc.id && sc.available
-                        ? "border-amber/60 bg-amber/8"
+                        ? "border-2 border-amber bg-[rgba(232,185,49,0.12)]"
                         : sc.available
-                          ? "border-white/8 hover:border-white/20"
-                          : "border-white/5 opacity-40 cursor-not-allowed"
+                          ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)]"
+                          : "border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] opacity-40 cursor-not-allowed"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className="text-cyan">{sc.icon}</span>
+                      <span className={selectedScenario === sc.id ? "text-amber" : "text-cyan"}>{sc.icon}</span>
                       <span className="font-mono text-[12px] font-bold text-ink">{sc.label}</span>
                       {!sc.available && <Lock size={10} className="text-muted-2 ml-auto" />}
+                      {sc.available && selectedScenario === sc.id && (
+                        <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-amber">Selected</span>
+                      )}
                     </div>
                     <div className="text-[11px] text-muted leading-snug mt-1">{sc.sub}</div>
                   </button>
