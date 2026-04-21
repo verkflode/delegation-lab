@@ -45,14 +45,33 @@ export type DelegationPattern =
   | "monitor_intervene"
   | "coordinate_escalate";
 
-/** Decision categories used in Round 2's pattern matrix. */
+/** Decision categories used in Round 2's pattern matrix. Per-scenario. */
 export type DecisionType =
+  // Invoice processing
   | "standard"
   | "high_value"
   | "duplicate"
   | "modified_terms"
   | "new_vendor"
-  | "split_invoice";
+  | "split_invoice"
+  // Customer complaints
+  | "complaint_classification"
+  | "response_generation"
+  | "regulatory_reporting"
+  | "compensation_authorization"
+  | "escalation_to_ombudsman"
+  // AML triage
+  | "alert_classification"
+  | "auto_dismissal"
+  | "investigation_escalation"
+  | "sar_preparation"
+  | "cross_border_coordination"
+  // HR investigation
+  | "hr_complaint_classification"
+  | "evidence_assessment"
+  | "witness_interview_prep"
+  | "outcome_recommendation"
+  | "disciplinary_action";
 
 // Five-dimension authority decomposition (VAOM §4.2)
 export type ReversibilityLevel =

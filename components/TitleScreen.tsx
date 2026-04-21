@@ -14,9 +14,9 @@ const SCENARIOS: {
   available: boolean;
 }[] = [
   { id: "invoice_processing", label: "Invoice processing", sub: "Accounts payable at a European financial services firm", icon: <FileText size={14} />, available: true },
-  { id: "customer_complaints", label: "Customer complaints", sub: "Retail banking complaint triage and response", icon: <Users size={14} />, available: false },
-  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alert classification", icon: <ShieldCheck size={14} />, available: false },
-  { id: "hr_investigation", label: "HR investigation", sub: "Policy violation assessment and outcome recommendation", icon: <Cpu size={14} />, available: false },
+  { id: "customer_complaints", label: "Customer complaints", sub: "Retail banking complaint triage and response", icon: <Users size={14} />, available: true },
+  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alert classification", icon: <ShieldCheck size={14} />, available: true },
+  { id: "hr_investigation", label: "HR investigation", sub: "Policy violation assessment and outcome recommendation", icon: <Cpu size={14} />, available: true },
 ];
 
 export function TitleScreen() {

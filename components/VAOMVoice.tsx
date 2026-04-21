@@ -17,6 +17,8 @@ type Props = {
   moment: GameMoment;
   typingSpeed?: number;
   label?: string;
+  /** Pre-generated audio URL (e.g. /audio/briefing-r1-invoice.mp3). Instant playback. */
+  cachedAudioUrl?: string;
 };
 
 export function VAOMVoice({
@@ -24,6 +26,7 @@ export function VAOMVoice({
   moment,
   typingSpeed = 18,
   label = "VAOM",
+  cachedAudioUrl,
 }: Props) {
   const [shown, setShown] = useState("");
   const [done, setDone] = useState(false);
@@ -62,7 +65,7 @@ export function VAOMVoice({
     if (status === "playing") {
       stop();
     } else {
-      void speak(text, moment);
+      void speak(text, moment, cachedAudioUrl);
     }
   };
 

@@ -38,12 +38,31 @@ const BAND_STYLES: Record<
 };
 
 const TYPE_LABELS: Record<string, string> = {
+  // Invoice processing
   standard: "Std",
   high_value: "High €",
   duplicate: "Dupe?",
   modified_terms: "Mod terms",
   new_vendor: "New vendor",
   split_invoice: "Split",
+  // Customer complaints
+  complaint_classification: "Classify",
+  response_generation: "Response",
+  regulatory_reporting: "Reg report",
+  compensation_authorization: "Comp auth",
+  escalation_to_ombudsman: "Ombudsman",
+  // AML triage
+  alert_classification: "Classify",
+  auto_dismissal: "Dismiss",
+  investigation_escalation: "Escalate",
+  sar_preparation: "SAR prep",
+  cross_border_coordination: "Cross-border",
+  // HR investigation
+  hr_complaint_classification: "Classify",
+  evidence_assessment: "Evidence",
+  witness_interview_prep: "Interview",
+  outcome_recommendation: "Outcome",
+  disciplinary_action: "Discipline",
 };
 
 export function InvoiceCard({ p, compact = false }: { p: ProcessedInvoice; compact?: boolean }) {

@@ -71,29 +71,26 @@ export function routeRound1(
       band = "escalation";
     }
 
-    // Did we get away with it?
-    const isHazardous =
-      invoice.hiddenFlags.length > 0 ||
-      invoice.type === "modified_terms" ||
-      invoice.type === "new_vendor" ||
-      invoice.type === "duplicate";
-    const isStandard = invoice.type === "standard";
+    // Did we get away with it? Scenario-agnostic: items with hidden
+    // flags are hazardous; items with high confidence and no flags are routine.
+    const isHazardous = invoice.hiddenFlags.length > 0;
+    const isRoutine = !isHazardous && invoice.composite >= 0.85;
 
     let outcome: ProcessedInvoice["outcome"];
     let reason: string;
     if (band === "auto_approve" && isHazardous) {
       outcome = "risky";
       reason = `Auto-approved despite ${invoice.hiddenFlags.join(", ") || "category risk"}.`;
-    } else if (band === "auto_approve" && isStandard) {
+    } else if (band === "auto_approve" && isRoutine) {
       outcome = "good";
-      reason = "Routine invoice cleared the threshold.";
-    } else if (band === "human_review" && isStandard) {
+      reason = "Routine item cleared the threshold.";
+    } else if (band === "human_review" && isRoutine) {
       outcome = "wasteful";
-      reason = "Routine invoice routed to human review unnecessarily.";
+      reason = "Routine item routed to human review unnecessarily.";
     } else if (band !== "auto_approve" && isHazardous) {
       outcome = "good";
       reason = "Hazard caught and queued for human attention.";
-    } else if (band === "escalation") {
+    } else if (band === "escalation" && !isHazardous) {
       outcome = "wasteful";
       reason = "Escalated despite low actual risk.";
     } else {
@@ -137,7 +134,7 @@ export function routeRound2(
 
     const threshold = config.threshold / 100;
     const meta = DECISION_TYPES[invoice.type];
-    const recommended = meta.acceptablePatterns.includes(config.pattern);
+    const recommended = meta?.acceptablePatterns.includes(config.pattern) ?? true;
 
     let band: RoutingBand;
     switch (config.pattern) {
@@ -167,28 +164,26 @@ export function routeRound2(
     let outcome: ProcessedInvoice["outcome"];
     let reason: string;
 
+    const typeLabel = meta?.label ?? invoice.type;
     if (band === "auto_approve" && isHazardous && !recommended) {
       outcome = "risky";
-      reason = `${meta.label}: pattern mismatch let a hazardous invoice auto-approve.`;
+      reason = `${typeLabel}: pattern mismatch let a hazardous item auto-approve.`;
     } else if (band === "auto_approve" && isHazardous && recommended) {
-      // Recommended pattern + auto-approve happens when composite was high enough.
-      // The hazard slipped because the threshold was too generous, not because
-      // the pattern was wrong.
       outcome = "risky";
-      reason = `${meta.label}: threshold too low for this category.`;
+      reason = `${typeLabel}: threshold too low for this category.`;
     } else if (
       (band === "human_review" || band === "escalation") &&
-      invoice.type === "standard" &&
-      !isHazardous
+      !isHazardous &&
+      invoice.composite >= 0.85
     ) {
       outcome = "wasteful";
-      reason = "Routine invoice routed conservatively when it could have auto-approved.";
+      reason = "Routine item routed conservatively when it could have auto-approved.";
     } else if (recommended) {
       outcome = "good";
-      reason = `${meta.label}: pattern matched the decomposition profile.`;
+      reason = `${typeLabel}: pattern matched the decomposition profile.`;
     } else {
       outcome = "wasteful";
-      reason = `${meta.label}: pattern is overcautious for this profile.`;
+      reason = `${typeLabel}: pattern is overcautious for this profile.`;
     }
 
     return {
@@ -276,9 +271,7 @@ export function scoreRound(
 
   // Risk Control: high when hazards were caught.
   const hazards = processed.filter(
-    (p) =>
-      p.invoice.hiddenFlags.length > 0 ||
-      ["modified_terms", "duplicate", "new_vendor"].includes(p.invoice.type)
+    (p) => p.invoice.hiddenFlags.length > 0
   );
   const hazardCount = hazards.length || 1;
   const caught = hazards.filter((p) => p.band !== "auto_approve").length;

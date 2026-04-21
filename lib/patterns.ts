@@ -89,7 +89,11 @@ export const PATTERNS: Record<
  * profile drives the radar chart and the "did the player pick the right
  * pattern?" scoring.
  */
-export const DECISION_TYPES: Record<
+/**
+ * Invoice-processing decision types. For other scenarios, see data/scenarios.ts.
+ * @deprecated Use SCENARIOS[domain].typeMeta instead for scenario-aware lookups.
+ */
+export const DECISION_TYPES: Partial<Record<
   DecisionType,
   {
     label: string;
@@ -100,7 +104,7 @@ export const DECISION_TYPES: Record<
     /** Patterns that are "acceptable" — close enough not to be marked as risky. */
     acceptablePatterns: DelegationPattern[];
   }
-> = {
+>> = {
   standard: {
     label: "Standard invoice (≤ €5k)",
     blurb: "Routine vendor invoice, clear PO match, amount within historical norms.",

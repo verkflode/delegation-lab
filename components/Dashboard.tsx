@@ -18,19 +18,10 @@ export function Dashboard({
   const review = processed.filter((p) => p.band === "human_review").length;
   const escalated = processed.filter((p) => p.band === "escalation").length;
   const hazardsCaught = processed.filter(
-    (p) =>
-      (p.invoice.hiddenFlags.length > 0 ||
-        ["modified_terms", "duplicate", "new_vendor", "split_invoice"].includes(
-          p.invoice.type
-        )) &&
-      p.band !== "auto_approve"
+    (p) => p.invoice.hiddenFlags.length > 0 && p.band !== "auto_approve"
   ).length;
   const totalHazards = processed.filter(
-    (p) =>
-      p.invoice.hiddenFlags.length > 0 ||
-      ["modified_terms", "duplicate", "new_vendor", "split_invoice"].includes(
-        p.invoice.type
-      )
+    (p) => p.invoice.hiddenFlags.length > 0
   ).length;
 
   const pct = (n: number, d: number) =>

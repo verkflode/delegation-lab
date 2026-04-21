@@ -1,48 +1,40 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useGame } from "../lib/game-state";
-import { DECISION_TYPES, PATTERNS } from "../lib/patterns";
+import { PATTERNS } from "../lib/patterns";
+import { SCENARIOS } from "../data/scenarios";
 import type { DecisionType, DelegationPattern, DimensionWeights, R2Policy } from "../lib/types";
 import { DEFAULT_WEIGHTS } from "../lib/types";
 import { DecompositionRadar } from "./DecompositionRadar";
 
 /**
- * Round 2 configuration: assign one of six delegation patterns + a per-type
- * confidence threshold to each decision type. The DecompositionRadar shows
- * the authority profile so the player can see which pattern fits — without
- * being told the answer outright.
+ * Round 2 configuration: assign delegation patterns + thresholds per
+ * decision type. Scenario-aware — pulls decision types and decomposition
+ * profiles from the active scenario domain.
  */
 
-const ASSIGNABLE_TYPES: DecisionType[] = [
-  "standard",
-  "high_value",
-  "duplicate",
-  "modified_terms",
-  "new_vendor",
-];
-
-const ASSIGNABLE_PATTERNS: DelegationPattern[] = [
-  "execute_audit",
-  "draft_approve",
-  "triage_route",
-  "prepare_present",
-];
-
 export function ConfigMatrix() {
-  const { setR2, advance } = useGame();
-  const [selected, setSelected] = useState<DecisionType>("standard");
+  const { state, setR2, advance } = useGame();
+  const scenario = SCENARIOS[state.scenario];
+  const assignableTypes = scenario.decisionTypes;
+  const assignablePatterns = scenario.assignablePatterns;
+
+  const [selected, setSelected] = useState<DecisionType>(assignableTypes[0]);
   const [weights, setWeights] = useState<DimensionWeights>({ ...DEFAULT_WEIGHTS });
-  const [policy, setPolicy] = useState<R2Policy>(() => ({
-    perType: {
-      standard: { pattern: "execute_audit", threshold: 88 },
-      high_value: { pattern: "draft_approve", threshold: 92 },
-      duplicate: { pattern: "triage_route", threshold: 75 },
-      modified_terms: { pattern: "prepare_present", threshold: 90 },
-      new_vendor: { pattern: "draft_approve", threshold: 85 },
-    },
-  }));
+
+  // Build default policy from scenario's recommended patterns
+  const [policy, setPolicy] = useState<R2Policy>(() => {
+    const perType: R2Policy["perType"] = {};
+    for (const t of assignableTypes) {
+      const meta = scenario.typeMeta[t];
+      if (meta) {
+        perType[t] = { pattern: meta.recommendedPattern, threshold: 85 };
+      }
+    }
+    return { perType };
+  });
 
   const setPattern = (type: DecisionType, pattern: DelegationPattern) => {
     setPolicy((p) => ({
@@ -96,9 +88,9 @@ export function ConfigMatrix() {
     advance("simulation");
   };
 
-  const meta = DECISION_TYPES[selected];
+  const meta = scenario.typeMeta[selected];
   const current = policy.perType[selected];
-  const allConfigured = ASSIGNABLE_TYPES.every((t) => policy.perType[t]);
+  const allConfigured = assignableTypes.every((t) => policy.perType[t]);
 
   return (
     <div className="min-h-screen px-6 py-12 animate-fade-in">
@@ -119,7 +111,7 @@ export function ConfigMatrix() {
             <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 px-1 mb-1">
               Decision types
             </div>
-            {ASSIGNABLE_TYPES.map((t) => {
+            {assignableTypes.map((t) => {
               const cfg = policy.perType[t];
               const isActive = selected === t;
               return (
@@ -134,7 +126,7 @@ export function ConfigMatrix() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="font-mono text-[12px] font-bold text-ink">
-                      {DECISION_TYPES[t].label}
+                      {scenario.typeMeta[t]?.label ?? t}
                     </div>
                     {cfg && <CheckCircle2 size={14} className="text-mint" />}
                   </div>
@@ -171,7 +163,7 @@ export function ConfigMatrix() {
                 Choose a delegation pattern
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {ASSIGNABLE_PATTERNS.map((p) => {
+                {assignablePatterns.map((p) => {
                   const def = PATTERNS[p];
                   const active = current?.pattern === p;
                   return (
