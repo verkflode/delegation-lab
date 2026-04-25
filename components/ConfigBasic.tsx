@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { ArrowRight, AlertTriangle, Zap, Users } from "lucide-react";
 import { useGame } from "../lib/game-state";
+import { SCENARIOS } from "../data/scenarios";
 
 /**
  * Round 1 configuration: a single confidence threshold slider.
@@ -10,7 +11,8 @@ import { useGame } from "../lib/game-state";
  * "set a threshold" is not a delegation policy.
  */
 export function ConfigBasic() {
-  const { setR1, advance } = useGame();
+  const { state, setR1, advance } = useGame();
+  const scenario = SCENARIOS[state.scenario];
   const [threshold, setThreshold] = useState(80);
 
   const handleStart = () => {
@@ -31,7 +33,7 @@ export function ConfigBasic() {
           Set the auto-approval threshold.
         </h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
-          Above the threshold, the agent auto-approves invoices. Below it, they queue for human review. One number, one workflow. What could go wrong.
+          Above the threshold, the agent auto-processes {scenario.itemNounPlural}. Below it, they queue for human review. One number, one workflow. What could go wrong.
         </p>
 
         <div className="surface-strong mt-10 px-8 py-10">
