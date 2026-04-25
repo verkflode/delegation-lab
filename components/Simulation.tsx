@@ -30,18 +30,21 @@ export function Simulation() {
   // 1. Fetch invoices (Claude with fallback)
   useEffect(() => {
     let cancelled = false;
-    // Show fallback first to keep the screen alive even if Claude is slow
+    const t0 = Date.now();
     const seed = fallbackBatchForScenario(state.scenario, state.round);
     setInvoices(seed);
     fetchScenario(state.round, state.scenario).then((batch) => {
       if (cancelled) return;
-      // Only swap if we actually got something different
-      if (batch && batch.length > 0) setInvoices(batch);
+      // Only swap if Claude responded before the simulation started streaming
+      // (~1.5s). After that the player is watching cards animate in — don't reset.
+      if (batch && batch.length > 0 && Date.now() - t0 < 1500) {
+        setInvoices(batch);
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [state.round]);
+  }, [state.round, state.scenario]);
 
   // 2. Run routing once invoices are settled
   useEffect(() => {
