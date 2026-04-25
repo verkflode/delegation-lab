@@ -67,7 +67,7 @@ function reducer(state: GameState, action: Action): GameState {
     case "set_profile":
       return { ...state, profile: action.profile };
     case "reset":
-      return initialState;
+      return { ...initialState, scenario: state.scenario };
     default:
       return state;
   }

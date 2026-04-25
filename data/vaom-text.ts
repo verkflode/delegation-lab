@@ -246,35 +246,35 @@ export const ARCHETYPE_DETAILS: Record<
   cautious_architect: {
     name: "The Cautious Architect",
     quote:
-      "You over-indexed on safety and under-indexed on flow. Every invoice got its day in court.",
+      "You over-indexed on safety and under-indexed on flow. Every item got its day in court.",
     assessment:
-      "You routed conservatively across the board. Hazards rarely slipped, but humans absorbed work the system was designed to spare them. To go live, calibrate thresholds against your actual historical false-positive rate and trust the patterns where the decomposition profile says you should.\n\nYour next move is differentiation. Execute & Audit exists for a reason — use it where reversibility, consequence scope, and accountability all support it. Save Prepare & Present for the cases that genuinely demand human judgment.",
+      "You routed conservatively across the board. Hazards rarely slipped, but humans absorbed work the system was designed to spare them. To go live, calibrate thresholds against your actual historical false-positive rate and trust the patterns where the decomposition profile says you should.\n\nYour next move is differentiation. Execute & Audit exists for a reason — use it where reversibility, consequence scope, and accountability all support it. Save Prepare & Present for the decisions that genuinely demand human judgment.",
   },
   speed_optimizer: {
     name: "The Speed Optimizer",
     quote:
       "Fast, fluid, and missing the controls that make speed defensible. Auditors will have questions.",
     assessment:
-      "You moved volume. Standard invoices cleared in seconds and your humans were not flooded. The problem is the hazards: contractual modifications, unverified vendors, and split-document patterns all benefited from the same low threshold. To go live, raise the floor for non-standard categories and pull modified-terms decisions out of the auto-approve band entirely.\n\nTreat efficiency as a constraint, not the goal. The Delegation Gap closes when speed is bounded by explicit authority — not when speed is the optimization function.",
+      "You moved volume. Routine items cleared in seconds and your humans were not flooded. The problem is the hazards: high-consequence decisions, unverified sources, and multi-item patterns all benefited from the same low threshold. To go live, raise the floor for non-routine categories and pull non-delegable decisions out of the auto-approve band entirely.\n\nTreat efficiency as a constraint, not the goal. The Delegation Gap closes when speed is bounded by explicit authority — not when speed is the optimization function.",
   },
   compliance_hawk: {
     name: "The Compliance Hawk",
     quote:
       "Audit-ready and pattern-precise. Slow in the throughput numbers, but the regulator would shake your hand.",
     assessment:
-      "Your evidence posture and pattern selection are strong. The drift response was sound, the escalation gap was closed, and the audit request would have been answerable. The trade-off is throughput: standard invoices that could have auto-approved sat in review queues longer than they needed to.\n\nTo move toward Balanced Operator, identify the categories where Execute & Audit is genuinely safe and let them flow. Your governance instincts are good — give yourself permission to delegate where the decomposition supports it.",
+      "Your evidence posture and pattern selection are strong. The drift response was sound, the escalation gap was closed, and the audit request would have been answerable. The trade-off is throughput: routine items that could have auto-processed sat in review queues longer than they needed to.\n\nTo move toward Balanced Operator, identify the categories where Execute & Audit is genuinely safe and let them flow. Your governance instincts are good — give yourself permission to delegate where the decomposition supports it.",
   },
   balanced_operator: {
     name: "The Balanced Operator",
     quote:
       "Differentiated patterns, reasonable thresholds, and a delegation design that adapts. A few edge cases got through, but the fundamentals are sound.",
     assessment:
-      "You separated decision types, picked appropriate patterns for most of them, and responded constructively when the system changed. This is what controlled delegation looks like in practice — not perfect, but defensible end-to-end.\n\nThe gap between you and Delegation Natural is tightness on the edge cases: the split-invoice scenario, the modified-terms auto-approve, the pattern mismatches. Tighten those and you have a production-ready delegation policy.",
+      "You separated decision types, picked appropriate patterns for most of them, and responded constructively when the system changed. This is what controlled delegation looks like in practice — not perfect, but defensible end-to-end.\n\nThe gap between you and Delegation Natural is tightness on the edge cases: the paired-item scenario, the non-delegable auto-approve, the pattern mismatches. Tighten those and you have a production-ready delegation policy.",
   },
   delegation_natural: {
     name: "The Delegation Natural",
     quote:
-      "Pattern selection nailed, the Friday afternoon scenario caught, drift handled, audit answerable. Rare.",
+      "Pattern selection nailed, the hidden hazard caught, drift handled, audit answerable. Rare.",
     assessment:
       "You read the decomposition profiles, you assigned patterns that matched them, you ran regression tests before trusting the new model, and you produced evidence the auditor could actually use. There is nothing structurally to fix.\n\nIf you took this policy to production tomorrow, the work that remains is calibration against real volumes — not redesign. That is the difference between someone who has read the framework and someone who has internalized it.",
   },
@@ -316,7 +316,7 @@ export const PRE_EVENTS = {
   },
   audit: {
     title: "Regulator audit request",
-    body: "A regulator has requested decision evidence for fifty automated invoice approvals from Q1. They want the inputs, the confidence scores, the policy version, and the named accountable human for each one.",
+    body: "A regulator has requested decision evidence for fifty automated decisions from Q1. They want the inputs, the confidence scores, the policy version, and the named accountable human for each one.",
     options: [
       {
         id: "full",
@@ -340,7 +340,7 @@ export const PRE_EVENTS = {
   },
   escalation: {
     title: "Undefined escalation path",
-    body: "An invoice was auto-approved last week that should have been escalated. The escalation path for that category was never defined.",
+    body: "An item was auto-processed last week that should have been escalated. The escalation path for that category was never defined.",
     options: [
       {
         id: "define_path",

@@ -19,7 +19,7 @@ const MODEL = "claude-sonnet-4-5";
 
 const VAOM_SYSTEM = `You are VAOM — the Verkflöde Agent Operating Model, speaking as a sentient system. You observe delegation configurations, analyze outcomes, and teach through precise, specific feedback.
 
-Your voice: calm, precise, slightly dry. Not a cheerleader. You are a senior risk officer who has seen every delegation failure mode and genuinely wants the player to learn. You reference specific invoice IDs, confidence scores, and outcomes from the simulation. You never speak in generalities when you have specifics.
+Your voice: calm, precise, slightly dry. Not a cheerleader. You are a senior risk officer who has seen every delegation failure mode and genuinely wants the player to learn. You reference specific item IDs, confidence scores, and outcomes from the simulation. You never speak in generalities when you have specifics.
 
 Your teaching method: show the consequence first, then name the VAOM concept it illustrates. Never lecture before the player has experienced the problem. Do not use emoji. Do not use bullet lists in narration.
 
@@ -60,14 +60,15 @@ function rateLimited(req: Request): boolean {
 // ────────────────────────────────────────────────────────────────────────────
 
 type Payload =
-  | { kind: "briefing"; round: 1 | 2 | 3 }
-  | { kind: "scenario"; round: 1 | 2 | 3 }
+  | { kind: "briefing"; round: 1 | 2 | 3; scenario?: string }
+  | { kind: "scenario"; round: 1 | 2 | 3; scenario?: string }
   | {
       kind: "debrief";
       round: 1 | 2 | 3;
       score: Record<string, number>;
       policy: unknown;
       processed: unknown[];
+      scenario?: string;
     }
   | {
       kind: "profile";
@@ -100,7 +101,7 @@ export async function POST(req: Request) {
       case "briefing":
         return await briefingResponse(client, body.round);
       case "scenario":
-        return await scenarioResponse(client, body.round);
+        return await scenarioResponse(client, body.round, body.scenario);
       case "debrief":
         return await debriefResponse(client, body);
       case "profile":
@@ -150,30 +151,33 @@ Three short paragraphs. Frame this as the audit round — testing whether the de
 // Scenario generation
 // ────────────────────────────────────────────────────────────────────────────
 
-async function scenarioResponse(client: Anthropic, round: 1 | 2 | 3) {
+const SCENARIO_PROMPT_META: Record<string, { domain: string; prefix: string; sourceNoun: string; itemNoun: string; types: string; hazards: string }> = {
+  invoice_processing: { domain: "accounts payable at a European financial services firm", prefix: "INV", sourceNoun: "vendor (European company name)", itemNoun: "invoice", types: '"standard", "high_value", "duplicate", "modified_terms", "new_vendor", "split_invoice"', hazards: "modified payment terms, unverified vendors, split-invoice threshold evasion" },
+  customer_complaints: { domain: "retail banking customer complaint handling", prefix: "COMP", sourceNoun: "customer (European person name)", itemNoun: "complaint", types: '"complaint_classification", "response_generation", "regulatory_reporting", "compensation_authorization", "escalation_to_ombudsman"', hazards: "hidden regulatory reporting obligations, ombudsman escalation triggers, vulnerable customer indicators, systemic issue patterns" },
+  aml_triage: { domain: "transaction monitoring at a European bank", prefix: "ALR", sourceNoun: "system (monitoring system or account holder name)", itemNoun: "alert", types: '"alert_classification", "auto_dismissal", "investigation_escalation", "sar_preparation", "cross_border_coordination"', hazards: "cross-border shell company patterns, structuring below reporting thresholds, SAR filing deadlines, known typology matches" },
+  hr_investigation: { domain: "HR policy violation assessment", prefix: "HR", sourceNoun: "employee (European person name)", itemNoun: "case", types: '"hr_complaint_classification", "evidence_assessment", "witness_interview_prep", "outcome_recommendation", "disciplinary_action"', hazards: "C-suite executive involvement, pattern-not-isolated evidence, conflict of interest, non-delegable outcome decisions, media sensitivity" },
+};
+
+async function scenarioResponse(client: Anthropic, round: 1 | 2 | 3, scenario?: string) {
   const counts = { 1: 8, 2: 12, 3: 15 } as const;
   const idStart = round === 1 ? 1001 : round === 2 ? 2001 : 3001;
-  const roundContext: Record<1 | 2 | 3, string> = {
-    1: "Round 1: player has only a single global confidence threshold. Mostly routine invoices with one or two hidden hazards (modified payment terms or unverified vendor) that confidence alone cannot catch.",
-    2: "Round 2: player can assign delegation patterns + per-type thresholds across five decision types. Include the full mix: standard, high-value, duplicate detection anomaly, modified payment terms, new vendor.",
-    3: "Round 3: model drift is in effect. Include two split-invoice scenarios (same vendor, same day, individually under €5k but jointly over) and one invoice that tests the escalation gap.",
-  };
-  const prompt = `Generate ${counts[round]} realistic vendor invoices for Round ${round} of a delegation simulation game set in a European financial services firm's accounts payable department.
+  const meta = SCENARIO_PROMPT_META[scenario ?? "invoice_processing"];
+  const prompt = `Generate ${counts[round]} realistic ${meta.itemNoun}s for Round ${round} of a delegation simulation game set in ${meta.domain}.
 
-Round context: ${roundContext[round]}
+Round context: Round ${round}. ${round === 1 ? `Player has only a single global confidence threshold. Mostly routine ${meta.itemNoun}s with 2-3 hidden hazards (${meta.hazards}) that confidence alone cannot catch.` : round === 2 ? `Player can assign delegation patterns + per-type thresholds. Include the full mix of decision types. Include a "Friday afternoon" trap — an item that looks routine but carries a hidden authority signal.` : `Model drift is in effect. Include a multi-agent coordination scenario (two related items that individually look fine but together reveal a problem) and one item that tests an undefined escalation path.`}
 
-For each invoice, return JSON with these keys:
-- id: sequential string starting from "INV-${idStart}"
-- vendor: realistic European company name
-- amount: number, EUR (standard 200-4800; high_value 5001-50000)
-- type: one of "standard", "high_value", "duplicate", "modified_terms", "new_vendor", "split_invoice"
-- po_match: "yes", "no", or "partial"
+For each ${meta.itemNoun}, return JSON with these keys:
+- id: sequential string starting from "${meta.prefix}-${idStart}"
+- vendor: ${meta.sourceNoun}
+- amount: number (monetary value if applicable, 0 if not)
+- type: one of [${meta.types}]
+- po_match: "yes" (clear precedent), "no" (no precedent), or "partial" (ambiguous)
 - confidence_dimensions: object with model_certainty, rule_match, data_completeness, anomaly_signal — each 0.0 to 1.0
-- hidden_flags: array of strings (e.g. ["modified_terms_net15"], or [] if routine)
+- hidden_flags: array of strings (e.g. flags describing what makes this item hazardous, or [] if routine)
 - description: one sentence
-- teaching_point: which VAOM concept this invoice tests
+- teaching_point: which VAOM concept this ${meta.itemNoun} tests
 
-Design 60-70% routine and 30-40% configuration-test invoices. At least one should exploit a specific weakness in a naive policy.
+Design 60-70% routine and 30-40% that test configuration gaps. At least one should exploit a specific weakness in a naive policy.
 
 Return ONLY a JSON object with one key "invoices" whose value is the array. No preamble, no markdown.`;
 
@@ -197,15 +201,18 @@ async function debriefResponse(
   client: Anthropic,
   body: Extract<Payload, { kind: "debrief" }>
 ) {
+  const scenarioDomain = body.scenario ? (SCENARIO_PROMPT_META[body.scenario]?.domain ?? "enterprise workflow") : "enterprise workflow";
+  const itemNoun = body.scenario ? (SCENARIO_PROMPT_META[body.scenario]?.itemNoun ?? "item") : "item";
   const prompt = `You just observed a player configure and run Round ${body.round} of the Delegation Lab.
 
+Scenario domain: ${scenarioDomain}
 Their policy: ${JSON.stringify(body.policy)}
 Round score (each /25): ${JSON.stringify(body.score)}
-Processed invoices: ${JSON.stringify(body.processed)}
+Processed items: ${JSON.stringify(body.processed)}
 
-Deliver a debrief in your voice. Calm, precise, slightly dry. Four short paragraphs.
+Deliver a debrief in your voice. Calm, precise, slightly dry. Four short paragraphs. Use "${itemNoun}" (not "invoice") when referring to items in this scenario.
 
-Paragraph 1: What happened. Be specific. Reference invoice IDs, amounts, confidence scores, and outcomes.
+Paragraph 1: What happened. Be specific. Reference item IDs, amounts/details, confidence scores, and outcomes.
 Paragraph 2: What they missed or got right. Reference specific delegation patterns and authority decomposition dimensions where relevant.
 Paragraph 3: Name the VAOM principle this round taught — explicitly. The Delegation Gap, "confidence informs authority," readiness conditions, etc.
 Paragraph 4: One sentence of foreshadowing for the next round, OR (if Round 3) a single sentence transitioning to the final assessment.
