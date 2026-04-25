@@ -27,23 +27,13 @@ export function Simulation() {
   const [done, setDone] = useState(false);
   const recordedRef = useRef(false);
 
-  // 1. Fetch invoices (Claude with fallback)
+  // 1. Use fallback batch. Claude is too slow to swap mid-animation,
+  // so we don't try. The fallback batches are scenario-specific and
+  // well-crafted — they ARE the game content. Claude enrichment happens
+  // in the briefings and debriefs where text can stream, not here where
+  // cards are already animating.
   useEffect(() => {
-    let cancelled = false;
-    const t0 = Date.now();
-    const seed = fallbackBatchForScenario(state.scenario, state.round);
-    setInvoices(seed);
-    fetchScenario(state.round, state.scenario).then((batch) => {
-      if (cancelled) return;
-      // Only swap if Claude responded before the simulation started streaming
-      // (~1.5s). After that the player is watching cards animate in — don't reset.
-      if (batch && batch.length > 0 && Date.now() - t0 < 1500) {
-        setInvoices(batch);
-      }
-    });
-    return () => {
-      cancelled = true;
-    };
+    setInvoices(fallbackBatchForScenario(state.scenario, state.round));
   }, [state.round, state.scenario]);
 
   // 2. Run routing once invoices are settled
