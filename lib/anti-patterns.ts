@@ -35,7 +35,12 @@ export const ANTI_PATTERN_DEFS: Record<
   dimension_collapse: {
     label: "The Dimension Collapse",
     description:
-      "The composite score effectively equals a single dimension — the other three are along for the ride.",
+      "The composite score effectively equals a single dimension — the other four are along for the ride.",
+  },
+  verification_theater: {
+    label: "Verification Theater",
+    description:
+      "The verifier agrees with the proposer on everything. A verifier that cannot fail is not a dimension — it is a rubber stamp with extra latency.",
   },
 };
 
@@ -55,6 +60,11 @@ export const MULTI_AGENT_FAILURE_DEFS: Record<
     label: "Coordination state loss",
     description: "Handoffs lost context — downstream agents acted on incomplete information.",
   },
+  delegation_laundering: {
+    label: "Delegation laundering",
+    description:
+      "A decision blocked under one agent's boundaries was routed through a looser-bounded agent and emerged executed. No agent broke its own rules; the constraint was defeated anyway.",
+  },
 };
 
 /**
@@ -66,10 +76,26 @@ export function detectAntiPatterns(
   processed: ProcessedInvoice[],
   round: RoundNumber,
   weights?: DimensionWeights,
-  priorAutoRate?: number
+  priorAutoRate?: number,
+  verificationDepth?: string
 ): DetectedAntiPattern[] {
   if (processed.length < 3) return [];
   const detected: DetectedAntiPattern[] = [];
+
+  // Verification Theater (v4.0): shallow verification approves everything.
+  // If the player weighted it while it checks nothing, the composite is
+  // inflated by an always-green signal.
+  if (
+    verificationDepth === "shallow" &&
+    weights &&
+    weights.verification >= 0.1
+  ) {
+    detected.push({
+      id: "verification_theater",
+      round,
+      detail: `Verifier disagreement rate: ~0%. Shallow verification approved every proposal it saw, while carrying ${Math.round(weights.verification * 100)}% of the composite weight.`,
+    });
+  }
 
   // Review Queue Flood: >60% route to Band B
   const reviewCount = processed.filter(
@@ -102,6 +128,7 @@ export function detectAntiPatterns(
       "ruleMatch",
       "dataCompleteness",
       "anomalySignal",
+      "verification",
     ];
     for (const dim of dims) {
       if (weights[dim] > 0.6) {

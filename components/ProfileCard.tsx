@@ -38,7 +38,7 @@ export function ProfileCard({
               Delegation Lab
             </div>
             <div className="font-mono text-[10px] text-muted-2 mt-0.5">
-              VAOM v3.0
+              VAOM v4.0
             </div>
           </div>
         </div>
@@ -70,11 +70,12 @@ export function ProfileCard({
       </blockquote>
 
       {/* Score breakdown */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
         <Stat label="Efficiency" value={totals.efficiency} tone="cyan" />
-        <Stat label="Risk control" value={totals.riskControl} tone="mint" />
-        <Stat label="Compliance" value={totals.compliance} tone="amber" />
+        <Stat label="Risk control" value={totals.riskControl} tone="green" />
+        <Stat label="Compliance" value={totals.compliance} tone="sky" />
         <Stat label="Adaptability" value={totals.adaptability} tone="lav" />
+        <Stat label="Enforcement" value={totals.enforcement ?? 0} tone="mint" />
       </div>
 
       {/* Footer URL */}
@@ -106,12 +107,13 @@ function Stat({
 }: {
   label: string;
   value: number;
-  tone: "cyan" | "mint" | "amber" | "lav";
+  tone: "cyan" | "mint" | "green" | "sky" | "lav";
 }) {
   const tones: Record<string, { text: string; bar: string }> = {
     cyan: { text: "text-cyan", bar: "from-cyan to-cyan/40" },
     mint: { text: "text-mint", bar: "from-mint to-mint/40" },
-    amber: { text: "text-amber", bar: "from-amber to-amber/40" },
+    green: { text: "text-green-bright", bar: "from-green-bright to-green-bright/40" },
+    sky: { text: "text-sky", bar: "from-sky to-sky/40" },
     lav: { text: "text-lav", bar: "from-lav to-lav/40" },
   };
   return (
@@ -121,12 +123,12 @@ function Stat({
       </div>
       <div className={`font-sans text-[18px] font-bold mt-0.5 tabular-nums ${tones[tone].text}`}>
         {value}
-        <span className="text-muted-2 text-[11px]">/25</span>
+        <span className="text-muted-2 text-[11px]">/20</span>
       </div>
       <div className="h-1 mt-1 rounded-full bg-white/5 overflow-hidden">
         <div
           className={`h-full bg-gradient-to-r ${tones[tone].bar}`}
-          style={{ width: `${(value / 25) * 100}%` }}
+          style={{ width: `${(value / 20) * 100}%` }}
         />
       </div>
     </div>

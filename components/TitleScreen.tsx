@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Cpu, FileText, Lock, ShieldCheck, Users, Workflow } from "lucide-react";
+import { ArrowRight, Cpu, FileText, Lock, Moon, ShieldCheck, Users, Workflow } from "lucide-react";
 import { VerkflodeLogo } from "./VerkflodeLogo";
 import { useGame } from "../lib/game-state";
 import type { ScenarioDomain } from "../lib/types";
@@ -38,7 +38,7 @@ export function TitleScreen() {
               An Open Framework Simulation
             </div>
             <div className="font-sans text-[13px] text-muted mt-0.5">
-              Verkflöde Agent Operating Model · v3.5
+              Verkflöde Agent Operating Model · v4.0
             </div>
           </div>
         </div>
@@ -55,15 +55,15 @@ export function TitleScreen() {
               for AI governance.
             </h1>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl mb-3">
-              You are the new Head of AI Operations at a European financial services firm. The board has approved AI for accounts payable. Your job: design the delegation policy, run the simulation, and live with the consequences.
+              You are the new Head of AI Operations at a European enterprise. The board has approved AI agents for a live workflow. Your job: design the delegation policy, compile it into enforcement, run the simulation — and live with the consequences.
             </p>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl">
-              Three rounds. Five to seven minutes. One delegation philosophy.
+              Four rounds. Seven to nine minutes. One delegation philosophy — tested at 2 a.m.
             </p>
 
             <button
               onClick={handleStart}
-              className="mt-10 group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-amber to-amber/80 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[12px] px-7 py-4 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(232,185,49,0.35)] transition-all focus-ring"
+              className="cta mt-10 group inline-flex items-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[12px] px-7 py-4 focus-ring"
             >
               Start the campaign
               <ArrowRight
@@ -83,9 +83,15 @@ export function TitleScreen() {
                 EU data residency
               </span>
               <span className="rounded-full border border-white/8 bg-white/3 px-3 py-1">
-                ~6 minutes
+                ~8 minutes
               </span>
             </div>
+
+            <p className="mt-4 font-mono text-[10px] text-muted-2 leading-relaxed max-w-xl">
+              Built by Claude Fable 5 under Verkflöde direction, using the
+              Draft &amp; Approve pattern this game teaches. VAOM&apos;s voice is
+              generated live by Claude.
+            </p>
           </div>
 
           <div className="space-y-5">
@@ -102,18 +108,18 @@ export function TitleScreen() {
                     onClick={() => sc.available && setSelectedScenario(sc.id)}
                     className={`text-left rounded-2xl px-4 py-3 transition focus-ring ${
                       selectedScenario === sc.id && sc.available
-                        ? "border-2 border-amber bg-[rgba(232,185,49,0.12)]"
+                        ? "border-2 border-cyan bg-[rgba(98,182,203,0.10)]"
                         : sc.available
                           ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)]"
                           : "border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] opacity-40 cursor-not-allowed"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <span className={selectedScenario === sc.id ? "text-amber" : "text-cyan"}>{sc.icon}</span>
+                      <span className="text-cyan">{sc.icon}</span>
                       <span className="font-mono text-[12px] font-bold text-ink">{sc.label}</span>
                       {!sc.available && <Lock size={10} className="text-muted-2 ml-auto" />}
                       {sc.available && selectedScenario === sc.id && (
-                        <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-amber">Selected</span>
+                        <span className="ml-auto font-mono text-[9px] uppercase tracking-wider text-mint">Selected</span>
                       )}
                     </div>
                     <div className="text-[11px] text-muted leading-snug mt-1">{sc.sub}</div>
@@ -125,7 +131,7 @@ export function TitleScreen() {
             {/* Round preview cards */}
             <div className="space-y-2">
               <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-1">
-                Three rounds
+                Four rounds
               </div>
               <RoundPreview
                 icon={<Workflow size={16} />}
@@ -139,14 +145,21 @@ export function TitleScreen() {
                 num={2}
                 title="The Edge Cases"
                 concept="Delegation Patterns"
-                line="A threshold is not a policy. Assign patterns and calibrate weights."
+                line="A threshold is not a policy. Assign patterns, calibrate five signals."
               />
               <RoundPreview
                 icon={<ShieldCheck size={16} />}
                 num={3}
                 title="The Audit"
                 concept="Readiness Assessment"
-                line="Drift, multi-agent failures, and the regulator. Be ready."
+                line="Drift, evidence, and the regulator. Be ready."
+              />
+              <RoundPreview
+                icon={<Moon size={16} />}
+                num={4}
+                title="The 2 A.M. Test"
+                concept="Enforcement"
+                line="Sub-agents spawn. Something probes your boundaries. You are asleep."
               />
             </div>
           </div>
@@ -180,7 +193,7 @@ function RoundPreview({
         <span className="text-mint">{concept}</span>
       </div>
       <div className="mt-2 flex items-start gap-3">
-        <div className="text-amber mt-0.5">{icon}</div>
+        <div className="text-mint mt-0.5">{icon}</div>
         <div>
           <div className="font-mono text-[14px] font-bold text-ink">{title}</div>
           <div className="text-[12.5px] text-muted leading-snug mt-1">{line}</div>

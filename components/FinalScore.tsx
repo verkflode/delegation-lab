@@ -12,10 +12,12 @@ import {
 import { useGame } from "../lib/game-state";
 import { totalScore, totalNumeric } from "../lib/scoring";
 import { ARCHETYPE_DETAILS, chooseArchetype } from "../data/vaom-text";
+import { computeScorecard } from "../lib/scorecard";
 import { fetchProfile } from "../lib/api";
 import { ProfileCard } from "./ProfileCard";
 import { VAOMVoice } from "./VAOMVoice";
 import { ScoreBar } from "./Debrief";
+import { Scorecard } from "./Scorecard";
 
 /**
  * Final dashboard + shareable profile card. Tries to fetch a Claude-generated
@@ -71,9 +73,9 @@ export function FinalScore() {
         <h1 className="font-mono text-[32px] md:text-[44px] font-bold leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-mint via-cyan to-mint mb-2">
           Your delegation philosophy.
         </h1>
-        <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-amber mb-8">
+        <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-mint mb-8">
           <Sparkles size={14} />
-          <span className="font-sans tabular-nums">{totalN}</span> of 100 across three rounds
+          <span className="font-sans tabular-nums">{totalN}</span> of 100 across four rounds
         </div>
 
         {/* Profile card — shareable */}
@@ -83,6 +85,17 @@ export function FinalScore() {
           totals={totals}
           totalN={totalN}
         />
+
+        {/* The Delegation Scorecard (v4.0) */}
+        <div className="mt-8">
+          <Scorecard
+            metrics={computeScorecard({
+              results: state.results,
+              r2: state.r2,
+              r4: state.r4,
+            })}
+          />
+        </div>
 
         {/* VAOM final assessment */}
         <div className="mt-8">
@@ -98,7 +111,7 @@ export function FinalScore() {
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold mb-3">
             Per-round breakdown
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
             {state.results.map((r) => (
               <div key={r.round}>
                 <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold mb-2 px-1">
@@ -126,7 +139,7 @@ export function FinalScore() {
               href="https://verkflode.com/vaom"
               icon={<ArrowRight size={14} />}
               label="Download the whitepaper"
-              sub="VAOM v3.0 · PDF"
+              sub="VAOM v4.0 · PDF"
             />
             <CTA
               href="mailto:hello@verkflode.com"

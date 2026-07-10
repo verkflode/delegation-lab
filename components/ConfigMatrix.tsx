@@ -1,13 +1,42 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2 } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import { useGame } from "../lib/game-state";
 import { PATTERNS } from "../lib/patterns";
 import { SCENARIOS } from "../data/scenarios";
-import type { DecisionType, DelegationPattern, DimensionWeights, R2Policy } from "../lib/types";
+import type {
+  DecisionType,
+  DelegationPattern,
+  DimensionWeights,
+  R2Policy,
+  VerificationDepth,
+} from "../lib/types";
 import { DEFAULT_WEIGHTS } from "../lib/types";
 import { DecompositionRadar } from "./DecompositionRadar";
+
+const VERIFICATION_DEPTHS: {
+  id: VerificationDepth;
+  label: string;
+  sub: string;
+}[] = [
+  { id: "off", label: "Off", sub: "Four dimensions only. Free." },
+  {
+    id: "shallow",
+    label: "Shallow",
+    sub: "Format checks. Fast — and it approves everything.",
+  },
+  {
+    id: "preconditions",
+    label: "Preconditions",
+    sub: "Validates rule-level facts before execution. Small latency cost.",
+  },
+  {
+    id: "dry_run",
+    label: "Dry run",
+    sub: "Simulates the action, checks postconditions. Catches most — costs throughput.",
+  },
+];
 
 /**
  * Round 2 configuration: assign delegation patterns + thresholds per
@@ -23,6 +52,8 @@ export function ConfigMatrix() {
 
   const [selected, setSelected] = useState<DecisionType>(assignableTypes[0]);
   const [weights, setWeights] = useState<DimensionWeights>({ ...DEFAULT_WEIGHTS });
+  const [verificationDepth, setVerificationDepth] =
+    useState<VerificationDepth>("off");
 
   // Build default policy from scenario's recommended patterns
   const [policy, setPolicy] = useState<R2Policy>(() => {
@@ -84,7 +115,7 @@ export function ConfigMatrix() {
   const dimensionCollapseWarning = Object.values(weights).some((w) => w > 0.6);
 
   const handleStart = () => {
-    setR2({ ...policy, weights });
+    setR2({ ...policy, weights, verificationDepth });
     advance("simulation");
   };
 
@@ -154,7 +185,7 @@ export function ConfigMatrix() {
                   {meta.blurb}
                 </p>
               </div>
-              <DecompositionRadar profile={meta.decomposition} size={200} />
+              <DecompositionRadar profile={meta.decomposition} size={248} />
             </div>
 
             {/* Pattern picker */}
@@ -172,7 +203,7 @@ export function ConfigMatrix() {
                       onClick={() => setPattern(selected, p)}
                       className={`text-left rounded-xl px-4 py-3 border transition focus-ring ${
                         active
-                          ? "border-amber/60 bg-amber/8"
+                          ? "border-cyan/60 bg-cyan/8"
                           : "border-white/10 bg-white/3 hover:border-white/25"
                       }`}
                     >
@@ -194,7 +225,7 @@ export function ConfigMatrix() {
                 <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan font-bold">
                   Confidence threshold for this type
                 </div>
-                <div className="font-sans text-[20px] font-bold text-amber tabular-nums">
+                <div className="font-sans text-[20px] font-bold text-cyan tabular-nums">
                   {current?.threshold ?? 85}%
                 </div>
               </div>
@@ -205,7 +236,7 @@ export function ConfigMatrix() {
                 step={1}
                 value={current?.threshold ?? 85}
                 onChange={(e) => setThreshold(selected, parseInt(e.target.value, 10))}
-                className="w-full accent-amber cursor-pointer"
+                className="w-full accent-cyan cursor-pointer"
               />
             </div>
           </div>
@@ -217,43 +248,80 @@ export function ConfigMatrix() {
             Composite confidence weights
           </div>
           <p className="text-[12px] text-muted leading-snug max-w-2xl mb-4">
-            How much does each dimension contribute to the composite score? Adjust to match this scenario's risk profile. Weights must sum to 100%.
+            How much does each dimension contribute to the composite score? Adjust to match this scenario&apos;s risk profile. Weights must sum to 100%.
           </p>
           {dimensionCollapseWarning && (
             <div className="rounded-lg border border-amber/40 bg-amber/8 px-3 py-2 mb-4 font-mono text-[10px] text-amber">
               Dimension Collapse risk — one dimension dominates the composite score.
             </div>
           )}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             {(
               [
                 { key: "modelCertainty", label: "Model certainty" },
                 { key: "ruleMatch", label: "Rule match" },
                 { key: "dataCompleteness", label: "Data completeness" },
                 { key: "anomalySignal", label: "Anomaly signals" },
+                { key: "verification", label: "Ind. verification" },
               ] as const
-            ).map((dim) => (
-              <div key={dim.key}>
-                <div className="flex items-baseline justify-between mb-1">
-                  <div className="font-mono text-[9px] text-muted-2 uppercase tracking-[0.12em]">
-                    {dim.label}
+            ).map((dim) => {
+              const verificationOff =
+                dim.key === "verification" && verificationDepth === "off";
+              return (
+                <div key={dim.key} className={verificationOff ? "opacity-40" : ""}>
+                  <div className="flex items-baseline justify-between mb-1">
+                    <div className="font-mono text-[10px] text-muted-2 uppercase tracking-[0.1em]">
+                      {dim.label}
+                    </div>
+                    <div className="font-sans text-[14px] font-bold text-ink tabular-nums">
+                      {verificationOff ? "—" : `${Math.round(weights[dim.key] * 100)}%`}
+                    </div>
                   </div>
-                  <div className="font-sans text-[14px] font-bold text-ink tabular-nums">
-                    {Math.round(weights[dim.key] * 100)}%
-                  </div>
+                  <input
+                    type="range"
+                    min={5}
+                    max={80}
+                    step={1}
+                    disabled={verificationOff}
+                    value={Math.round(weights[dim.key] * 100)}
+                    onChange={(e) =>
+                      adjustWeight(dim.key, parseInt(e.target.value, 10) / 100)
+                    }
+                    className="w-full accent-cyan cursor-pointer disabled:cursor-not-allowed"
+                  />
                 </div>
-                <input
-                  type="range"
-                  min={5}
-                  max={80}
-                  step={1}
-                  value={Math.round(weights[dim.key] * 100)}
-                  onChange={(e) =>
-                    adjustWeight(dim.key, parseInt(e.target.value, 10) / 100)
-                  }
-                  className="w-full accent-cyan cursor-pointer"
-                />
-              </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Independent verification depth (v4.0) */}
+        <div className="surface-strong px-6 py-5 mt-6">
+          <div className="flex items-center gap-2 mb-1">
+            <ShieldCheck size={13} className="text-cyan" />
+            <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan font-bold">
+              Independent verification
+            </div>
+          </div>
+          <p className="text-[12px] text-muted leading-snug max-w-2xl mb-4">
+            A verifier distinct from the proposer — checking the decision before it
+            executes. The best-calibrated signal you have, at a latency cost.
+            A verifier that never disagrees is not a dimension; it is theater.
+          </p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5">
+            {VERIFICATION_DEPTHS.map((d) => (
+              <button
+                key={d.id}
+                onClick={() => setVerificationDepth(d.id)}
+                className={`text-left rounded-xl px-4 py-3 border transition focus-ring ${
+                  verificationDepth === d.id
+                    ? "border-cyan/60 bg-cyan/8"
+                    : "border-white/10 bg-white/3 hover:border-white/25"
+                }`}
+              >
+                <div className="font-mono text-[11.5px] font-bold text-ink">{d.label}</div>
+                <div className="text-[10.5px] text-muted leading-snug mt-1">{d.sub}</div>
+              </button>
             ))}
           </div>
         </div>
@@ -267,7 +335,7 @@ export function ConfigMatrix() {
           <button
             onClick={handleStart}
             disabled={!allConfigured}
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-amber to-amber/80 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(232,185,49,0.35)] transition-all focus-ring disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 disabled:hover:shadow-none"
+            className="cta group inline-flex items-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 focus-ring"
           >
             Run simulation
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

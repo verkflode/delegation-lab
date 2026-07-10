@@ -6,6 +6,7 @@ import { Briefing } from "../components/Briefing";
 import { ConfigBasic } from "../components/ConfigBasic";
 import { ConfigMatrix } from "../components/ConfigMatrix";
 import { ConfigAudit } from "../components/ConfigAudit";
+import { ConfigSwarm } from "../components/ConfigSwarm";
 import { Simulation } from "../components/Simulation";
 import { Debrief } from "../components/Debrief";
 import { FinalScore } from "../components/FinalScore";
@@ -37,7 +38,9 @@ function Screen({ phase, round }: { phase: string; round: number }) {
     case "briefing":
       return <Briefing />;
     case "config":
-      return round === 1 ? <ConfigBasic /> : <ConfigMatrix key={phase + round} />;
+      if (round === 1) return <ConfigBasic />;
+      if (round === 4) return <ConfigSwarm />;
+      return <ConfigMatrix key={phase + round} />;
     case "preEvents":
       return <ConfigAudit />;
     case "simulation":

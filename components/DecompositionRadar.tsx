@@ -14,15 +14,14 @@ import type { DecompositionProfile } from "../lib/types";
  * dimension is dragging the whole profile down.
  */
 
-// Short labels — long names like "Accountability" / "Confidence" don't fit
-// inside the SVG without clipping, so we use abbreviations the player can
-// still read at a glance.
+// v4: full-word labels — the radar is the Round 2 teaching instrument, and
+// a label the player cannot read teaches nothing.
 const DIMENSIONS = [
-  { key: "reversibility", label: "REVERSE" },
+  { key: "reversibility", label: "REVERSIBILITY" },
   { key: "consequenceScope", label: "SCOPE" },
-  { key: "regulatoryExposure", label: "REGUL." },
-  { key: "confidenceMeasurability", label: "CONFID." },
-  { key: "accountabilityClarity", label: "OWNER" },
+  { key: "regulatoryExposure", label: "REGULATORY" },
+  { key: "confidenceMeasurability", label: "CONFIDENCE" },
+  { key: "accountabilityClarity", label: "OWNERSHIP" },
 ] as const;
 
 const SCORES = {
@@ -144,11 +143,13 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
           />
         );
       })}
-      {/* Labels */}
+      {/* Labels — the weakest axis (the one dragging the profile down) is
+          highlighted: it is usually the reason the recommended pattern is
+          more conservative than the player expects. */}
       {showLabels &&
         DIMENSIONS.map((d, i) => {
           const angle = (Math.PI * 2 * i) / DIMENSIONS.length - Math.PI / 2;
-          const labelR = radius + 14;
+          const labelR = radius + 16;
           const x = cx + Math.cos(angle) * labelR;
           const y = cy + Math.sin(angle) * labelR;
           const anchor =
@@ -157,19 +158,22 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
               : Math.cos(angle) > 0
                 ? "start"
                 : "end";
+          const minValue = Math.min(...values);
+          const isWeakest = values[i] === minValue && minValue < 0.75;
           return (
             <text
               key={d.key}
               x={x}
               y={y}
-              fill="rgba(139,164,184,0.85)"
-              fontSize={8}
+              fill={isWeakest ? "rgb(232,185,49)" : "rgba(158,182,201,0.95)"}
+              fontSize={9}
+              fontWeight={isWeakest ? 700 : 400}
               fontFamily="var(--font-space-mono)"
               textAnchor={anchor}
               dominantBaseline="middle"
-              style={{ textTransform: "uppercase", letterSpacing: "0.1em" }}
+              style={{ textTransform: "uppercase", letterSpacing: "0.06em" }}
             >
-              {d.label}
+              {isWeakest ? `▾ ${d.label}` : d.label}
             </text>
           );
         })}

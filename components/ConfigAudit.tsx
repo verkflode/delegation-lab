@@ -90,7 +90,7 @@ export function ConfigAudit() {
         <div className="mt-8 flex items-center justify-end">
           <button
             onClick={handleStart}
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-amber to-amber/80 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(232,185,49,0.35)] transition-all focus-ring"
+            className="cta group inline-flex items-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 focus-ring"
           >
             Run final simulation
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -145,7 +145,7 @@ function PreEventCard({
               onClick={() => onChange(opt.id)}
               className={`text-left rounded-xl px-3.5 py-3 border transition focus-ring ${
                 active
-                  ? "border-amber/60 bg-amber/8"
+                  ? "border-cyan/60 bg-cyan/8"
                   : "border-white/10 bg-white/3 hover:border-white/25"
               }`}
             >

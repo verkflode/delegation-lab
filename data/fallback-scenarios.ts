@@ -1,6 +1,7 @@
 import { compositeConfidence } from "../lib/scoring";
 import type { Invoice, RoundNumber, ScenarioDomain } from "../lib/types";
 import { fallbackBatch } from "./fallback-rounds";
+import { nightBatch } from "./fallback-night";
 
 /**
  * Fallback item batches for the three non-invoice scenarios:
@@ -1379,6 +1380,9 @@ export function fallbackBatchForScenario(
   scenario: ScenarioDomain,
   round: RoundNumber
 ): Invoice[] {
+  // v4.0: Round 4 night batches are scripted per-scenario in fallback-night.ts
+  if (round === 4) return nightBatch(scenario);
+
   switch (scenario) {
     case "invoice_processing":
       return fallbackBatch(round);

@@ -14,6 +14,7 @@ import type {
   R1Policy,
   R2Policy,
   R3PreEvents,
+  R4Policy,
   RoundNumber,
   RoundResult,
   ScenarioDomain,
@@ -34,6 +35,7 @@ type Action =
   | { type: "set_r1"; policy: R1Policy }
   | { type: "set_r2"; policy: R2Policy }
   | { type: "set_r3"; pre: R3PreEvents }
+  | { type: "set_r4"; policy: R4Policy }
   | { type: "record_result"; result: RoundResult }
   | { type: "set_profile"; profile: FinalProfile }
   | { type: "reset" };
@@ -62,6 +64,8 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, r2: action.policy };
     case "set_r3":
       return { ...state, r3: action.pre };
+    case "set_r4":
+      return { ...state, r4: action.policy };
     case "record_result":
       return { ...state, results: [...state.results, action.result] };
     case "set_profile":
@@ -82,6 +86,7 @@ type GameContextValue = {
   setR1: (policy: R1Policy) => void;
   setR2: (policy: R2Policy) => void;
   setR3: (pre: R3PreEvents) => void;
+  setR4: (policy: R4Policy) => void;
   recordResult: (result: RoundResult) => void;
   setProfile: (profile: FinalProfile) => void;
   reset: () => void;
@@ -102,6 +107,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setR1: (policy) => dispatch({ type: "set_r1", policy }),
       setR2: (policy) => dispatch({ type: "set_r2", policy }),
       setR3: (pre) => dispatch({ type: "set_r3", pre }),
+      setR4: (policy) => dispatch({ type: "set_r4", policy }),
       recordResult: (result) => dispatch({ type: "record_result", result }),
       setProfile: (profile) => dispatch({ type: "set_profile", profile }),
       reset: () => dispatch({ type: "reset" }),

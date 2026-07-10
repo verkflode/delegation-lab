@@ -47,7 +47,7 @@ export function Dashboard({
           label="Hazards caught"
           value={`${hazardsCaught}/${totalHazards}`}
           sub={totalHazards === 0 ? "—" : `${pct(hazardsCaught, totalHazards)}%`}
-          tone={hazardsCaught === totalHazards ? "mint" : "amber"}
+          tone={totalHazards === 0 || hazardsCaught === totalHazards ? "mint" : "red"}
         />
       </div>
 
@@ -86,15 +86,15 @@ function Metric({
     cyan: "text-cyan",
   };
   return (
-    <div className="surface px-3 py-2.5">
-      <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-2">
+    <div className="tile px-3 py-2.5">
+      <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-muted-2">
         {label}
       </div>
       <div className="flex items-baseline gap-2 mt-1">
         <div className={`font-sans text-[20px] font-bold tabular-nums ${tones[tone]}`}>
           {value}
         </div>
-        <div className="font-sans text-[10px] text-muted-2 tabular-nums">{sub}</div>
+        <div className="font-sans text-[11px] text-muted tabular-nums">{sub}</div>
       </div>
     </div>
   );

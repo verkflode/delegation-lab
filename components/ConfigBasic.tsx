@@ -41,9 +41,9 @@ export function ConfigBasic() {
             <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">
               Confidence threshold
             </div>
-            <div className="font-sans text-[44px] font-bold text-amber leading-none tabular-nums">
+            <div className="font-sans text-[44px] font-bold text-cyan leading-none tabular-nums">
               {threshold}
-              <span className="text-[24px] text-amber/60">%</span>
+              <span className="text-[24px] text-cyan/60">%</span>
             </div>
           </div>
           <input
@@ -53,7 +53,7 @@ export function ConfigBasic() {
             step={1}
             value={threshold}
             onChange={(e) => setThreshold(parseInt(e.target.value, 10))}
-            className="w-full accent-amber cursor-pointer"
+            className="w-full accent-cyan cursor-pointer"
             style={{
               background: `linear-gradient(to right, rgba(232,185,49,0.5) 0%, rgba(232,185,49,0.5) ${((threshold - 50) / 49) * 100}%, rgba(255,255,255,0.08) ${((threshold - 50) / 49) * 100}%, rgba(255,255,255,0.08) 100%)`,
             }}
@@ -89,7 +89,7 @@ export function ConfigBasic() {
         <div className="mt-8 flex items-center justify-end">
           <button
             onClick={handleStart}
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-amber to-amber/80 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(232,185,49,0.35)] transition-all focus-ring"
+            className="cta group inline-flex items-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 focus-ring"
           >
             Run simulation
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />

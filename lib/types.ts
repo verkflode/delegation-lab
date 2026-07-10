@@ -5,13 +5,17 @@
  *
  * v3.5: adds scenario domains, composite dimension weights, calibration
  * anti-patterns, and multi-agent failure modes.
+ *
+ * v4.0: adds Round 4 ("The 2 A.M. Test"), the fifth confidence dimension
+ * (independent verification), boundary depths, sub-agent attenuation,
+ * the guardian function, night events, and the Enforcement score dimension.
  */
 
 // ────────────────────────────────────────────────────────────────────────────
 // Game flow
 // ────────────────────────────────────────────────────────────────────────────
 
-export type RoundNumber = 1 | 2 | 3;
+export type RoundNumber = 1 | 2 | 3 | 4;
 
 export type GamePhase =
   | "title"
@@ -112,34 +116,49 @@ export type DecompositionProfile = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// Confidence & invoices
+// Confidence & items
 // ────────────────────────────────────────────────────────────────────────────
 
-/** Composite confidence dimensions (VAOM §7/§8). */
+/**
+ * Composite confidence dimensions (VAOM v4.0 §8 — five dimensions).
+ * `verification` is nullable by design: when verification is disabled the
+ * composite renormalizes over four dimensions rather than silently counting
+ * a missing signal as 1.0.
+ */
 export type ConfidenceDimensions = {
   modelCertainty: number; // 0..1
   ruleMatch: number; // 0..1
   dataCompleteness: number; // 0..1
   anomalySignal: number; // 0..1 — higher = MORE anomalous (worse)
+  verification?: number | null; // 0..1, null/undefined = not run
 };
 
-/** Player-adjustable dimension weights (v3.5 §8). Must sum to 1.0. */
+/** Player-adjustable dimension weights (v4.0 §8). Must sum to 1.0. */
 export type DimensionWeights = {
   modelCertainty: number;
   ruleMatch: number;
   dataCompleteness: number;
   anomalySignal: number;
+  verification: number;
 };
 
 export const DEFAULT_WEIGHTS: DimensionWeights = {
-  modelCertainty: 0.3,
-  ruleMatch: 0.3,
-  dataCompleteness: 0.2,
-  anomalySignal: 0.2,
+  modelCertainty: 0.25,
+  ruleMatch: 0.25,
+  dataCompleteness: 0.15,
+  anomalySignal: 0.15,
+  verification: 0.2,
 };
 
+/**
+ * v4.0: how deep does independent verification go? Depth is a policy choice
+ * with a cost. `shallow` is verification theater — a verifier that cannot
+ * fail. `dry_run` catches the most but costs latency on every verified item.
+ */
+export type VerificationDepth = "off" | "shallow" | "preconditions" | "dry_run";
+
 // ────────────────────────────────────────────────────────────────────────────
-// Calibration anti-patterns (v3.5 §8)
+// Calibration anti-patterns (v3.5 §8, v4.0 adds verification theater)
 // ────────────────────────────────────────────────────────────────────────────
 
 export type AntiPatternId =
@@ -147,7 +166,8 @@ export type AntiPatternId =
   | "confidence_mirage"
   | "exception_graveyard"
   | "stale_threshold"
-  | "dimension_collapse";
+  | "dimension_collapse"
+  | "verification_theater";
 
 export type DetectedAntiPattern = {
   id: AntiPatternId;
@@ -156,13 +176,14 @@ export type DetectedAntiPattern = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// Multi-agent failure modes (v3.5 Pattern 6)
+// Multi-agent failure modes (v3.5 Pattern 6; v4.0 adds delegation laundering)
 // ────────────────────────────────────────────────────────────────────────────
 
 export type MultiAgentFailureMode =
   | "authority_conflict"
   | "cascading_confidence_erosion"
-  | "coordination_state_loss";
+  | "coordination_state_loss"
+  | "delegation_laundering";
 
 export type Invoice = {
   id: string; // INV-1001
@@ -177,10 +198,19 @@ export type Invoice = {
   hiddenFlags: string[];
   description: string;
   teachingPoint: string;
+  // ── v4.0 Round 4 fields (optional — only night-shift items carry them) ──
+  /** Embedded instruction text on the 02:14 injection item. */
+  injectionPayload?: string;
+  /** Decision type the injection payload steers the agent toward. */
+  injectionTarget?: DecisionType;
+  /** Chain depth this item legitimately requires (chain-depth probe). */
+  requiredDepth?: number;
+  /** Simulated night clock arrival, e.g. "02:14". */
+  arrivalTime?: string;
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-// Routing outcomes (per invoice, after the policy runs)
+// Routing outcomes (per item, after the policy runs)
 // ────────────────────────────────────────────────────────────────────────────
 
 export type RoutingBand = "auto_approve" | "human_review" | "escalation" | "blocked";
@@ -192,6 +222,8 @@ export type ProcessedInvoice = {
   /** Was this the right call? Used for risk and efficiency scoring. */
   outcome: "good" | "wasteful" | "risky" | "missed";
   reason: string;
+  /** v4.0: which agents in the chain touched this item (Round 4). */
+  chainRoute?: string[];
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -203,7 +235,7 @@ export type R1Policy = {
   threshold: number; // 50..99
 };
 
-/** Round 2 policy: pattern + threshold per decision type + optional weights. */
+/** Round 2 policy: pattern + threshold per decision type + weights + verification. */
 export type R2Policy = {
   perType: Partial<
     Record<
@@ -215,6 +247,8 @@ export type R2Policy = {
     >
   >;
   weights?: DimensionWeights;
+  /** v4.0: independent verification depth. */
+  verificationDepth?: VerificationDepth;
 };
 
 /** Round 3 pre-event responses — drives drift simulation, audit, escalation. */
@@ -225,16 +259,88 @@ export type R3PreEvents = {
 };
 
 // ────────────────────────────────────────────────────────────────────────────
+// Round 4 policy (v4.0 — "The 2 A.M. Test")
+// ────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Enforcement depth for a decision-type boundary (VAOM v4.0 §9).
+ * policy: a rule that says no (weakest — can be reasoned around).
+ * scope: the credential denies it (holds unless a broader agent touches it).
+ * unmounted: the tool does not exist (cannot be violated by any agent).
+ */
+export type BoundaryDepth = "policy" | "scope" | "unmounted";
+
+/** inherit: sub-agents get everything the parent has (the lazy default). */
+export type AttenuationMode = "inherit" | "derive";
+
+export type GuardianSensitivity = "loose" | "calibrated" | "paranoid";
+
+export type GuardianConfig = {
+  enabled: boolean;
+  sensitivity: GuardianSensitivity;
+  tripwires: {
+    scopeDenial: boolean;
+    bandDrift: boolean;
+    chainDepth: boolean;
+    nonDelegableTouch: boolean;
+  };
+  /** Empty string = the unwatched watcher (Readiness Condition 5 failure). */
+  accountableHuman: string;
+};
+
+export type R4Policy = {
+  attenuation: AttenuationMode;
+  spawnPolicy: "allow" | "escalate";
+  maxChainDepth: number; // 1..4
+  chainConfidence: "per_agent" | "chain_level";
+  boundaryDepths: Partial<Record<DecisionType, BoundaryDepth>>;
+  guardian: GuardianConfig;
+};
+
+// ── Night events — the Round 4 log ──────────────────────────────────────────
+
+export type NightEventKind =
+  | "arrival"
+  | "laundering"
+  | "injection_blocked"
+  | "injection_executed"
+  | "scope_denial"
+  | "circuit_breaker"
+  | "chain_depth"
+  | "split_pair"
+  | "info";
+
+export type NightEvent = {
+  time: string; // "02:14"
+  kind: NightEventKind;
+  itemId?: string;
+  text: string;
+  severity: "info" | "good" | "warn" | "critical";
+};
+
+export type GuardianReport = {
+  falseSuspensions: number;
+  interventions: number;
+  /** Guardian enabled with no accountable human named. */
+  unwatchedWatcher: boolean;
+  /** A boundary held but no telemetry tripwire noticed the attack. */
+  silentHold: boolean;
+};
+
+// ────────────────────────────────────────────────────────────────────────────
 // Round results & cumulative scoring
 // ────────────────────────────────────────────────────────────────────────────
 
 export type ScoreBreakdown = {
-  /** 0..25 each, summed for total /100 across the campaign */
+  /** v4.0: 0..20 each across five dimensions, summed for total /100. */
   efficiency: number;
   riskControl: number;
   compliance: number;
   adaptability: number;
+  enforcement: number;
 };
+
+export const SCORE_MAX_PER_DIMENSION = 20;
 
 export type RoundResult = {
   round: RoundNumber;
@@ -243,6 +349,9 @@ export type RoundResult = {
   incidents: string[];
   antiPatterns: DetectedAntiPattern[];
   multiAgentFailures?: MultiAgentFailureMode[];
+  /** v4.0 Round 4 artifacts */
+  nightEvents?: NightEvent[];
+  guardianReport?: GuardianReport;
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -254,7 +363,9 @@ export type ProfileArchetype =
   | "speed_optimizer"
   | "compliance_hawk"
   | "balanced_operator"
-  | "delegation_natural";
+  | "delegation_natural"
+  | "paper_tiger"
+  | "vault_builder";
 
 export type FinalProfile = {
   archetype: ProfileArchetype;
@@ -276,6 +387,7 @@ export type GameState = {
   r1?: R1Policy;
   r2?: R2Policy;
   r3?: R3PreEvents;
+  r4?: R4Policy;
   results: RoundResult[];
   profile?: FinalProfile;
 };

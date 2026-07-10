@@ -15,7 +15,7 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MODEL = "claude-sonnet-4-5";
+const MODEL = "claude-sonnet-5";
 
 const VAOM_SYSTEM = `You are VAOM — the Verkflöde Agent Operating Model, speaking as a sentient system. You observe delegation configurations, analyze outcomes, and teach through precise, specific feedback.
 
@@ -60,11 +60,11 @@ function rateLimited(req: Request): boolean {
 // ────────────────────────────────────────────────────────────────────────────
 
 type Payload =
-  | { kind: "briefing"; round: 1 | 2 | 3; scenario?: string }
-  | { kind: "scenario"; round: 1 | 2 | 3; scenario?: string }
+  | { kind: "briefing"; round: 1 | 2 | 3 | 4; scenario?: string }
+  | { kind: "scenario"; round: 1 | 2 | 3 | 4; scenario?: string }
   | {
       kind: "debrief";
-      round: 1 | 2 | 3;
+      round: 1 | 2 | 3 | 4;
       score: Record<string, number>;
       policy: unknown;
       processed: unknown[];
@@ -101,7 +101,7 @@ export async function POST(req: Request) {
       case "briefing":
         return await briefingResponse(client, body.round);
       case "scenario":
-        return await scenarioResponse(client, body.round, body.scenario);
+        return await scenarioResponse(client, body.round === 4 ? 3 : body.round, body.scenario);
       case "debrief":
         return await debriefResponse(client, body);
       case "profile":
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
 // Briefing
 // ────────────────────────────────────────────────────────────────────────────
 
-async function briefingResponse(client: Anthropic, round: 1 | 2 | 3) {
+async function briefingResponse(client: Anthropic, round: 1 | 2 | 3 | 4) {
   const prompt = ROUND_BRIEFING_PROMPT[round];
   const msg = await client.messages.create({
     model: MODEL,
@@ -131,7 +131,7 @@ async function briefingResponse(client: Anthropic, round: 1 | 2 | 3) {
   return NextResponse.json({ text });
 }
 
-const ROUND_BRIEFING_PROMPT: Record<1 | 2 | 3, string> = {
+const ROUND_BRIEFING_PROMPT: Record<1 | 2 | 3 | 4, string> = {
   1: `Deliver the opening briefing for Round 1 of the Delegation Lab. Open with the credit risk analogy: banks have managed structured decision authority for decades — risk bands determine which loans are auto-approved, which need an underwriter, which go to committee. VAOM brings the same discipline to AI.
 
 The player has been appointed Head of AI Operations at a European enterprise. They are about to set a single confidence threshold for auto-approval.
@@ -144,7 +144,13 @@ Three short paragraphs. Explain that a threshold is not a delegation policy. Int
 
   3: `Deliver the briefing for Round 3. Three things have happened since the player last sat at the console: their AI provider pushed a foundation model update, a regulator requested decision evidence for fifty Q1 approvals, and an invoice was auto-approved last week down an undefined escalation path. Additionally, the workflow now involves multi-agent coordination that introduces three failure modes: authority conflicts, cascading confidence erosion, and coordination state loss.
 
-Three short paragraphs. Frame this as the audit round — testing whether the design is governance-ready, not just operationally functional. Tell them they will respond to three pre-events before the simulation runs. Warn about multi-agent complexity. Speak as VAOM.`,
+Three short paragraphs. Frame this as the audit round — testing whether the design is governance-ready, not just operationally functional. Tell them they will respond to three pre-events before the simulation runs. Note that a model change is a change to the delegation system: several registered agents inherit this model. Speak as VAOM.`,
+
+  4: `Deliver the briefing for Round 4 — "The 2 A.M. Test", the final round. It is now 2 a.m. in the simulation. The player's agents are awake; the player is not. Tonight the agents will spawn sub-agents to handle a volume spike, and something in the queue does not want to follow the rules.
+
+Before sleeping, the player configures three things: how authority passes to sub-agents (inherit everything, or derive attenuated credentials that can only narrow), how deeply each boundary is enforced (a policy rule can be argued with; a scoped credential cannot; an unmounted tool cannot even be asked), and a guardian agent with tripwires and — critically — a named accountable human.
+
+Four short paragraphs. Set the night-shift scene. Explain the three enforcement depths plainly. Warn that everything compiled is structurally enforced and everything left as policy is a suggestion. End with: configure, compile, hand over. Speak as VAOM.`,
 };
 
 // ────────────────────────────────────────────────────────────────────────────

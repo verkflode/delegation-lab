@@ -23,10 +23,12 @@ export function Debrief() {
           round: state.round,
           processed: result.processed,
           score: result.score,
-          policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
+          policy: { r1: state.r1, r2: state.r2, r3: state.r3, r4: state.r4 },
           antiPatterns: result.antiPatterns,
           multiAgentFailures: result.multiAgentFailures,
           scenario: state.scenario,
+          nightEvents: result.nightEvents,
+          guardianReport: result.guardianReport,
         })
       : ""
   );
@@ -42,28 +44,34 @@ export function Debrief() {
         round: state.round,
         processed: result.processed,
         score: result.score,
-        policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
+        policy: { r1: state.r1, r2: state.r2, r3: state.r3, r4: state.r4 },
         antiPatterns: result.antiPatterns,
         multiAgentFailures: result.multiAgentFailures,
         scenario: state.scenario,
+        nightEvents: result.nightEvents,
+        guardianReport: result.guardianReport,
       })
     );
-    fetchDebrief({
-      round: state.round,
-      processed: result.processed,
-      score: result.score,
-      policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
-      scenario: state.scenario,
-    }).then((dynamic) => {
-      if (cancelled) return;
-      if (dynamic && dynamic.length > 50 && Date.now() - mountedAt.current < 1500) {
-        setText(dynamic);
-      }
-    });
+    // Round 4's night debrief is fully scripted — the set-pieces are
+    // deterministic, so the fallback IS the canonical text.
+    if (state.round !== 4) {
+      fetchDebrief({
+        round: state.round,
+        processed: result.processed,
+        score: result.score,
+        policy: { r1: state.r1, r2: state.r2, r3: state.r3 },
+        scenario: state.scenario,
+      }).then((dynamic) => {
+        if (cancelled) return;
+        if (dynamic && dynamic.length > 50 && Date.now() - mountedAt.current < 1500) {
+          setText(dynamic);
+        }
+      });
+    }
     return () => {
       cancelled = true;
     };
-  }, [result, state.round, state.r1, state.r2, state.r3, state.scenario]);
+  }, [result, state.round, state.r1, state.r2, state.r3, state.r4, state.scenario]);
 
   if (!result) return null;
 
@@ -73,11 +81,11 @@ export function Debrief() {
   const moment: GameMoment = isMissed ? "debrief_missed" : "debrief_good";
 
   const handleAdvance = () => {
-    if (state.round === 3) {
+    if (state.round === 4) {
       advance("final");
       return;
     }
-    setRound((state.round + 1) as 1 | 2 | 3);
+    setRound((state.round + 1) as 1 | 2 | 3 | 4);
     advance("briefing");
   };
 
@@ -110,13 +118,13 @@ export function Debrief() {
 
         <div className="mt-8 flex items-center justify-between">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">
-            {state.round === 3 ? "Final assessment is next" : `Round ${state.round + 1} awaits`}
+            {state.round === 4 ? "The scorecard is next" : `Round ${state.round + 1} awaits`}
           </div>
           <button
             onClick={handleAdvance}
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan to-cyan/70 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(98,182,203,0.35)] transition-all focus-ring"
+            className="cta group inline-flex items-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 focus-ring"
           >
-            {state.round === 3 ? "Reveal profile" : `Begin Round ${state.round + 1}`}
+            {state.round === 4 ? "Reveal scorecard & profile" : `Begin Round ${state.round + 1}`}
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
@@ -125,6 +133,19 @@ export function Debrief() {
   );
 }
 
+/**
+ * Stable dimension colors — the same hue means the same dimension everywhere
+ * (debrief, per-round breakdown, final dashboard). Amber is deliberately
+ * absent: it belongs to VAOM's voice and the review band.
+ */
+export const DIMENSION_TONES: Record<string, string> = {
+  efficiency: "from-cyan to-cyan/40",
+  riskControl: "from-green-bright to-green-bright/40",
+  compliance: "from-sky to-sky/40",
+  adaptability: "from-lav to-lav/40",
+  enforcement: "from-mint to-mint/40",
+};
+
 export function ScoreBar({
   score,
   compact = false,
@@ -132,38 +153,39 @@ export function ScoreBar({
   score: ScoreBreakdown;
   compact?: boolean;
 }) {
-  const items: { label: string; value: number; tone: string }[] = [
-    { label: "Efficiency", value: score.efficiency, tone: "from-cyan to-cyan/40" },
-    { label: "Risk control", value: score.riskControl, tone: "from-mint to-mint/40" },
-    { label: "Compliance", value: score.compliance, tone: "from-amber to-amber/40" },
-    { label: "Adaptability", value: score.adaptability, tone: "from-lav to-lav/40" },
+  const items: { key: string; label: string; value: number }[] = [
+    { key: "efficiency", label: "Efficiency", value: score.efficiency },
+    { key: "riskControl", label: "Risk control", value: score.riskControl },
+    { key: "compliance", label: "Compliance", value: score.compliance },
+    { key: "adaptability", label: "Adaptability", value: score.adaptability },
+    { key: "enforcement", label: "Enforcement", value: score.enforcement ?? 0 },
   ];
   // In compact mode (used inside per-round breakdown columns) we always render
   // 2 columns regardless of viewport so the labels don't collide.
   const gridCls = compact
     ? "grid grid-cols-2 gap-2.5"
-    : "grid grid-cols-2 md:grid-cols-4 gap-3";
+    : "grid grid-cols-2 md:grid-cols-5 gap-3";
   return (
     <div className="surface-strong px-5 py-4">
       {!compact && (
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold mb-3">
-          Round score · /25 each
+          Round score · /20 each
         </div>
       )}
       <div className={gridCls}>
         {items.map((it) => (
-          <div key={it.label}>
+          <div key={it.key}>
             <div className="flex items-baseline justify-between mb-1 gap-2">
-              <div className="font-mono text-[9px] text-muted-2 truncate">{it.label}</div>
+              <div className="font-mono text-[10px] text-muted-2 truncate">{it.label}</div>
               <div className="font-sans text-[13px] font-bold text-ink whitespace-nowrap tabular-nums">
                 {it.value}
-                <span className="text-muted-2 text-[10px]">/25</span>
+                <span className="text-muted-2 text-[10px]">/20</span>
               </div>
             </div>
             <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
               <div
-                className={`h-full bg-gradient-to-r ${it.tone}`}
-                style={{ width: `${(it.value / 25) * 100}%` }}
+                className={`h-full bg-gradient-to-r ${DIMENSION_TONES[it.key]}`}
+                style={{ width: `${(it.value / 20) * 100}%` }}
               />
             </div>
           </div>

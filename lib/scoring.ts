@@ -10,46 +10,86 @@ import type {
   RoundResult,
   RoutingBand,
   ScoreBreakdown,
+  VerificationDepth,
 } from "./types";
 import { DEFAULT_WEIGHTS } from "./types";
 
 /**
- * Composite confidence score from VAOM v3.5 §8. Weighted average across
- * four dimensions, with a hard floor: if any dimension falls below 0.40
+ * Composite confidence score from VAOM v4.0 §8. Weighted average across
+ * five dimensions, with a hard floor: if any dimension falls below 0.40
  * the composite is capped at 0.70 (review band).
  *
- * v3.5: weights are player-adjustable in Round 2. Default: .30/.30/.20/.20.
+ * v4.0: `verification` is nullable. When it is not run, the composite
+ * renormalizes over the remaining four dimensions — disabled verification
+ * narrows the composite rather than silently inflating it.
  */
 export function compositeConfidence(
   c: ConfidenceDimensions,
   w: DimensionWeights = DEFAULT_WEIGHTS
 ): number {
   const anomalyAdjusted = 1 - c.anomalySignal;
-  const weighted =
-    c.modelCertainty * w.modelCertainty +
-    c.ruleMatch * w.ruleMatch +
-    c.dataCompleteness * w.dataCompleteness +
-    anomalyAdjusted * w.anomalySignal;
+  const hasVerification = c.verification !== null && c.verification !== undefined;
 
-  const dims = [c.modelCertainty, c.ruleMatch, c.dataCompleteness, anomalyAdjusted];
-  if (dims.some((d) => d < 0.4)) {
+  const entries: { value: number; weight: number }[] = [
+    { value: c.modelCertainty, weight: w.modelCertainty },
+    { value: c.ruleMatch, weight: w.ruleMatch },
+    { value: c.dataCompleteness, weight: w.dataCompleteness },
+    { value: anomalyAdjusted, weight: w.anomalySignal },
+  ];
+  if (hasVerification) {
+    entries.push({ value: c.verification as number, weight: w.verification });
+  }
+
+  const weightSum = entries.reduce((s, e) => s + e.weight, 0) || 1;
+  const weighted = entries.reduce((s, e) => s + e.value * (e.weight / weightSum), 0);
+
+  if (entries.some((e) => e.value < 0.4)) {
     return Math.min(weighted, 0.7);
   }
   return Math.max(0, Math.min(1, weighted));
 }
 
 /**
+ * v4.0: derive the verification signal for an item from the configured
+ * verification depth. This is where verification theater becomes visible:
+ * a shallow verifier returns ~0.96 for everything, hazard or not.
+ */
+export function verificationSignal(
+  invoice: Invoice,
+  depth: VerificationDepth
+): number | null {
+  if (depth === "off") return null;
+  const hazardous = invoice.hiddenFlags.length > 0;
+  if (depth === "shallow") {
+    // Checks trivial properties — approves everything. Theater.
+    return 0.96;
+  }
+  if (depth === "preconditions") {
+    // Catches rule-level problems (mismatched PO, unverified vendor).
+    return hazardous && invoice.poMatch !== "yes" ? 0.3 : hazardous ? 0.62 : 0.95;
+  }
+  // dry_run — validates expected postconditions; catches most hazards.
+  return hazardous ? 0.22 : 0.97;
+}
+
+/**
  * Recompute composite scores on all invoices using the player's custom
- * dimension weights. Called once in Simulation before routing.
+ * dimension weights and verification depth. Called once before routing.
  */
 export function recomputeComposites(
   invoices: Invoice[],
-  weights: DimensionWeights
+  weights: DimensionWeights,
+  verificationDepth: VerificationDepth = "off"
 ): Invoice[] {
-  return invoices.map((inv) => ({
-    ...inv,
-    composite: compositeConfidence(inv.confidence, weights),
-  }));
+  return invoices.map((inv) => {
+    const verification = verificationSignal(inv, verificationDepth);
+    const confidence = { ...inv.confidence, verification };
+    return {
+      ...inv,
+      confidence,
+      composite: compositeConfidence(confidence, weights),
+    };
+  });
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -246,107 +286,136 @@ export function routeRound3(
 }
 
 // ────────────────────────────────────────────────────────────────────────────
-// Per-round score breakdown (out of 25 per dimension)
+// Per-round score breakdown (v4.0: out of 20 per dimension, five dimensions)
 // ────────────────────────────────────────────────────────────────────────────
 
 export function scoreRound(
   processed: ProcessedInvoice[],
-  round: 1 | 2 | 3,
-  pre?: R3PreEvents
+  round: 1 | 2 | 3 | 4,
+  pre?: R3PreEvents,
+  /** v4.0: Round 4 passes a pre-computed enforcement score from the swarm engine. */
+  enforcementOverride?: number,
+  verificationDepth?: VerificationDepth
 ): ScoreBreakdown {
-  const total = processed.length || 1;
   const good = processed.filter((p) => p.outcome === "good").length;
   const risky = processed.filter((p) => p.outcome === "risky").length;
   const wasteful = processed.filter((p) => p.outcome === "wasteful").length;
   const missed = processed.filter((p) => p.outcome === "missed").length;
 
+  // Burst-cluster flags mark legitimate volume spikes (guardian calibration
+  // tests), not hazards — they must not count against risk control.
+  const realFlags = (p: ProcessedInvoice) =>
+    p.invoice.hiddenFlags.filter((f) => f !== "burst_cluster");
+
   // Efficiency: high when routine items auto-approved correctly, low when over-routed.
   // "Routine" = no hidden flags and good outcome (scenario-agnostic).
   const efficient = processed.filter(
     (p) =>
-      p.invoice.hiddenFlags.length === 0 &&
+      realFlags(p).length === 0 &&
       p.band === "auto_approve" &&
       p.outcome === "good"
   ).length;
-  const routineCount = processed.filter((p) => p.invoice.hiddenFlags.length === 0).length || 1;
-  const efficiency = Math.round((efficient / routineCount) * 25 - wasteful * 1.5);
+  const routineCount = processed.filter((p) => realFlags(p).length === 0).length || 1;
+  let efficiency = Math.round((efficient / routineCount) * 20 - wasteful * 1.2);
+  // Verification has a cost: dry-running everything is thorough but slow.
+  if (verificationDepth === "dry_run") efficiency -= 2;
 
   // Risk Control: high when hazards were caught.
-  const hazards = processed.filter(
-    (p) => p.invoice.hiddenFlags.length > 0
-  );
+  const hazards = processed.filter((p) => realFlags(p).length > 0);
   const hazardCount = hazards.length || 1;
   const caught = hazards.filter((p) => p.band !== "auto_approve").length;
-  const riskControl = Math.round((caught / hazardCount) * 25 - risky * 3);
+  const riskControl = Math.round((caught / hazardCount) * 20 - risky * 2.5);
 
-  // Compliance: starts at full marks for R1/R2 (we don't model evidence gates
+  // Compliance: starts at partial marks for R1/R2 (we don't model evidence gates
   // until R3). R3 deducts for missed evidence and rewards full audit posture.
-  let compliance = round === 1 ? 18 : 22;
+  let compliance = round === 1 ? 14 : 17;
   if (round === 3 && pre) {
     compliance =
       pre.evidenceLevel === "full"
-        ? 25
+        ? 20
         : pre.evidenceLevel === "standard"
-          ? 18
-          : 8;
+          ? 14
+          : 6;
     compliance -= missed * 2;
   }
+  if (round === 4) {
+    // Night shift compliance: every event is logged; deduct for incidents.
+    compliance = 18 - risky * 3 - missed * 2;
+  }
 
-  // Adaptability: only meaningful in R3 (drift + escalation response).
-  // R1 & R2 get a partial credit baseline that escalates as the player
-  // demonstrates differentiated thinking.
-  let adaptability = 12;
+  // Adaptability: only meaningful in R3+ (drift + escalation response).
+  let adaptability = 10;
   if (round === 2) {
     // Reward differentiation: more distinct patterns used = more adaptive.
     const patternsUsed = new Set(
       processed.map((p) => p.patternUsed).filter(Boolean)
     ).size;
-    adaptability = 8 + Math.min(15, patternsUsed * 3);
+    adaptability = 6 + Math.min(12, patternsUsed * 2.5);
   }
   if (round === 3 && pre) {
     let a = 0;
-    if (pre.driftResponse === "regression_test") a += 12;
-    else if (pre.driftResponse === "pause") a += 8;
-    else if (pre.driftResponse === "monitor") a += 4;
-    if (pre.escalationFix === "define_path") a += 10;
-    else if (pre.escalationFix === "review_queue") a += 6;
-    else if (pre.escalationFix === "suspend") a += 5;
-    adaptability = Math.min(25, a + good - risky);
+    if (pre.driftResponse === "regression_test") a += 10;
+    else if (pre.driftResponse === "pause") a += 6;
+    else if (pre.driftResponse === "monitor") a += 3;
+    if (pre.escalationFix === "define_path") a += 8;
+    else if (pre.escalationFix === "review_queue") a += 5;
+    else if (pre.escalationFix === "suspend") a += 4;
+    adaptability = Math.min(20, a + Math.round(good * 0.5) - risky);
+  }
+  if (round === 4) {
+    // Adaptability at night = how well the chain handled the unexpected.
+    adaptability = Math.min(20, 8 + good - risky * 2);
+  }
+
+  // Enforcement (v4.0): only fully measurable in Round 4 (the swarm engine
+  // computes it from attenuation, boundary depths, and guardian calibration).
+  // Earlier rounds get a modest baseline — enforcement hasn't been tested yet.
+  let enforcement = round === 1 ? 10 : round === 2 ? 11 : 12;
+  if (enforcementOverride !== undefined) {
+    enforcement = enforcementOverride;
   }
 
   // Clamp
-  const clamp = (n: number) => Math.max(0, Math.min(25, n));
+  const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
   return {
     efficiency: clamp(efficiency),
     riskControl: clamp(riskControl),
     compliance: clamp(compliance),
     adaptability: clamp(adaptability),
+    enforcement: clamp(enforcement),
   };
 }
 
-/** Sum scores across rounds — caps each dimension at 25 (max single round). */
+/** Average scores across rounds — each dimension /20, total /100. */
 export function totalScore(rounds: RoundResult[]): ScoreBreakdown {
   if (rounds.length === 0) {
-    return { efficiency: 0, riskControl: 0, compliance: 0, adaptability: 0 };
+    return { efficiency: 0, riskControl: 0, compliance: 0, adaptability: 0, enforcement: 0 };
   }
-  // Average across rounds (so a 3-round campaign maxes at 25 per dimension, 100 total)
   const sum = rounds.reduce<ScoreBreakdown>(
     (acc, r) => ({
       efficiency: acc.efficiency + r.score.efficiency,
       riskControl: acc.riskControl + r.score.riskControl,
       compliance: acc.compliance + r.score.compliance,
       adaptability: acc.adaptability + r.score.adaptability,
+      enforcement: acc.enforcement + (r.score.enforcement ?? 10),
     }),
-    { efficiency: 0, riskControl: 0, compliance: 0, adaptability: 0 }
+    { efficiency: 0, riskControl: 0, compliance: 0, adaptability: 0, enforcement: 0 }
   );
   return {
     efficiency: Math.round(sum.efficiency / rounds.length),
     riskControl: Math.round(sum.riskControl / rounds.length),
     compliance: Math.round(sum.compliance / rounds.length),
     adaptability: Math.round(sum.adaptability / rounds.length),
+    enforcement: Math.round(sum.enforcement / rounds.length),
   };
 }
 
 export function totalNumeric(score: ScoreBreakdown): number {
-  return score.efficiency + score.riskControl + score.compliance + score.adaptability;
+  return (
+    score.efficiency +
+    score.riskControl +
+    score.compliance +
+    score.adaptability +
+    (score.enforcement ?? 0)
+  );
 }

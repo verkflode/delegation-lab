@@ -16,10 +16,11 @@ const CACHED_R1_AUDIO: Record<ScenarioDomain, string> = {
   hr_investigation: "/audio/briefing-r1-hr.mp3",
 };
 
-const ROUND_TITLES: Record<1 | 2 | 3, { kicker: string; title: string; concept: string }> = {
+const ROUND_TITLES: Record<1 | 2 | 3 | 4, { kicker: string; title: string; concept: string }> = {
   1: { kicker: "Round 1", title: "The Basics", concept: "Confidence Gate · Decision Inventory" },
-  2: { kicker: "Round 2", title: "The Edge Cases", concept: "Delegation Patterns · Authority Decomposition" },
+  2: { kicker: "Round 2", title: "The Edge Cases", concept: "Delegation Patterns · Independent Verification" },
   3: { kicker: "Round 3", title: "The Audit", concept: "Foundation Model Drift · Readiness Assessment" },
+  4: { kicker: "Round 4", title: "The 2 A.M. Test", concept: "Identity & Credentialing · Attenuation · Guardians" },
 };
 
 export function Briefing() {
@@ -79,7 +80,11 @@ export function Briefing() {
             onClick={() => advance(nextPhase)}
             className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan to-cyan/70 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(98,182,203,0.35)] transition-all focus-ring"
           >
-            {state.round === 3 ? "Address pre-events" : "Configure policy"}
+            {state.round === 3
+              ? "Address pre-events"
+              : state.round === 4
+                ? "Configure the night"
+                : "Configure policy"}
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>

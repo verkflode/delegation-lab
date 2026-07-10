@@ -74,10 +74,13 @@ export function InvoiceCard({ p, compact = false }: { p: ProcessedInvoice; compa
     >
       <div className="flex items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-muted-2 whitespace-nowrap overflow-hidden">
+          <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.14em] text-muted-2 whitespace-nowrap overflow-hidden">
             <span className="text-cyan">{p.invoice.id}</span>
             <span>·</span>
             <span>{TYPE_LABELS[p.invoice.type] ?? p.invoice.type}</span>
+            {p.invoice.arrivalTime && (
+              <span className="text-lav tabular-nums">· {p.invoice.arrivalTime}</span>
+            )}
             {isHazard && <span className="text-amber">⚠</span>}
           </div>
           <div className="font-sans text-[13px] text-ink truncate mt-0.5">

@@ -25,10 +25,10 @@
   --color-red: #D62828;
   --color-red-bright: #e86060;
 
-  /* Text */
+  /* Text — v4: muted tones lifted a step for micro-label legibility */
   --color-ink: #E0E8F0;
-  --color-muted: #8BA4B8;
-  --color-muted-2: #6B8A9E;
+  --color-muted: #93ACC0;
+  --color-muted-2: #7E9CB5;
 
   /* Surfaces */
   --color-surface: rgba(255, 255, 255, 0.05);
@@ -53,6 +53,22 @@ body {
     linear-gradient(135deg, var(--color-bg-1) 0%, var(--color-bg-2) 40%, var(--color-bg-3) 100%);
   background-attachment: fixed;
   overflow-x: hidden;
+  transition: background 1.2s ease;
+}
+
+/* ── v4.0 Night mode (Round 4) — the palette drops several stops ────────── */
+html.night {
+  --color-bg-1: #04090F;
+  --color-bg-2: #081119;
+  --color-bg-3: #0B1B29;
+  --color-ink: #C2CFDA;
+  --color-muted: #7E96AA;
+  --color-muted-2: #69869D;
+}
+html.night body::before {
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(98, 182, 203, 0.03) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(190, 233, 232, 0.02) 0%, transparent 50%);
 }
 
 /* Subtle grid + radial wash, mirroring the VAOM artifact */
@@ -132,6 +148,30 @@ main,
   50%      { transform: scaleY(1); }
 }
 
+/* v4: a missed hazard interrupts — red ring pulse on the offending card */
+@keyframes hazardFlash {
+  0%   { box-shadow: 0 0 0 0 rgba(214, 40, 40, 0.65); }
+  40%  { box-shadow: 0 0 0 10px rgba(214, 40, 40, 0); }
+  60%  { box-shadow: 0 0 0 0 rgba(214, 40, 40, 0.45); }
+  100% { box-shadow: 0 0 0 12px rgba(214, 40, 40, 0); }
+}
+.animate-hazard-flash { animation: hazardFlash 1.6s ease-out 2; }
+
+/* v4: shield flash on scope denials in the spawn tree */
+@keyframes shieldPulse {
+  0%   { transform: scale(0.6); opacity: 0; }
+  30%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+.animate-shield { animation: shieldPulse 0.6s ease-out both; }
+
+/* v4: compile transition — matrix rows becoming credential cards */
+@keyframes compileIn {
+  from { opacity: 0; transform: translateY(10px) scale(0.97); filter: blur(3px); }
+  to   { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+}
+.animate-compile { animation: compileIn 0.5s ease both; }
+
 .animate-fade-up   { animation: fadeUp 0.5s ease both; }
 .animate-fade-in   { animation: fadeIn 0.4s ease both; }
 .animate-slide-right { animation: slideRight 0.4s ease both; }
@@ -149,6 +189,30 @@ main,
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 16px;
+}
+
+/* v4: solid inner tile — stops the double-glass fog on nested panels.
+   Use for stat tiles that sit INSIDE a .surface / .surface-strong. */
+.tile {
+  background: rgba(6, 14, 22, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 12px;
+}
+
+/* v4: primary CTA — mint/cyan. Amber is reserved for VAOM's voice and the
+   review band; a call-to-action is not the narrator speaking. */
+.cta {
+  background: linear-gradient(90deg, var(--color-mint), var(--color-cyan));
+  color: var(--color-bg-1);
+  transition: all 0.2s ease;
+}
+.cta:hover:not(:disabled) {
+  transform: scale(1.02);
+  box-shadow: 0 0 30px rgba(98, 182, 203, 0.35);
+}
+.cta:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 /* VAOM voice panel — distinctive amber hairline + monospace */
