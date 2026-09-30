@@ -1,22 +1,22 @@
 /**
  * /api/claude — server-side proxy for VAOM intelligence.
  *
- * Holds ANTHROPIC_API_KEY. Accepts a discriminated payload identifying the
- * game moment (briefing, scenario, debrief, profile) and returns shaped JSON.
+ * Accepts a discriminated payload identifying the game moment (briefing,
+ * scenario, debrief, profile) and returns shaped JSON. The model provider is a
+ * setting (LLM_PROVIDER, see lib/llm.ts); the route keeps its old name because
+ * the client calls /api/claude.
  *
  * The client (lib/api.ts) wraps every call in a timeout + fallback, so this
  * route returning an error is never user-visible — the game silently degrades
  * to the pre-built text bank in data/vaom-text.ts.
  */
 
-import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { complete, llmConfigFromEnv, type CompletionRequest, type LlmConfig } from "../../../lib/llm";
 import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
-
-const MODEL = "claude-sonnet-5";
 
 const VAOM_SYSTEM = `You are VAOM — the Verkflöde Agent Operating Model, speaking as a sentient system. You observe delegation configurations, analyze outcomes, and teach through precise, specific feedback.
 
@@ -69,10 +69,11 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited", reason: limitedBy }, { status: 429 });
   }
 
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    // No key configured — let the client fall back gracefully.
-    return NextResponse.json({ error: "no_api_key" }, { status: 503 });
+  const llm = llmConfigFromEnv();
+  if ("error" in llm) {
+    // Misconfigured or no key — let the client fall back gracefully.
+    if (llm.error === "unknown_provider") console.error(`[/api/claude] ${llm.detail}`);
+    return NextResponse.json({ error: llm.error }, { status: 503 });
   }
 
   let body: Payload;
@@ -82,18 +83,16 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
 
-  const client = new Anthropic({ apiKey });
-
   try {
     switch (body.kind) {
       case "briefing":
-        return await briefingResponse(client, body.round);
+        return await briefingResponse(llm, body.round);
       case "scenario":
-        return await scenarioResponse(client, body.round === 4 ? 3 : body.round, body.scenario);
+        return await scenarioResponse(llm, body.round === 4 ? 3 : body.round, body.scenario);
       case "debrief":
-        return await debriefResponse(client, body);
+        return await debriefResponse(llm, body);
       case "profile":
-        return await profileResponse(client, body);
+        return await profileResponse(llm, body);
       default:
         return NextResponse.json({ error: "unknown_kind" }, { status: 400 });
     }
@@ -107,15 +106,9 @@ export async function POST(req: Request) {
 // Briefing
 // ────────────────────────────────────────────────────────────────────────────
 
-async function briefingResponse(client: Anthropic, round: 1 | 2 | 3 | 4) {
+async function briefingResponse(llm: LlmConfig, round: 1 | 2 | 3 | 4) {
   const prompt = ROUND_BRIEFING_PROMPT[round];
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 700,
-    system: VAOM_SYSTEM,
-    messages: [{ role: "user", content: prompt }],
-  });
-  const text = textOf(msg);
+  const text = await generate(llm, "briefing", { system: VAOM_SYSTEM, prompt, maxTokens: 700 });
   return NextResponse.json({ text });
 }
 
@@ -152,7 +145,7 @@ const SCENARIO_PROMPT_META: Record<string, { domain: string; prefix: string; sou
   hr_investigation: { domain: "HR policy violation assessment", prefix: "HR", sourceNoun: "employee (European person name)", itemNoun: "case", types: '"hr_complaint_classification", "evidence_assessment", "witness_interview_prep", "outcome_recommendation", "disciplinary_action"', hazards: "C-suite executive involvement, pattern-not-isolated evidence, conflict of interest, non-delegable outcome decisions, media sensitivity" },
 };
 
-async function scenarioResponse(client: Anthropic, round: 1 | 2 | 3, scenario?: string) {
+async function scenarioResponse(llm: LlmConfig, round: 1 | 2 | 3, scenario?: string) {
   const counts = { 1: 8, 2: 12, 3: 15 } as const;
   const idStart = round === 1 ? 1001 : round === 2 ? 2001 : 3001;
   const meta = SCENARIO_PROMPT_META[scenario ?? "invoice_processing"];
@@ -175,13 +168,12 @@ Design 60-70% routine and 30-40% that test configuration gaps. At least one shou
 
 Return ONLY a JSON object with one key "invoices" whose value is the array. No preamble, no markdown.`;
 
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 4000,
+  const text = await generate(llm, "scenario", {
     system: "You generate game data for an AI governance simulation. Return only valid JSON.",
-    messages: [{ role: "user", content: prompt }],
+    prompt,
+    maxTokens: 4000,
+    json: true,
   });
-  const text = textOf(msg);
   const json = extractJSON(text);
   if (!json) return NextResponse.json({ error: "bad_json" }, { status: 502 });
   return NextResponse.json(json);
@@ -192,7 +184,7 @@ Return ONLY a JSON object with one key "invoices" whose value is the array. No p
 // ────────────────────────────────────────────────────────────────────────────
 
 async function debriefResponse(
-  client: Anthropic,
+  llm: LlmConfig,
   body: Extract<Payload, { kind: "debrief" }>
 ) {
   const scenarioDomain = body.scenario ? (SCENARIO_PROMPT_META[body.scenario]?.domain ?? "enterprise workflow") : "enterprise workflow";
@@ -213,13 +205,7 @@ Paragraph 4: One sentence of foreshadowing for the next round, OR (if Round 3) a
 
 No bullet points. No emoji. No cheerleading. Maximum four paragraphs. Plain text only.`;
 
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 1200,
-    system: VAOM_SYSTEM,
-    messages: [{ role: "user", content: prompt }],
-  });
-  const text = textOf(msg);
+  const text = await generate(llm, "debrief", { system: VAOM_SYSTEM, prompt, maxTokens: 1200 });
   return NextResponse.json({ text });
 }
 
@@ -228,7 +214,7 @@ No bullet points. No emoji. No cheerleading. Maximum four paragraphs. Plain text
 // ────────────────────────────────────────────────────────────────────────────
 
 async function profileResponse(
-  client: Anthropic,
+  llm: LlmConfig,
   body: Extract<Payload, { kind: "profile" }>
 ) {
   const prompt = `Based on this player's complete three-round performance, generate their Delegation Profile.
@@ -243,13 +229,7 @@ Return ONLY a JSON object with these keys:
 
 No preamble, no markdown, no extra keys.`;
 
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 800,
-    system: VAOM_SYSTEM,
-    messages: [{ role: "user", content: prompt }],
-  });
-  const text = textOf(msg);
+  const text = await generate(llm, "profile", { system: VAOM_SYSTEM, prompt, maxTokens: 800, json: true });
   const json = extractJSON(text);
   if (!json) return NextResponse.json({ error: "bad_json" }, { status: 502 });
   return NextResponse.json(json);
@@ -259,12 +239,11 @@ No preamble, no markdown, no extra keys.`;
 // Helpers
 // ────────────────────────────────────────────────────────────────────────────
 
-function textOf(msg: Anthropic.Message): string {
-  return msg.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("\n")
-    .trim();
+/** One model call; logs replies cut off at maxTokens, since those may read as unfinished. */
+async function generate(llm: LlmConfig, kind: string, req: CompletionRequest): Promise<string> {
+  const { text, truncated } = await complete(llm, req);
+  if (truncated) console.warn(`[/api/claude] ${kind} reply hit max_tokens (${llm.provider}/${llm.model})`);
+  return text;
 }
 
 function extractJSON(s: string): unknown | null {
