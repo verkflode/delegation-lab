@@ -11,6 +11,7 @@
 
 import Anthropic from "@anthropic-ai/sdk";
 import { NextResponse } from "next/server";
+import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -37,25 +38,10 @@ VAOM framework concepts you draw from:
 - Comparative positioning: VAOM operationalizes what NIST AI RMF governs strategically and what ISO 42001 manages systemically
 - The core principle: "Confidence informs authority — it does not define it."`;
 
-// ── Rate limiting (minimal in-memory bucket, per IP) ───────────────────────
-const buckets = new Map<string, { count: number; reset: number }>();
-const LIMIT = 30; // requests
-const WINDOW_MS = 60_000; // per minute
-
-function rateLimited(req: Request): boolean {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "anon";
-  const now = Date.now();
-  const b = buckets.get(ip);
-  if (!b || now > b.reset) {
-    buckets.set(ip, { count: 1, reset: now + WINDOW_MS });
-    return false;
-  }
-  b.count += 1;
-  return b.count > LIMIT;
-}
+// ── Rate limiting (per IP, plus a global hourly ceiling; see lib/rate-limit.ts) ──
+const rateLimited = createLimiter(
+  limitsFromEnv("CLAUDE", { perMinute: 30, perHour: 150, globalPerHour: 600 }),
+);
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -77,8 +63,10 @@ type Payload =
     };
 
 export async function POST(req: Request) {
-  if (rateLimited(req)) {
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  const limitedBy = rateLimited(req);
+  if (limitedBy) {
+    if (limitedBy === "global_hour") console.warn("[/api/claude] global hourly limit reached");
+    return NextResponse.json({ error: "rate_limited", reason: limitedBy }, { status: 429 });
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;

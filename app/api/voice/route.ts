@@ -16,6 +16,7 @@
 
 import { NextResponse } from "next/server";
 import { buildSSML, type GameMoment } from "../../../lib/ssml";
+import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -24,25 +25,10 @@ const REGION = process.env.AZURE_SPEECH_REGION ?? "swedencentral";
 // DragonHD voices don't support opus — use mp3 which works across all voice types
 const OUTPUT_FORMAT = "audio-24khz-96kbitrate-mono-mp3";
 
-// ── Rate limiting ──────────────────────────────────────────────────────────
-const buckets = new Map<string, { count: number; reset: number }>();
-const LIMIT = 60;
-const WINDOW_MS = 60_000;
-
-function rateLimited(req: Request): boolean {
-  const ip =
-    req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
-    req.headers.get("x-real-ip") ??
-    "anon";
-  const now = Date.now();
-  const b = buckets.get(ip);
-  if (!b || now > b.reset) {
-    buckets.set(ip, { count: 1, reset: now + WINDOW_MS });
-    return false;
-  }
-  b.count += 1;
-  return b.count > LIMIT;
-}
+// ── Rate limiting (per IP, plus a global hourly ceiling; see lib/rate-limit.ts) ──
+const rateLimited = createLimiter(
+  limitsFromEnv("VOICE", { perMinute: 60, perHour: 600, globalPerHour: 2000 }),
+);
 
 // ────────────────────────────────────────────────────────────────────────────
 
@@ -52,8 +38,10 @@ type VoicePayload = {
 };
 
 export async function POST(req: Request) {
-  if (rateLimited(req)) {
-    return NextResponse.json({ error: "rate_limited" }, { status: 429 });
+  const limitedBy = rateLimited(req);
+  if (limitedBy) {
+    if (limitedBy === "global_hour") console.warn("[/api/voice] global hourly limit reached");
+    return NextResponse.json({ error: "rate_limited", reason: limitedBy }, { status: 429 });
   }
 
   const apiKey = process.env.AZURE_SPEECH_KEY;
