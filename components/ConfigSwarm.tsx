@@ -110,7 +110,7 @@ export function ConfigSwarm() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round 4 · Configuration
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] font-bold text-mint mb-3 flex items-center gap-3">
+        <h1 className="font-serif text-[28px] md:text-[36px] font-normal text-mint mb-3 flex items-center gap-3">
           <Moon size={26} className="text-lav" />
           Configure. Compile. Sleep.
         </h1>
@@ -243,7 +243,7 @@ export function ConfigSwarm() {
                         className={`rounded-xl px-3 py-2 border font-mono text-[11px] font-bold capitalize transition focus-ring ${
                           policy.guardian.sensitivity === s
                             ? "border-cyan/60 bg-cyan/8 text-ink"
-                            : "border-white/10 bg-white/3 text-muted hover:border-white/25"
+                            : "border-ink/10 bg-ink/3 text-muted hover:border-ink/25"
                         }`}
                       >
                         {s}
@@ -350,8 +350,8 @@ export function ConfigSwarm() {
                               ? "border-mint/60 bg-mint/8"
                               : d.id === "scope"
                                 ? "border-cyan/60 bg-cyan/8"
-                                : "border-white/30 bg-white/6"
-                            : "border-white/10 bg-white/3 hover:border-white/25"
+                                : "border-ink/30 bg-ink/6"
+                            : "border-ink/10 bg-ink/3 hover:border-ink/25"
                         }`}
                       >
                         <div className="font-mono text-[10.5px] font-bold text-ink leading-tight">
@@ -405,7 +405,7 @@ function ScopeManifest({
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round 4 · Compilation
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] font-bold text-mint mb-6">
+        <h1 className="font-serif text-[28px] md:text-[36px] font-normal text-mint mb-6">
           The matrix, compiled.
         </h1>
 
@@ -455,7 +455,7 @@ function ScopeManifest({
                       return (
                         <div
                           key={t}
-                          className="flex items-center gap-2 rounded-lg border border-dashed border-white/12 px-2.5 py-1.5"
+                          className="flex items-center gap-2 rounded-lg border border-dashed border-ink/12 px-2.5 py-1.5"
                         >
                           <span className="font-mono text-[10px] text-muted-2 line-through decoration-red/60">
                             {label}
@@ -472,7 +472,7 @@ function ScopeManifest({
                         className={`flex items-center gap-2 rounded-lg border px-2.5 py-1.5 ${
                           depth === "scope"
                             ? "border-cyan/30 bg-cyan/5"
-                            : "border-white/10 bg-white/3"
+                            : "border-ink/10 bg-ink/3"
                         }`}
                       >
                         <ShieldCheck
@@ -524,7 +524,7 @@ function PanelHeader({ icon, title }: { icon: React.ReactNode; title: string }) 
       <div className="font-mono text-[10px] uppercase tracking-[0.18em] text-cyan font-bold">
         {title}
       </div>
-      <div className="flex-1 h-px bg-white/8" />
+      <div className="flex-1 h-px bg-ink/8" />
     </div>
   );
 }
@@ -548,13 +548,13 @@ function OptionCard({
       className={`text-left rounded-xl px-4 py-3 border transition focus-ring ${
         active
           ? "border-cyan/60 bg-cyan/8"
-          : "border-white/10 bg-white/3 hover:border-white/25"
+          : "border-ink/10 bg-ink/3 hover:border-ink/25"
       }`}
     >
       <div className="flex items-center gap-2">
         <div className="font-mono text-[11.5px] font-bold text-ink">{title}</div>
         {badge && (
-          <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-muted-2 border border-white/12 rounded-full px-1.5 py-0.5">
+          <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-muted-2 border border-ink/12 rounded-full px-1.5 py-0.5">
             {badge}
           </span>
         )}

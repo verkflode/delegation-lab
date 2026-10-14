@@ -213,7 +213,7 @@ export function Simulation() {
             <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold">
               Round {state.round} · {isNight ? "Night shift" : "Simulation"}
             </div>
-            <h1 className="font-mono text-[24px] md:text-[30px] font-bold text-mint mt-1 flex items-center gap-3">
+            <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint mt-1 flex items-center gap-3">
               {isNight && <Moon size={22} className="text-lav" />}
               {isNight ? "You are asleep." : `${nounPlural} flowing`}
             </h1>
@@ -398,7 +398,7 @@ function NightLog({ events }: { events: NightEvent[] }) {
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-lav font-bold">
           Night log
         </div>
-        <div className="flex-1 h-px bg-white/8" />
+        <div className="flex-1 h-px bg-ink/8" />
         <div className="font-mono text-[10px] text-muted-2 tabular-nums">
           {events.length} events
         </div>

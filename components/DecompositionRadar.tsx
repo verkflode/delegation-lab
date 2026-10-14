@@ -90,13 +90,13 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
   // Average value as a heuristic for delegation fitness color
   const avg = values.reduce((s, v) => s + v, 0) / values.length;
   const stroke =
-    avg >= 0.75 ? "rgb(95,173,86)" : avg >= 0.5 ? "rgb(232,185,49)" : "rgb(214,40,40)";
+    avg >= 0.75 ? "#2D7A3A" : avg >= 0.5 ? "#B07B1F" : "#A83226";
   const fill =
     avg >= 0.75
-      ? "rgba(95,173,86,0.18)"
+      ? "rgba(45,122,58,0.16)"
       : avg >= 0.5
-        ? "rgba(232,185,49,0.18)"
-        : "rgba(214,40,40,0.16)";
+        ? "rgba(198,148,62,0.18)"
+        : "rgba(168,50,38,0.14)";
 
   return (
     <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} role="img" aria-label="Decomposition radar">
@@ -106,7 +106,7 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
           key={i}
           points={pts}
           fill="none"
-          stroke="rgba(255,255,255,0.06)"
+          stroke="rgba(20,20,15,0.10)"
           strokeWidth={1}
         />
       ))}
@@ -122,7 +122,7 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
             y1={cy}
             x2={x}
             y2={y}
-            stroke="rgba(255,255,255,0.05)"
+            stroke="rgba(20,20,15,0.08)"
             strokeWidth={1}
           />
         );
@@ -165,7 +165,7 @@ export function DecompositionRadar({ profile, size = 200, showLabels = true }: P
               key={d.key}
               x={x}
               y={y}
-              fill={isWeakest ? "rgb(232,185,49)" : "rgba(158,182,201,0.95)"}
+              fill={isWeakest ? "#8A6116" : "#4A4A40"}
               fontSize={9}
               fontWeight={isWeakest ? 700 : 400}
               fontFamily="var(--font-space-mono)"

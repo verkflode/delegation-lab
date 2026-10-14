@@ -33,7 +33,7 @@ export function TitleScreen() {
         {/* Logo + brand row */}
         <div className="flex items-center gap-5 mb-10">
           <VerkflodeLogo height={56} />
-          <div className="border-l border-white/10 pl-5">
+          <div className="border-l border-ink/10 pl-5">
             <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold">
               An Open Framework Simulation
             </div>
@@ -49,7 +49,7 @@ export function TitleScreen() {
             <div className="font-mono text-[11px] uppercase tracking-[0.3em] text-amber font-bold mb-3">
               Delegation Lab
             </div>
-            <h1 className="font-mono text-[44px] md:text-[56px] leading-[1.05] font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-mint via-cyan to-mint mb-6">
+            <h1 className="font-serif text-[44px] md:text-[56px] leading-[1.05] font-normal tracking-tight text-mint mb-6">
               A flight simulator
               <br />
               for AI governance.
@@ -73,16 +73,16 @@ export function TitleScreen() {
             </button>
 
             <div className="mt-6 flex flex-wrap items-center gap-3 text-[11px] font-mono text-muted-2">
-              <span className="rounded-full border border-white/8 bg-white/3 px-3 py-1">
+              <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
                 Open framework
               </span>
-              <span className="rounded-full border border-white/8 bg-white/3 px-3 py-1">
+              <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
                 CC BY 4.0
               </span>
-              <span className="rounded-full border border-white/8 bg-white/3 px-3 py-1">
+              <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
                 EU data residency
               </span>
-              <span className="rounded-full border border-white/8 bg-white/3 px-3 py-1">
+              <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
                 ~8 minutes
               </span>
             </div>
@@ -108,10 +108,10 @@ export function TitleScreen() {
                     onClick={() => sc.available && setSelectedScenario(sc.id)}
                     className={`text-left rounded-2xl px-4 py-3 transition focus-ring ${
                       selectedScenario === sc.id && sc.available
-                        ? "border-2 border-cyan bg-[rgba(98,182,203,0.10)]"
+                        ? "border-2 border-cyan bg-cyan/8"
                         : sc.available
-                          ? "border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] hover:border-[rgba(255,255,255,0.2)]"
-                          : "border border-[rgba(255,255,255,0.05)] bg-[rgba(255,255,255,0.02)] opacity-40 cursor-not-allowed"
+                          ? "border border-border bg-surface hover:border-cyan/40"
+                          : "border border-border-soft bg-surface-2 opacity-40 cursor-not-allowed"
                     }`}
                   >
                     <div className="flex items-center gap-2">
@@ -183,7 +183,7 @@ function RoundPreview({
   line: string;
 }) {
   return (
-    <div className="surface-strong px-5 py-4 transition hover:translate-x-[-2px] hover:bg-white/5">
+    <div className="surface-strong px-5 py-4 transition hover:translate-x-[-2px] hover:bg-ink/5">
       <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold">
         <span className="inline-flex items-center justify-center w-5 h-5 rounded border border-cyan/40 text-[10px]">
           {num}

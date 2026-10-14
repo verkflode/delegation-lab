@@ -50,7 +50,7 @@ export function ConfigAudit() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round 3 · Pre-events
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] font-bold text-mint mb-3">
+        <h1 className="font-serif text-[28px] md:text-[36px] font-normal text-mint mb-3">
           Three things require your attention.
         </h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-3xl">
@@ -146,7 +146,7 @@ function PreEventCard({
               className={`text-left rounded-xl px-3.5 py-3 border transition focus-ring ${
                 active
                   ? "border-cyan/60 bg-cyan/8"
-                  : "border-white/10 bg-white/3 hover:border-white/25"
+                  : "border-ink/10 bg-ink/3 hover:border-ink/25"
               }`}
             >
               <div className="font-mono text-[11.5px] font-bold text-ink">

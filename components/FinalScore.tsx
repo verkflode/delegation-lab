@@ -70,7 +70,7 @@ export function FinalScore() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Campaign complete
         </div>
-        <h1 className="font-mono text-[32px] md:text-[44px] font-bold leading-[1.05] text-transparent bg-clip-text bg-gradient-to-r from-mint via-cyan to-mint mb-2">
+        <h1 className="font-serif text-[32px] md:text-[44px] font-normal leading-[1.05] text-mint mb-2">
           Your delegation philosophy.
         </h1>
         <div className="flex items-center gap-3 font-mono text-[11px] uppercase tracking-[0.2em] text-mint mb-8">

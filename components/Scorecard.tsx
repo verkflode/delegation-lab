@@ -23,7 +23,7 @@ export function Scorecard({ metrics }: { metrics: ScorecardMetric[] }) {
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold">
           The Delegation Scorecard
         </div>
-        <div className="flex-1 h-px bg-white/8" />
+        <div className="flex-1 h-px bg-ink/8" />
         <div className="font-mono text-[11px] tabular-nums">
           <span className={passed >= 7 ? "text-mint" : passed >= 4 ? "text-amber" : "text-red-bright"}>
             {passed}

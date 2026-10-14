@@ -40,7 +40,7 @@ export function SpawnTree({
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold">
           Agent chain
         </div>
-        <div className="flex-1 h-px bg-white/8" />
+        <div className="flex-1 h-px bg-ink/8" />
         <div className="font-mono text-[10px] text-muted-2">
           attenuation:{" "}
           <span className={attenuation === "derive" ? "text-mint" : "text-red-bright"}>
@@ -97,7 +97,7 @@ export function SpawnTree({
         })}
 
         {/* Guardian node — off to the side, watching */}
-        <div className="flex items-center gap-2 flex-shrink-0 ml-3 pl-3 border-l border-white/8">
+        <div className="flex items-center gap-2 flex-shrink-0 ml-3 pl-3 border-l border-ink/8">
           <div
             className={`tile px-3 py-2.5 min-w-[104px] transition-all duration-300 ${
               breaker

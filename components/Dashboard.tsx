@@ -33,7 +33,7 @@ export function Dashboard({
         <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold">
           Live dashboard
         </div>
-        <div className="flex-1 h-px bg-white/8" />
+        <div className="flex-1 h-px bg-ink/8" />
         <div className="font-mono text-[10px] text-muted-2">
           {done}/{total} processed
         </div>
@@ -56,7 +56,7 @@ export function Dashboard({
         <div className="font-mono text-[9px] uppercase tracking-[0.18em] text-muted-2 mb-1.5">
           Pipeline
         </div>
-        <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+        <div className="h-1.5 rounded-full bg-ink/5 overflow-hidden">
           <div
             className="h-full bg-gradient-to-r from-cyan via-mint to-amber transition-all duration-500"
             style={{ width: `${(done / Math.max(1, total)) * 100}%` }}

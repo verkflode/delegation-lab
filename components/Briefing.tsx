@@ -58,7 +58,7 @@ export function Briefing() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           {meta.kicker}
         </div>
-        <h1 className="font-mono text-[36px] md:text-[44px] leading-[1.05] font-bold tracking-tight text-mint mb-2">
+        <h1 className="font-serif text-[36px] md:text-[44px] leading-[1.05] font-normal tracking-tight text-mint mb-2">
           {meta.title}
         </h1>
         <div className="font-mono text-[11px] uppercase tracking-[0.2em] text-amber mb-8">
@@ -78,7 +78,7 @@ export function Briefing() {
           </div>
           <button
             onClick={() => advance(nextPhase)}
-            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan to-cyan/70 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(98,182,203,0.35)] transition-all focus-ring"
+            className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan to-cyan/70 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(45,106,79,0.30)] transition-all focus-ring"
           >
             {state.round === 3
               ? "Address pre-events"

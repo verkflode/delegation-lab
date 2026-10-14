@@ -24,16 +24,16 @@ export function ProfileCard({
       className="relative overflow-hidden rounded-2xl border border-amber/30 px-7 py-7 animate-fade-up"
       style={{
         background:
-          "linear-gradient(135deg, rgba(13,27,42,0.95) 0%, rgba(27,73,101,0.85) 100%)",
+          "var(--color-surface)",
         boxShadow:
-          "0 0 80px rgba(98,182,203,0.08), inset 0 1px 0 rgba(190,233,232,0.08)",
+          "0 1px 3px rgba(20,20,15,0.06), 0 12px 40px rgba(20,20,15,0.06)",
       }}
     >
       {/* Top brand row */}
       <div className="flex items-start justify-between gap-4 mb-6">
         <div className="flex items-center gap-3">
           <VerkflodeLogo height={36} />
-          <div className="border-l border-white/10 pl-3">
+          <div className="border-l border-ink/10 pl-3">
             <div className="font-mono text-[8px] uppercase tracking-[0.28em] text-cyan font-bold">
               Delegation Lab
             </div>
@@ -57,7 +57,7 @@ export function ProfileCard({
       <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-amber font-bold mb-1">
         Delegation profile
       </div>
-      <h2 className="font-mono text-[32px] md:text-[42px] leading-[1.05] font-bold text-transparent bg-clip-text bg-gradient-to-r from-mint via-cyan to-mint mb-4">
+      <h2 className="font-serif text-[32px] md:text-[42px] leading-[1.05] font-normal text-mint mb-4">
         {name}
       </h2>
 
@@ -79,7 +79,7 @@ export function ProfileCard({
       </div>
 
       {/* Footer URL */}
-      <div className="flex items-center justify-between border-t border-white/8 pt-4">
+      <div className="flex items-center justify-between border-t border-ink/8 pt-4">
         <div className="font-mono text-[10px] text-muted-2">
           Take it for yourself
         </div>
@@ -93,7 +93,7 @@ export function ProfileCard({
         className="pointer-events-none absolute inset-0 opacity-30"
         style={{
           backgroundImage:
-            "url(\"data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 40L40 0' stroke='rgba(255,255,255,0.025)'/%3E%3C/svg%3E\")",
+            "url(\"data:image/svg+xml,%3Csvg width='40' height='40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h40v40H0z' fill='none'/%3E%3Cpath d='M0 40L40 0' stroke='rgba(20,20,15,0.03)'/%3E%3C/svg%3E\")",
         }}
       />
     </div>
@@ -125,7 +125,7 @@ function Stat({
         {value}
         <span className="text-muted-2 text-[11px]">/20</span>
       </div>
-      <div className="h-1 mt-1 rounded-full bg-white/5 overflow-hidden">
+      <div className="h-1 mt-1 rounded-full bg-ink/5 overflow-hidden">
         <div
           className={`h-full bg-gradient-to-r ${tones[tone].bar}`}
           style={{ width: `${(value / 20) * 100}%` }}

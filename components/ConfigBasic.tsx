@@ -29,7 +29,7 @@ export function ConfigBasic() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round 1 · Configuration
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] leading-[1.1] font-bold text-mint mb-3">
+        <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">
           Set the auto-approval threshold.
         </h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
@@ -55,7 +55,7 @@ export function ConfigBasic() {
             onChange={(e) => setThreshold(parseInt(e.target.value, 10))}
             className="w-full accent-cyan cursor-pointer"
             style={{
-              background: `linear-gradient(to right, rgba(232,185,49,0.5) 0%, rgba(232,185,49,0.5) ${((threshold - 50) / 49) * 100}%, rgba(255,255,255,0.08) ${((threshold - 50) / 49) * 100}%, rgba(255,255,255,0.08) 100%)`,
+              background: `linear-gradient(to right, rgba(198,148,62,0.55) 0%, rgba(198,148,62,0.55) ${((threshold - 50) / 49) * 100}%, rgba(20,20,15,0.08) ${((threshold - 50) / 49) * 100}%, rgba(20,20,15,0.08) 100%)`,
             }}
           />
           <div className="flex justify-between mt-2 font-mono text-[10px] text-muted-2">

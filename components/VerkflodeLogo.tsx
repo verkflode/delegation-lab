@@ -1,5 +1,5 @@
 /**
- * Verkflöde brand mark — uses the official verkflode.svg from the brand assets.
+ * Verkflöde brand mark — the official verkflode.svg, in its light-background colours (ink, as on the VAOM v5 page); verkflode-on-dark.svg is the original for dark backgrounds.
  * The SVG contains the full leaf/circuit-board hybrid + "Verk" wordmark + "flöde"
  * subscript lockup exactly as designed.
  */

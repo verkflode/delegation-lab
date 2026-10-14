@@ -129,7 +129,7 @@ export function ConfigMatrix() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round 2 · Configuration
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] font-bold text-mint mb-3">
+        <h1 className="font-serif text-[28px] md:text-[36px] font-normal text-mint mb-3">
           Assign delegation patterns.
         </h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-3xl">
@@ -152,7 +152,7 @@ export function ConfigMatrix() {
                   className={`w-full text-left surface px-4 py-3 transition border ${
                     isActive
                       ? "border-cyan/60 bg-cyan/8"
-                      : "border-white/8 hover:border-white/20"
+                      : "border-ink/8 hover:border-ink/20"
                   } focus-ring`}
                 >
                   <div className="flex items-center justify-between">
@@ -204,7 +204,7 @@ export function ConfigMatrix() {
                       className={`text-left rounded-xl px-4 py-3 border transition focus-ring ${
                         active
                           ? "border-cyan/60 bg-cyan/8"
-                          : "border-white/10 bg-white/3 hover:border-white/25"
+                          : "border-ink/10 bg-ink/3 hover:border-ink/25"
                       }`}
                     >
                       <div className="font-mono text-[11.5px] font-bold text-ink">
@@ -316,7 +316,7 @@ export function ConfigMatrix() {
                 className={`text-left rounded-xl px-4 py-3 border transition focus-ring ${
                   verificationDepth === d.id
                     ? "border-cyan/60 bg-cyan/8"
-                    : "border-white/10 bg-white/3 hover:border-white/25"
+                    : "border-ink/10 bg-ink/3 hover:border-ink/25"
                 }`}
               >
                 <div className="font-mono text-[11.5px] font-bold text-ink">{d.label}</div>

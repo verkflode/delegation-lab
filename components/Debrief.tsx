@@ -95,7 +95,7 @@ export function Debrief() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">
           Round {state.round} · Debrief
         </div>
-        <h1 className="font-mono text-[28px] md:text-[36px] font-bold text-mint mb-6 flex items-center gap-3">
+        <h1 className="font-serif text-[28px] md:text-[36px] font-normal text-mint mb-6 flex items-center gap-3">
           <Trophy size={26} className="text-amber" />
           The verdict
         </h1>
@@ -182,7 +182,7 @@ export function ScoreBar({
                 <span className="text-muted-2 text-[10px]">/20</span>
               </div>
             </div>
-            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+            <div className="h-1.5 rounded-full bg-ink/5 overflow-hidden">
               <div
                 className={`h-full bg-gradient-to-r ${DIMENSION_TONES[it.key]}`}
                 style={{ width: `${(it.value / 20) * 100}%` }}
