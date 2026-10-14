@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight, Trophy } from "lucide-react";
-import { useGame } from "../lib/game-state";
+import { isV5Round, useGame } from "../lib/game-state";
 import { fetchDebrief } from "../lib/api";
 import { debriefFallback } from "../data/vaom-text";
+import { round1Debrief } from "../lib/v5/round1-result";
 import { VAOMVoice } from "./VAOMVoice";
 import { AntiPatternList } from "./AntiPatternAlert";
 import type { GameMoment } from "../lib/ssml";
@@ -17,8 +18,10 @@ import type { ScoreBreakdown } from "../lib/types";
 export function Debrief() {
   const { state, advance, setRound } = useGame();
   const result = state.results[state.results.length - 1];
+  // v5 round 1 has its own scripted debrief until the model prompts are rewritten for v5 (M5).
+  const v5Text = result && state.v5r1 && isV5Round(state.round, state.scenario) ? round1Debrief(result, state.v5r1) : null;
   const [text, setText] = useState<string>(() =>
-    result
+    v5Text ?? (result
       ? debriefFallback({
           round: state.round,
           processed: result.processed,
@@ -30,7 +33,7 @@ export function Debrief() {
           nightEvents: result.nightEvents,
           guardianReport: result.guardianReport,
         })
-      : ""
+      : "")
   );
 
   const mountedAt = useRef(Date.now());
@@ -39,6 +42,10 @@ export function Debrief() {
     if (!result) return;
     let cancelled = false;
     mountedAt.current = Date.now();
+    if (v5Text) {
+      setText(v5Text);
+      return;
+    }
     setText(
       debriefFallback({
         round: state.round,
@@ -71,7 +78,7 @@ export function Debrief() {
     return () => {
       cancelled = true;
     };
-  }, [result, state.round, state.r1, state.r2, state.r3, state.r4, state.scenario]);
+  }, [result, v5Text, state.round, state.r1, state.r2, state.r3, state.r4, state.scenario]);
 
   if (!result) return null;
 

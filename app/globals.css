@@ -33,6 +33,13 @@
   --color-red-bright: #A83226;
   --color-navy: #0F2438;
 
+  /* Bands: one colour each, everywhere (chips, lanes, charts). Each takes white text at AA. */
+  --color-band-a: #2D6A4F;
+  --color-band-b: #8A6116;
+  --color-band-c: #0F2438;
+  --color-band-held: #A83226;
+  --color-band-none: #66665C;
+
   /* Text */
   --color-ink: #2C2C24;
   --color-muted: #4A4A40;

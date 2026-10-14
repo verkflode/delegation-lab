@@ -385,6 +385,8 @@ export type GameState = {
   scenario: ScenarioDomain;
   audioMuted: boolean;
   r1?: R1Policy;
+  /** v5 round 1: the player's matrix choices (see lib/v5/round1.ts). */
+  v5r1?: import("./v5/round1").Round1Policy;
   r2?: R2Policy;
   r3?: R3PreEvents;
   r4?: R4Policy;

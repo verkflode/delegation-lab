@@ -19,6 +19,10 @@ import type {
   RoundResult,
   ScenarioDomain,
 } from "./types";
+import type { Round1Policy } from "./v5/round1";
+
+/** v5: round 1 runs on the VAOM Guardian core, for invoices so far. */
+export const isV5Round = (round: RoundNumber, scenario: ScenarioDomain) => round === 1 && scenario === "invoice_processing";
 
 /**
  * Game state lives in a single reducer. It is intentionally small —
@@ -33,6 +37,7 @@ type Action =
   | { type: "set_round"; round: RoundNumber }
   | { type: "set_scenario"; domain: ScenarioDomain }
   | { type: "set_r1"; policy: R1Policy }
+  | { type: "set_v5r1"; policy: Round1Policy }
   | { type: "set_r2"; policy: R2Policy }
   | { type: "set_r3"; pre: R3PreEvents }
   | { type: "set_r4"; policy: R4Policy }
@@ -60,6 +65,8 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, scenario: action.domain };
     case "set_r1":
       return { ...state, r1: action.policy };
+    case "set_v5r1":
+      return { ...state, v5r1: action.policy };
     case "set_r2":
       return { ...state, r2: action.policy };
     case "set_r3":
@@ -84,6 +91,7 @@ type GameContextValue = {
   setRound: (round: RoundNumber) => void;
   setScenario: (domain: ScenarioDomain) => void;
   setR1: (policy: R1Policy) => void;
+  setV5R1: (policy: Round1Policy) => void;
   setR2: (policy: R2Policy) => void;
   setR3: (pre: R3PreEvents) => void;
   setR4: (policy: R4Policy) => void;
@@ -105,6 +113,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setRound: (round) => dispatch({ type: "set_round", round }),
       setScenario: (domain) => dispatch({ type: "set_scenario", domain }),
       setR1: (policy) => dispatch({ type: "set_r1", policy }),
+      setV5R1: (policy) => dispatch({ type: "set_v5r1", policy }),
       setR2: (policy) => dispatch({ type: "set_r2", policy }),
       setR3: (pre) => dispatch({ type: "set_r3", pre }),
       setR4: (policy) => dispatch({ type: "set_r4", policy }),

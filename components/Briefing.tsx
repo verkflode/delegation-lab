@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useGame } from "../lib/game-state";
+import { isV5Round, useGame } from "../lib/game-state";
 import { fetchBriefing } from "../lib/api";
 import { briefingFallback } from "../data/vaom-text";
+import { ROUND1_BRIEFING } from "../lib/v5/round1-result";
 import { VAOMVoice } from "./VAOMVoice";
 import type { ScenarioDomain } from "../lib/types";
 
@@ -23,18 +24,26 @@ const ROUND_TITLES: Record<1 | 2 | 3 | 4, { kicker: string; title: string; conce
   4: { kicker: "Round 4", title: "The 2 A.M. Test", concept: "Identity & Credentialing · Attenuation · Guardians" },
 };
 
+const V5_ROUND1_TITLE = { kicker: "Round 1", title: "The Matrix", concept: "Decision inventory · Authority decomposition · The matrix" };
+
 export function Briefing() {
   const { state, advance } = useGame();
   // Optimistic load: show the fallback briefing immediately so the screen
   // never feels empty, then swap in the dynamic Claude version when it
   // arrives. The text-typing animation will start over only if the text
   // actually changes.
-  const [text, setText] = useState(() => briefingFallback(state.round, state.scenario));
+  // v5 rounds use their own scripted text until the model prompts are rewritten for v5 (M5).
+  const v5 = isV5Round(state.round, state.scenario);
+  const [text, setText] = useState(() => (v5 ? ROUND1_BRIEFING : briefingFallback(state.round, state.scenario)));
   const mountedAt = useRef(Date.now());
 
   useEffect(() => {
     let cancelled = false;
     mountedAt.current = Date.now();
+    if (v5) {
+      setText(ROUND1_BRIEFING);
+      return;
+    }
     setText(briefingFallback(state.round, state.scenario));
     fetchBriefing(state.round, state.scenario).then((dynamic) => {
       if (cancelled) return;
@@ -47,9 +56,9 @@ export function Briefing() {
     return () => {
       cancelled = true;
     };
-  }, [state.round, state.scenario]);
+  }, [state.round, state.scenario, v5]);
 
-  const meta = ROUND_TITLES[state.round];
+  const meta = v5 ? V5_ROUND1_TITLE : ROUND_TITLES[state.round];
   const nextPhase = state.round === 3 ? "preEvents" : "config";
 
   return (
@@ -69,7 +78,7 @@ export function Briefing() {
           text={text}
           moment="round_briefing"
           label={`VAOM · ${meta.kicker} briefing`}
-          cachedAudioUrl={state.round === 1 ? CACHED_R1_AUDIO[state.scenario] : undefined}
+          cachedAudioUrl={state.round === 1 && !v5 ? CACHED_R1_AUDIO[state.scenario] : undefined}
         />
 
         <div className="mt-8 flex items-center justify-between">
@@ -84,7 +93,9 @@ export function Briefing() {
               ? "Address pre-events"
               : state.round === 4
                 ? "Configure the night"
-                : "Configure policy"}
+                : v5
+                  ? "Build the matrix"
+                  : "Configure policy"}
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
