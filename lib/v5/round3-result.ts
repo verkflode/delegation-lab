@@ -29,7 +29,7 @@ export function round3Result(shift: Shift, clicks: Record<string, Click>, verdic
     adaptability: 10,
     enforcement: 10,
   };
-  return { round: 3, processed, score, incidents: verdict.executedBad.map((a) => a.record.id), antiPatterns: [] };
+  return { round: 3, processed, score, incidents: verdict.executedBad.map((a) => a.record.id), antiPatterns: [], v5Evidence: { records: verdict.records, seeds: verdict.seeds } };
 }
 
 export const ROUND3_BRIEFING = [

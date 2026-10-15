@@ -9,7 +9,7 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import { useGame } from "../lib/game-state";
+import { isV5Round, useGame } from "../lib/game-state";
 import { totalScore, totalNumeric } from "../lib/scoring";
 import { ARCHETYPE_DETAILS, chooseArchetype } from "../data/vaom-text";
 import { computeScorecard } from "../lib/scorecard";
@@ -18,6 +18,8 @@ import { ProfileCard } from "./ProfileCard";
 import { VAOMVoice } from "./VAOMVoice";
 import { ScoreBar } from "./Debrief";
 import { Scorecard } from "./Scorecard";
+import { FinalV5 } from "./v5/FinalV5";
+import { ARCHETYPES_V5, chooseArchetypeV5 } from "../lib/v5/archetypes";
 
 /**
  * Final dashboard + shareable profile card. Tries to fetch a Claude-generated
@@ -28,8 +30,9 @@ export function FinalScore() {
   const { state, reset } = useGame();
   const totals = totalScore(state.results);
   const totalN = totalNumeric(totals);
-  const fallbackArch = chooseArchetype(state.results);
-  const fallbackDetails = ARCHETYPE_DETAILS[fallbackArch];
+  const v5 = isV5Round(4, state.scenario);
+  const fallbackArch = v5 ? chooseArchetypeV5(state.results) : chooseArchetype(state.results);
+  const fallbackDetails = (v5 ? ARCHETYPES_V5 : ARCHETYPE_DETAILS)[fallbackArch];
 
   const [profile, setProfile] = useState({
     archetype: fallbackArch,
@@ -40,6 +43,8 @@ export function FinalScore() {
 
   useEffect(() => {
     let cancelled = false;
+    // v5 profiles are scripted from the game (lib/v5/archetypes.ts).
+    if (v5) return;
     const t0 = Date.now();
     fetchProfile({
       totals,
@@ -86,15 +91,19 @@ export function FinalScore() {
           totalN={totalN}
         />
 
-        {/* The Delegation Scorecard (v4.0) */}
+        {/* The Delegation Scorecard: the core's for v5 games, with the wire view and the export */}
         <div className="mt-8">
-          <Scorecard
-            metrics={computeScorecard({
-              results: state.results,
-              r2: state.r2,
-              r4: state.r4,
-            })}
-          />
+          {isV5Round(4, state.scenario) ? (
+            <FinalV5 choices={{ v5r1: state.v5r1, v5r2: state.v5r2, v5r3: state.v5r3, v5r4: state.v5r4 }} results={state.results} />
+          ) : (
+            <Scorecard
+              metrics={computeScorecard({
+                results: state.results,
+                r2: state.r2,
+                r4: state.r4,
+              })}
+            />
+          )}
         </div>
 
         {/* VAOM final assessment */}
@@ -126,7 +135,7 @@ export function FinalScore() {
         {/* CTAs */}
         <div className="mt-10 surface-strong px-6 py-5">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold mb-3">
-            Take VAOM further
+            The Verkflöde Agent Operating Model (VAOM)
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <CTA
@@ -139,7 +148,7 @@ export function FinalScore() {
               href="https://verkflode.com/vaom"
               icon={<ArrowRight size={14} />}
               label="Download the whitepaper"
-              sub="VAOM v4.0 · PDF"
+              sub="VAOM 5.0 · PDF · CC BY 4.0"
             />
             <CTA
               href="mailto:hello@verkflode.com"

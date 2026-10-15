@@ -8,27 +8,44 @@ const mono = JetBrains_Mono({ variable: "--font-v5-mono", subsets: ["latin", "la
 const serif = DM_Serif_Display({ variable: "--font-v5-serif", subsets: ["latin", "latin-ext"], weight: "400", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "Delegation Lab — A VAOM Simulation",
+  title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
   description:
-    "Take the helm as Head of AI Operations. Design the delegation policy, run the simulation, and discover the Verkflöde Agent Operating Model by play.",
+    "Take the helm as Head of AI Operations. Write the delegation matrix, run the workflow under the VAOM Guardian, and learn the Verkflöde Agent Operating Model (VAOM), Verkflöde's open framework for AI delegation, by play.",
   metadataBase: new URL("https://verkflode.eu"),
   openGraph: {
-    title: "Delegation Lab — A VAOM Simulation",
+    title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
     description:
-      "A flight simulator for AI governance. Three rounds. One delegation philosophy. By Verkflöde.",
+      "A flight simulator for AI governance, built on the Verkflöde Agent Operating Model (VAOM). Four rounds. One delegation design.",
     url: "https://verkflode.eu",
     siteName: "Verkflöde Delegation Lab",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Delegation Lab — A VAOM Simulation",
+    title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
     description:
-      "A flight simulator for AI governance. Three rounds. One delegation philosophy.",
+      "A flight simulator for AI governance, built on the Verkflöde Agent Operating Model (VAOM). Four rounds.",
   },
   icons: {
     icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
   },
+};
+
+// Ties the Lab to the framework's canonical entity on verkflode.com (same @ids as its own structured data),
+// so search engines and assistants read "VAOM" here as the Verkflöde Agent Operating Model.
+const STRUCTURED_DATA = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "@id": "https://verkflode.eu/#lab",
+  name: "Delegation Lab",
+  url: "https://verkflode.eu",
+  applicationCategory: "EducationalApplication",
+  operatingSystem: "Any (web browser)",
+  inLanguage: "en",
+  isAccessibleForFree: true,
+  description: "A browser simulation that teaches the Verkflöde Agent Operating Model (VAOM) by play: the player writes a delegation matrix and every agent decision is made by the VAOM Guardian.",
+  about: { "@type": "TechArticle", "@id": "https://verkflode.com/vaom#vaom", name: "The Verkflöde Agent Operating Model (VAOM)", url: "https://verkflode.com/vaom" },
+  publisher: { "@type": "Organization", "@id": "https://verkflode.com/#org", name: "Verkflöde AB", url: "https://verkflode.com" },
 };
 
 export const viewport: Viewport = {
@@ -45,7 +62,10 @@ export default function RootLayout({
       lang="en"
       className={`${sans.variable} ${mono.variable} ${serif.variable} h-full antialiased`}
     >
-      <body className="min-h-full">{children}</body>
+      <body className="min-h-full">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
+        {children}
+      </body>
     </html>
   );
 }

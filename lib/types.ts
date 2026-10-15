@@ -354,6 +354,15 @@ export type RoundResult = {
   guardianReport?: GuardianReport;
   /** v5: VAOM's debrief, written when the round ends from what the core judged. */
   v5Debrief?: string;
+  /** v5: what the archetype choice needs to know about the night. */
+  v5Flags?: { paperTiger: boolean; nothingThrough: boolean; breakerOwned: boolean; toolAbsent: boolean };
+  /** v5: the round's evidence, as the Guardian would store it, for the final scorecard. */
+  v5Evidence?: {
+    records: import("@verkflode/vaom-guardian-core").DecisionRecord[];
+    seeds?: import("@verkflode/vaom-guardian-core").SeedOutcome[];
+    spawns?: import("@verkflode/vaom-guardian-core").SpawnOutcome[];
+    probes?: import("@verkflode/vaom-guardian-core").ProbeResult[];
+  };
 };
 
 // ────────────────────────────────────────────────────────────────────────────

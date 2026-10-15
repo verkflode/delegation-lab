@@ -8,6 +8,7 @@ import { briefingFallback } from "../data/vaom-text";
 import { ROUND1_BRIEFING, ROUND2_BRIEFING } from "../lib/v5/round1-result";
 import { ROUND3_BRIEFING } from "../lib/v5/round3-result";
 import { ROUND4_BRIEFING } from "../lib/v5/round4-result";
+import { briefingKey, ready } from "../lib/v5/narration";
 import { VAOMVoice } from "./VAOMVoice";
 import type { ScenarioDomain } from "../lib/types";
 
@@ -50,7 +51,9 @@ export function Briefing() {
     mountedAt.current = Date.now();
     if (v5) {
       setText(v5Text);
-      return;
+      // The model's version, if it's already here (prefetched) or arrives before the player starts reading.
+      ready<string>(briefingKey(state.round), 1500).then((t) => { if (t && !cancelled) setText(t); });
+      return () => { cancelled = true; };
     }
     setText(briefingFallback(state.round, state.scenario));
     fetchBriefing(state.round, state.scenario).then((dynamic) => {

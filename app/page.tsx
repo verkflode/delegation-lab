@@ -1,6 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { GameProvider, isV5Round, useGame } from "../lib/game-state";
+import { clearNarration, prefetchBriefing } from "../lib/v5/narration";
 import { TitleScreen } from "../components/TitleScreen";
 import { Briefing } from "../components/Briefing";
 import { ConfigBasic } from "../components/ConfigBasic";
@@ -29,6 +31,15 @@ export default function Page() {
 
 function Router() {
   const { state } = useGame();
+  const v5 = isV5Round(state.round, state.scenario);
+
+  // v5 briefings are fetched ahead of the screen that shows them (lib/v5/narration.ts).
+  useEffect(() => {
+    if (state.phase === "title") clearNarration();
+    if (!v5) return;
+    if (state.phase === "briefing" && state.round === 1) prefetchBriefing(1);
+    if (state.phase === "debrief" && state.round < 4) prefetchBriefing((state.round + 1) as 2 | 3 | 4);
+  }, [state.phase, state.round, v5]);
 
   return (
     <>

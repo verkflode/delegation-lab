@@ -205,3 +205,17 @@ export async function fetchProfile(payload: {
     return null;
   }
 }
+
+// ────────────────────────────────────────────────────────────────────────────
+// v5: model-written briefings for the game on the VAOM Guardian core. Null on any failure (no key, timeout,
+// a reply the server rejected), and the caller keeps its scripted text.
+// ────────────────────────────────────────────────────────────────────────────
+
+export async function fetchBriefingV5(round: RoundNumber): Promise<string | null> {
+  try {
+    const data = (await withTimeout(callClaude({ kind: "briefing", edition: "v5", round }), TIMEOUT_MS)) as { text?: string };
+    return typeof data?.text === "string" && data.text.length > 150 ? data.text : null;
+  } catch {
+    return null;
+  }
+}

@@ -38,7 +38,7 @@ export function ProfileCard({
               Delegation Lab
             </div>
             <div className="font-mono text-[10px] text-muted-2 mt-0.5">
-              VAOM v4.0
+              Verkflöde Agent Operating Model (VAOM) 5.0
             </div>
           </div>
         </div>
@@ -81,7 +81,7 @@ export function ProfileCard({
       {/* Footer URL */}
       <div className="flex items-center justify-between border-t border-ink/8 pt-4">
         <div className="font-mono text-[10px] text-muted-2">
-          Take it for yourself
+          Take it for yourself · framework at verkflode.com/vaom
         </div>
         <div className="font-mono text-[12px] text-mint font-bold">
           verkflode.eu

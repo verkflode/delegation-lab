@@ -49,6 +49,7 @@ export function Debrief() {
     let cancelled = false;
     mountedAt.current = Date.now();
     if (v5Text) {
+      // Scripted from the run: always right, and the model never improves on that here.
       setText(v5Text);
       return;
     }
@@ -84,7 +85,7 @@ export function Debrief() {
     return () => {
       cancelled = true;
     };
-  }, [result, v5Text, state.round, state.r1, state.r2, state.r3, state.r4, state.scenario]);
+  }, [result, v5Text, state.round, state.results.length, state.r1, state.r2, state.r3, state.r4, state.scenario]);
 
   if (!result) return null;
 

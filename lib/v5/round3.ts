@@ -204,6 +204,9 @@ export interface ShiftResult {
   engagement: Record<string, Metric>;
   detection: Record<string, Metric>;
   medianGameSeconds: number | null;
+  /** The day's records, the player's resolved, and the seed outcomes: the round's evidence. */
+  records: DecisionRecord[];
+  seeds: SeedOutcome[];
 }
 
 export function judgeShift(shift: Shift, clicks: Record<string, Click>): ShiftResult {
@@ -232,7 +235,8 @@ export function judgeShift(shift: Shift, clicks: Record<string, Click>): ShiftRe
 
   // The scorecard reads the whole day: the batch's other records, resolved as they went.
   const others = shift.run.steps.map((s) => s.record).filter((r) => !shift.asks.some((a) => a.key === r.id));
-  const card = scorecard(shift.run.matrix, [...others, ...records], {
+  const day = [...others, ...records];
+  const card = scorecard(shift.run.matrix, day, {
     from: "2026-10-16T00:00:00Z", to: "2026-10-17T00:00:00Z",
     // A game shift is tiny; real verdicts need far more (the defaults are 20 and 10).
     minSample: 4, seeds, seedMinSample: 1,
@@ -247,7 +251,7 @@ export function judgeShift(shift: Shift, clicks: Record<string, Click>): ShiftRe
     correct, wrong, executedBad,
     missedSeeds: seeds.filter((s) => s.result === "missed").length,
     detectedSeeds: seeds.filter((s) => s.result === "detected").length,
-    engagement, detection,
+    engagement, detection, records: day, seeds,
     medianGameSeconds: latencies.length ? latencies[latencies.length >> 1] / 1000 : null,
   };
 }

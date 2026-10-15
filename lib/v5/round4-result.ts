@@ -1,7 +1,8 @@
 // Round 4 in the shape the rest of the game reads, and VAOM's briefing and morning debrief. The score is
 // interim (M4 replaces it with the scorecard); the verdicts quoted are the core's.
 import type { Invoice, ProcessedInvoice, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
-import type { Night, NightChoice } from "./round4";
+import { resolveRecord } from "@verkflode/vaom-guardian-core";
+import { NIGHT_END, type Night, type NightChoice } from "./round4";
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
 
@@ -13,7 +14,7 @@ export function round4Result(night: Night, c: NightChoice, warnings: number): Ro
     const invoice: Invoice = {
       id: e.id, vendor: "", amount: 0, type: "standard", poMatch: "yes",
       confidence: { modelCertainty: 0, ruleMatch: 0, dataCompleteness: 0, anomalySignal: 0 }, composite: 0,
-      hiddenFlags: e.hazard ? ["night_hazard"] : [], description: e.label, teachingPoint: e.text,
+      hiddenFlags: e.hazard ? ["night_hazard"] : [], description: e.actor === "agent" ? `The main agent: ${e.label}` : e.label, teachingPoint: e.text,
     };
     return { invoice, band: e.kind === "spawn" ? (e.text.includes(": allowed") ? "auto_approve" : "blocked") : band, patternUsed: null, outcome: e.verdict === "neutral" ? "good" : e.verdict, reason: e.text };
   });
@@ -31,7 +32,25 @@ export function round4Result(night: Night, c: NightChoice, warnings: number): Ro
     adaptability: 10,
     enforcement: clamp(enforcement),
   };
-  return { round: 4, processed, score, incidents: events.filter((e) => e.verdict === "risky").map((e) => e.id), antiPatterns: [] };
+  // Asks left overnight expired at six; executed calls ran.
+  const records = night.events.flatMap((e) => {
+    const r = e.record;
+    if (!r) return [];
+    const o = r.decision.outcome;
+    if (o === "review" || o === "escalate") return [resolveRecord(r, { ts: NIGHT_END, result: "expired" })];
+    if (o === "allow") return [resolveRecord(r, { ts: r.request.ts, result: "executed" })];
+    return [resolveRecord(r, { ts: r.request.ts, result: "not-executed" })];
+  });
+  return {
+    round: 4, processed, score, incidents: events.filter((e) => e.verdict === "risky").map((e) => e.id), antiPatterns: [],
+    v5Evidence: { records, spawns: night.spawns, probes: night.pre.probes },
+    v5Flags: {
+      paperTiger,
+      nothingThrough: risky === 0,
+      breakerOwned: c.breakers.outOfBounds !== "off" && !!c.breakers.notify,
+      toolAbsent: !night.pre.toolPresent,
+    },
+  };
 }
 
 export const ROUND4_BRIEFING = [

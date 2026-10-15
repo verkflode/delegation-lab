@@ -14,9 +14,9 @@ const SCENARIOS: {
   available: boolean;
 }[] = [
   { id: "invoice_processing", label: "Invoice processing", sub: "Accounts payable at a European financial services firm", icon: <FileText size={14} />, available: true },
-  { id: "customer_complaints", label: "Customer complaints", sub: "Retail banking complaint triage and response", icon: <Users size={14} />, available: true },
-  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alert classification", icon: <ShieldCheck size={14} />, available: true },
-  { id: "hr_investigation", label: "HR investigation", sub: "Policy violation assessment and outcome recommendation", icon: <Cpu size={14} />, available: true },
+  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alert classification · coming later", icon: <ShieldCheck size={14} />, available: false },
+  { id: "customer_complaints", label: "Customer complaints", sub: "Retail banking complaint triage and response · coming later", icon: <Users size={14} />, available: false },
+  { id: "hr_investigation", label: "HR investigation", sub: "Policy violation assessment · coming later", icon: <Cpu size={14} />, available: false },
 ];
 
 export function TitleScreen() {
@@ -38,7 +38,7 @@ export function TitleScreen() {
               An Open Framework Simulation
             </div>
             <div className="font-sans text-[13px] text-muted mt-0.5">
-              Verkflöde Agent Operating Model · v4.0
+              Verkflöde Agent Operating Model (VAOM) · v5.0
             </div>
           </div>
         </div>
@@ -55,10 +55,10 @@ export function TitleScreen() {
               for AI governance.
             </h1>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl mb-3">
-              You are the new Head of AI Operations at a European enterprise. The board has approved AI agents for a live workflow. Your job: design the delegation policy, compile it into enforcement, run the simulation — and live with the consequences.
+              You are the new Head of AI Operations at a European enterprise. The board has approved an AI agent for accounts payable. Your job: write its delegation matrix, put the VAOM Guardian in front of it, run the workflow, and live with the consequences.
             </p>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl">
-              Four rounds. Seven to nine minutes. One delegation philosophy — tested at 2 a.m.
+              Four rounds. About ten minutes. One delegation design, tested at 2 a.m.
             </p>
 
             <button
@@ -83,14 +83,15 @@ export function TitleScreen() {
                 EU data residency
               </span>
               <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
-                ~8 minutes
+                ~10 minutes
               </span>
             </div>
 
             <p className="mt-4 font-mono text-[10px] text-muted-2 leading-relaxed max-w-xl">
               Built by Claude Fable 5 under Verkflöde direction, using the
-              Draft &amp; Approve pattern this game teaches. VAOM&apos;s voice is
-              generated live by Claude.
+              Draft &amp; Approve pattern this game teaches. Every decision in it
+              is made by the VAOM Guardian; VAOM&apos;s voice is written live by a
+              language model from the game&apos;s own facts.
             </p>
           </div>
 
@@ -136,30 +137,30 @@ export function TitleScreen() {
               <RoundPreview
                 icon={<Workflow size={16} />}
                 num={1}
-                title="The Basics"
-                concept="Confidence Gate"
-                line="Set a single threshold. Watch what slips through."
+                title="The Matrix"
+                concept="Decision Inventory"
+                line="Name the decisions, hidden ones included. Profile them, route them, give each an owner."
               />
               <RoundPreview
                 icon={<Cpu size={16} />}
                 num={2}
-                title="The Edge Cases"
-                concept="Delegation Patterns"
-                line="A threshold is not a policy. Assign patterns, calibrate five signals."
+                title="The Gate"
+                concept="Calibrated Thresholds"
+                line="Choose an error target and let calibration set the threshold. Then the ceiling and the caps."
               />
               <RoundPreview
                 icon={<ShieldCheck size={16} />}
                 num={3}
-                title="The Audit"
-                concept="Readiness Assessment"
-                line="Drift, evidence, and the regulator. Be ready."
+                title="The Reviewer"
+                concept="Funded Oversight"
+                line="Fund the review, then do it yourself. The scorecard reads your clicks."
               />
               <RoundPreview
                 icon={<Moon size={16} />}
                 num={4}
                 title="The 2 A.M. Test"
-                concept="Enforcement"
-                line="Sub-agents spawn. Something probes your boundaries. You are asleep."
+                concept="Proven Boundaries"
+                line="Sub-agents spawn. Something tests your boundaries. You are asleep."
               />
             </div>
           </div>

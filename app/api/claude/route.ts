@@ -14,6 +14,7 @@
 import { NextResponse } from "next/server";
 import { complete, llmConfigFromEnv, type CompletionRequest, type LlmConfig } from "../../../lib/llm";
 import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
+import { BRIEFING_PROMPTS_V5, VAOM_SYSTEM_V5 } from "../../../lib/v5/prompts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -46,7 +47,7 @@ const rateLimited = createLimiter(
 // ────────────────────────────────────────────────────────────────────────────
 
 type Payload =
-  | { kind: "briefing"; round: 1 | 2 | 3 | 4; scenario?: string }
+  | { kind: "briefing"; round: 1 | 2 | 3 | 4; scenario?: string; edition?: "v5" }
   | { kind: "scenario"; round: 1 | 2 | 3 | 4; scenario?: string }
   | {
       kind: "debrief";
@@ -84,6 +85,7 @@ export async function POST(req: Request) {
   }
 
   try {
+    if ("edition" in body && body.edition === "v5") return await v5Response(llm, body);
     switch (body.kind) {
       case "briefing":
         return await briefingResponse(llm, body.round);
@@ -100,6 +102,22 @@ export async function POST(req: Request) {
     console.error("[/api/claude] error", err);
     return NextResponse.json({ error: "upstream_error" }, { status: 502 });
   }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// v5: the game on the VAOM Guardian core (lib/v5/prompts.ts). Only briefings are model-written; a reply
+// that fails its check is a 502, and the client keeps its scripted text.
+// ────────────────────────────────────────────────────────────────────────────
+
+async function v5Response(llm: LlmConfig, body: Payload & { edition?: "v5" }) {
+  if (body.kind === "briefing") {
+    const prompt = BRIEFING_PROMPTS_V5[body.round];
+    if (!prompt) return NextResponse.json({ error: "bad_round" }, { status: 400 });
+    const text = await generate(llm, "briefing-v5", { system: VAOM_SYSTEM_V5, prompt, maxTokens: 900 });
+    if (text.trim().length < 150) return NextResponse.json({ error: "bad_reply" }, { status: 502 });
+    return NextResponse.json({ text: text.trim() });
+  }
+  return NextResponse.json({ error: "unknown_kind" }, { status: 400 });
 }
 
 // ────────────────────────────────────────────────────────────────────────────

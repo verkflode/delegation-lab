@@ -48,11 +48,12 @@ export function v5Result(run: Round1Run, policy: Round1Policy, round: 1 | 2, gat
     score: v5Score(run, policy, gate),
     incidents: run.steps.filter((s) => s.verdict === "risky" || s.verdict === "missed").map((s) => s.item.id),
     antiPatterns: [],
+    v5Evidence: { records: run.steps.map((s) => s.record) },
   };
 }
 
 export const ROUND1_BRIEFING = [
-  "Banks have managed structured decision authority for decades. Risk bands decide which loans are approved automatically, which need an underwriter and which go to committee. The score says how risky the loan is. The bands say who may decide it. VAOM brings the same discipline to AI agents.",
+  "Banks have managed structured decision authority for decades. Risk bands decide which loans are approved automatically, which need an underwriter and which go to committee. The score says how risky the loan is. The bands say who may decide it. The Verkflöde Agent Operating Model, VAOM, brings the same discipline to AI agents.",
   "Your agent runs accounts payable. Before it touches a single invoice, you write its delegation matrix: every decision it makes, what each one could cost, which band each confidence level lands in, and who answers for it. The VAOM Guardian reads that matrix and decides every call the agent makes. Nothing else does.",
   "Look carefully at the workflow. It contains more decisions than the obvious one. What your matrix doesn't name, the Guardian can't place.",
 ].join("\n\n");
