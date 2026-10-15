@@ -5,7 +5,9 @@ import { ArrowRight } from "lucide-react";
 import { isV5Round, useGame } from "../lib/game-state";
 import { fetchBriefing } from "../lib/api";
 import { briefingFallback } from "../data/vaom-text";
-import { ROUND1_BRIEFING } from "../lib/v5/round1-result";
+import { ROUND1_BRIEFING, ROUND2_BRIEFING } from "../lib/v5/round1-result";
+import { ROUND3_BRIEFING } from "../lib/v5/round3-result";
+import { ROUND4_BRIEFING } from "../lib/v5/round4-result";
 import { VAOMVoice } from "./VAOMVoice";
 import type { ScenarioDomain } from "../lib/types";
 
@@ -24,7 +26,12 @@ const ROUND_TITLES: Record<1 | 2 | 3 | 4, { kicker: string; title: string; conce
   4: { kicker: "Round 4", title: "The 2 A.M. Test", concept: "Identity & Credentialing · Attenuation · Guardians" },
 };
 
-const V5_ROUND1_TITLE = { kicker: "Round 1", title: "The Matrix", concept: "Decision inventory · Authority decomposition · The matrix" };
+const V5_TITLES = {
+  1: { kicker: "Round 1", title: "The Matrix", concept: "Decision inventory · Authority decomposition · The matrix" },
+  2: { kicker: "Round 2", title: "The Gate", concept: "Calibrated thresholds · Value ceilings · Cumulative caps" },
+  3: { kicker: "Round 3", title: "The Reviewer", concept: "Funded oversight · Seeded errors · Review engagement" },
+  4: { kicker: "Round 4", title: "The 2 A.M. Test", concept: "Sub-agent chains · Boundary verification · Circuit breakers" },
+};
 
 export function Briefing() {
   const { state, advance } = useGame();
@@ -34,14 +41,15 @@ export function Briefing() {
   // actually changes.
   // v5 rounds use their own scripted text until the model prompts are rewritten for v5 (M5).
   const v5 = isV5Round(state.round, state.scenario);
-  const [text, setText] = useState(() => (v5 ? ROUND1_BRIEFING : briefingFallback(state.round, state.scenario)));
+  const v5Text = state.round === 4 ? ROUND4_BRIEFING : state.round === 3 ? ROUND3_BRIEFING : state.round === 2 ? ROUND2_BRIEFING : ROUND1_BRIEFING;
+  const [text, setText] = useState(() => (v5 ? v5Text : briefingFallback(state.round, state.scenario)));
   const mountedAt = useRef(Date.now());
 
   useEffect(() => {
     let cancelled = false;
     mountedAt.current = Date.now();
     if (v5) {
-      setText(ROUND1_BRIEFING);
+      setText(v5Text);
       return;
     }
     setText(briefingFallback(state.round, state.scenario));
@@ -56,10 +64,10 @@ export function Briefing() {
     return () => {
       cancelled = true;
     };
-  }, [state.round, state.scenario, v5]);
+  }, [state.round, state.scenario, v5, v5Text]);
 
-  const meta = v5 ? V5_ROUND1_TITLE : ROUND_TITLES[state.round];
-  const nextPhase = state.round === 3 ? "preEvents" : "config";
+  const meta = v5 ? V5_TITLES[state.round] : ROUND_TITLES[state.round];
+  const nextPhase = state.round === 3 && !v5 ? "preEvents" : "config";
 
   return (
     <div className="min-h-screen flex items-center px-6 py-16 animate-fade-in">
@@ -89,12 +97,12 @@ export function Briefing() {
             onClick={() => advance(nextPhase)}
             className="group inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-cyan to-cyan/70 text-bg-1 font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-3 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(45,106,79,0.30)] transition-all focus-ring"
           >
-            {state.round === 3
-              ? "Address pre-events"
-              : state.round === 4
-                ? "Configure the night"
-                : v5
-                  ? "Build the matrix"
+            {v5
+              ? state.round === 4 ? "Configure the night" : state.round === 3 ? "Plan the review" : state.round === 2 ? "Set the limits" : "Build the matrix"
+              : state.round === 3
+                ? "Address pre-events"
+                : state.round === 4
+                  ? "Configure the night"
                   : "Configure policy"}
             <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </button>

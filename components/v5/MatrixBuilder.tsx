@@ -180,7 +180,7 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-function Segmented({ options, value, onChange }: { options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
+export function Segmented({ options, value, onChange }: { options: { value: string; label: string }[]; value: string; onChange: (v: string) => void }) {
   return (
     <div className="flex flex-wrap gap-1.5" role="group">
       {options.map((o) => {
@@ -206,7 +206,7 @@ const BAND_STYLE: Record<Band, { on: string; label: string }> = {
   C: { on: "bg-band-c border-band-c", label: "C · escalate" },
 };
 
-function BandPicker({ value, onChange }: { value: Band; onChange: (b: Band) => void }) {
+export function BandPicker({ value, onChange }: { value: Band; onChange: (b: Band) => void }) {
   return (
     <div className="flex flex-wrap gap-1.5" role="group">
       {(Object.keys(BAND_STYLE) as Band[]).map((b) => {
@@ -228,7 +228,7 @@ function BandPicker({ value, onChange }: { value: Band; onChange: (b: Band) => v
 
 // ── Right column ───────────────────────────────────────────────────────────
 
-function LintPanel({ ok, explained }: { ok: boolean; explained: Explained[] }) {
+export function LintPanel({ ok, explained }: { ok: boolean; explained: Explained[] }) {
   const errors = explained.filter((e) => e.severity === "error").length;
   const warnings = explained.length - errors;
   const rowTitle = (id?: string) => DECISIONS.find((d) => d.id === id)?.title;
@@ -272,7 +272,7 @@ function LintPanel({ ok, explained }: { ok: boolean; explained: Explained[] }) {
   );
 }
 
-function LoadBar({ hours, funded }: { hours: number; funded: number }) {
+export function LoadBar({ hours, funded }: { hours: number; funded: number }) {
   const over = hours > funded;
   const pct = Math.min(100, (hours / funded) * 100);
   return (
@@ -286,7 +286,7 @@ function LoadBar({ hours, funded }: { hours: number; funded: number }) {
       <div className="h-2 rounded-full bg-ink/8 mt-2 overflow-hidden">
         <div className={`h-full rounded-full ${over ? "bg-band-held" : "bg-band-b"}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-[11px] text-muted-2 mt-2">60 reviewer hours funded, at most 80% used. Every invoice you route to a human costs minutes here.</p>
+      <p className="text-[11px] text-muted-2 mt-2">{Math.round(funded / 0.8)} reviewer hours funded, at most 80% used. Every invoice you route to a human costs minutes here.</p>
     </div>
   );
 }

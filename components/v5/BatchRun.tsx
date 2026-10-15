@@ -3,11 +3,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Activity, ArrowRight } from "lucide-react";
 import { useGame } from "../../lib/game-state";
-import { runRound1, type Lane, type Round1Step, type Verdict } from "../../lib/v5/round1";
-import { round1Result } from "../../lib/v5/round1-result";
+import { CONTROLLER_GATE, runBatch, BATCH, type Lane, type Round1Step, type Verdict } from "../../lib/v5/round1";
+import { BATCH2, BATCH2_START, toGate } from "../../lib/v5/round2";
+import { v5Result } from "../../lib/v5/round1-result";
 
 /**
- * Round 1 (v5): the batch, decided call by call by the VAOM Guardian core against the player's matrix.
+ * Rounds 1 and 2 (v5): the batch, decided call by call by the VAOM Guardian core against the player's matrix.
  * Each card shows the band, the core's reasons and the answer on the ACS wire.
  */
 
@@ -27,13 +28,20 @@ const VERDICT: Record<Verdict, { label: string; cls: string }> = {
   missed: { label: "not in the matrix", cls: "text-band-none" },
 };
 
-export function Round1Run() {
+const ROUNDS = {
+  1: { title: "Tuesday morning, accounts payable", batch: BATCH, start: "2026-10-14T09:00:00Z" },
+  2: { title: "Wednesday morning, accounts payable", batch: BATCH2, start: BATCH2_START },
+} as const;
+
+export function BatchRun() {
   const { state, recordResult, advance } = useGame();
   const policy = state.v5r1;
+  const round = state.round === 2 ? 2 : 1;
+  const gate = useMemo(() => (round === 2 && state.v5r2 ? toGate(state.v5r2) : CONTROLLER_GATE), [round, state.v5r2]);
   const run = useMemo(() => {
     if (!policy) return { error: "No matrix to run." };
-    try { return { run: runRound1(policy) }; } catch (e) { return { error: (e as Error).message }; }
-  }, [policy]);
+    try { return { run: runBatch(policy, gate, ROUNDS[round].batch, ROUNDS[round].start) }; } catch (e) { return { error: (e as Error).message }; }
+  }, [policy, gate, round]);
   const steps = run.run?.steps ?? [];
 
   const [shown, setShown] = useState(0);
@@ -49,8 +57,8 @@ export function Round1Run() {
   useEffect(() => {
     if (!done || recorded.current || !run.run || !policy) return;
     recorded.current = true;
-    recordResult(round1Result(run.run, policy));
-  }, [done, run, policy, recordResult]);
+    recordResult(v5Result(run.run, policy, round, gate));
+  }, [done, run, policy, round, gate, recordResult]);
 
   const visible = steps.slice(0, shown);
   const latest = visible[visible.length - 1];
@@ -72,8 +80,8 @@ export function Round1Run() {
       <div className="max-w-6xl mx-auto">
         <div className="flex items-baseline justify-between mb-4 gap-4 flex-wrap">
           <div>
-            <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold">Round 1 · The batch</div>
-            <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint mt-1">Tuesday morning, accounts payable</h1>
+            <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold">Round {round} · The batch</div>
+            <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint mt-1">{ROUNDS[round].title}</h1>
           </div>
           <div className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">
             <Activity size={12} className={done ? "text-mint" : "text-cyan animate-pulse-soft"} />

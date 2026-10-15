@@ -12,7 +12,12 @@ import { Debrief } from "../components/Debrief";
 import { FinalScore } from "../components/FinalScore";
 import { RestartButton } from "../components/RestartButton";
 import { MatrixBuilder } from "../components/v5/MatrixBuilder";
-import { Round1Run } from "../components/v5/Round1Run";
+import { BatchRun } from "../components/v5/BatchRun";
+import { GateBuilder } from "../components/v5/GateBuilder";
+import { ReviewSetup } from "../components/v5/ReviewSetup";
+import { ReviewShift } from "../components/v5/ReviewShift";
+import { NightSetup } from "../components/v5/NightSetup";
+import { NightRun } from "../components/v5/NightRun";
 
 export default function Page() {
   return (
@@ -40,14 +45,14 @@ function Screen({ phase, round, v5 }: { phase: string; round: number; v5: boolea
     case "briefing":
       return <Briefing />;
     case "config":
-      if (v5) return <MatrixBuilder />;
+      if (v5) return round === 4 ? <NightSetup /> : round === 3 ? <ReviewSetup /> : round === 2 ? <GateBuilder /> : <MatrixBuilder />;
       if (round === 1) return <ConfigBasic />;
       if (round === 4) return <ConfigSwarm />;
       return <ConfigMatrix key={phase + round} />;
     case "preEvents":
       return <ConfigAudit />;
     case "simulation":
-      return v5 ? <Round1Run /> : <Simulation />;
+      return v5 ? (round === 4 ? <NightRun /> : round === 3 ? <ReviewShift /> : <BatchRun />) : <Simulation />;
     case "debrief":
       return <Debrief />;
     case "final":

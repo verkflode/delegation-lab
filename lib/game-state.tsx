@@ -20,9 +20,12 @@ import type {
   ScenarioDomain,
 } from "./types";
 import type { Round1Policy } from "./v5/round1";
+import type { GateChoice } from "./v5/round2";
+import type { ReviewChoice } from "./v5/round3";
+import type { NightChoice } from "./v5/round4";
 
-/** v5: round 1 runs on the VAOM Guardian core, for invoices so far. */
-export const isV5Round = (round: RoundNumber, scenario: ScenarioDomain) => round === 1 && scenario === "invoice_processing";
+/** v5: all four rounds run on the VAOM Guardian core, for invoices so far. */
+export const isV5Round = (_round: RoundNumber, scenario: ScenarioDomain) => scenario === "invoice_processing";
 
 /**
  * Game state lives in a single reducer. It is intentionally small —
@@ -38,6 +41,9 @@ type Action =
   | { type: "set_scenario"; domain: ScenarioDomain }
   | { type: "set_r1"; policy: R1Policy }
   | { type: "set_v5r1"; policy: Round1Policy }
+  | { type: "set_v5r2"; gate: GateChoice }
+  | { type: "set_v5r3"; review: ReviewChoice }
+  | { type: "set_v5r4"; night: NightChoice }
   | { type: "set_r2"; policy: R2Policy }
   | { type: "set_r3"; pre: R3PreEvents }
   | { type: "set_r4"; policy: R4Policy }
@@ -67,6 +73,12 @@ function reducer(state: GameState, action: Action): GameState {
       return { ...state, r1: action.policy };
     case "set_v5r1":
       return { ...state, v5r1: action.policy };
+    case "set_v5r2":
+      return { ...state, v5r2: action.gate };
+    case "set_v5r3":
+      return { ...state, v5r3: action.review };
+    case "set_v5r4":
+      return { ...state, v5r4: action.night };
     case "set_r2":
       return { ...state, r2: action.policy };
     case "set_r3":
@@ -92,6 +104,9 @@ type GameContextValue = {
   setScenario: (domain: ScenarioDomain) => void;
   setR1: (policy: R1Policy) => void;
   setV5R1: (policy: Round1Policy) => void;
+  setV5R2: (gate: GateChoice) => void;
+  setV5R3: (review: ReviewChoice) => void;
+  setV5R4: (night: NightChoice) => void;
   setR2: (policy: R2Policy) => void;
   setR3: (pre: R3PreEvents) => void;
   setR4: (policy: R4Policy) => void;
@@ -114,6 +129,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
       setScenario: (domain) => dispatch({ type: "set_scenario", domain }),
       setR1: (policy) => dispatch({ type: "set_r1", policy }),
       setV5R1: (policy) => dispatch({ type: "set_v5r1", policy }),
+      setV5R2: (gate) => dispatch({ type: "set_v5r2", gate }),
+      setV5R3: (review) => dispatch({ type: "set_v5r3", review }),
+      setV5R4: (night) => dispatch({ type: "set_v5r4", night }),
       setR2: (policy) => dispatch({ type: "set_r2", policy }),
       setR3: (pre) => dispatch({ type: "set_r3", pre }),
       setR4: (policy) => dispatch({ type: "set_r4", policy }),

@@ -352,6 +352,8 @@ export type RoundResult = {
   /** v4.0 Round 4 artifacts */
   nightEvents?: NightEvent[];
   guardianReport?: GuardianReport;
+  /** v5: VAOM's debrief, written when the round ends from what the core judged. */
+  v5Debrief?: string;
 };
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -387,6 +389,12 @@ export type GameState = {
   r1?: R1Policy;
   /** v5 round 1: the player's matrix choices (see lib/v5/round1.ts). */
   v5r1?: import("./v5/round1").Round1Policy;
+  /** v5 round 2: the player's gate choices (see lib/v5/round2.ts). */
+  v5r2?: import("./v5/round2").GateChoice;
+  /** v5 round 3: the player's oversight choices (see lib/v5/round3.ts). */
+  v5r3?: import("./v5/round3").ReviewChoice;
+  /** v5 round 4: the player's night settings (see lib/v5/round4.ts). */
+  v5r4?: import("./v5/round4").NightChoice;
   r2?: R2Policy;
   r3?: R3PreEvents;
   r4?: R4Policy;

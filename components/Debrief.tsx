@@ -5,7 +5,8 @@ import { ArrowRight, Trophy } from "lucide-react";
 import { isV5Round, useGame } from "../lib/game-state";
 import { fetchDebrief } from "../lib/api";
 import { debriefFallback } from "../data/vaom-text";
-import { round1Debrief } from "../lib/v5/round1-result";
+import { round1Debrief, round2Debrief } from "../lib/v5/round1-result";
+import { calibrate } from "../lib/v5/round2";
 import { VAOMVoice } from "./VAOMVoice";
 import { AntiPatternList } from "./AntiPatternAlert";
 import type { GameMoment } from "../lib/ssml";
@@ -19,7 +20,12 @@ export function Debrief() {
   const { state, advance, setRound } = useGame();
   const result = state.results[state.results.length - 1];
   // v5 round 1 has its own scripted debrief until the model prompts are rewritten for v5 (M5).
-  const v5Text = result && state.v5r1 && isV5Round(state.round, state.scenario) ? round1Debrief(result, state.v5r1) : null;
+  const v5 = isV5Round(state.round, state.scenario);
+  const v5Text = !result || !v5 ? null
+    : result.v5Debrief ? result.v5Debrief
+    : state.round === 2 && state.v5r2 ? round2Debrief(result, state.v5r2, calibrate(state.v5r2.errorTarget).threshold)
+    : state.round === 1 && state.v5r1 ? round1Debrief(result, state.v5r1)
+    : null;
   const [text, setText] = useState<string>(() =>
     v5Text ?? (result
       ? debriefFallback({

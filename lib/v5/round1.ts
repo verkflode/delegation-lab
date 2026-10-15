@@ -121,23 +121,66 @@ export function startingPolicy(): Round1Policy {
 
 // ── Building the documents ─────────────────────────────────────────────────
 
-type Doc = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
+export type Doc = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 const exampleRow = (id: string): Doc => structuredClone((example as Doc).rows.find((r: Doc) => r.id === id));
 const DATE = "2026-10-14";
+
+// ── The gate: the approve row's limits ─────────────────────────────────────
+
+/** The approve row's confidence thresholds, calibration, ceiling and cap. Round 1 uses the controller's;
+ *  round 2 hands them to the player. */
+export interface Gate {
+  thresholds: { high: number; medium: number };
+  /** The calibration record, or null when no threshold passed the test (then Band A can't lint). */
+  calibration: Doc | null;
+  ceiling: { amount: number; onExceed: "B" | "C" };
+  /** Per-vendor daily cap, or null for none. */
+  cap: number | null;
+  /** Weekly approvals by confidence level, and how many of them exceed the ceiling. */
+  volume: Partial<Record<Level, number>>;
+  overCeilingPerWeek: number;
+  /** The matrix version this gate produces, and which round built it. */
+  version: string;
+  round: 1 | 2;
+}
+
+const exampleApprove = (example as Doc).rows.find((r: Doc) => r.id === "invoice.approve");
+
+export const CONTROLLER_GATE: Gate = {
+  thresholds: { ...exampleApprove.authority.confidence.thresholds },
+  calibration: { ...exampleApprove.authority.confidence.calibration },
+  ceiling: { amount: 5000, onExceed: "B" },
+  cap: 5000,
+  volume: { high: 1200, medium: 300, low: 20 },
+  overCeilingPerWeek: 0,
+  version: "1.0.0",
+  round: 1,
+};
+
+const RANK: Record<Band, number> = { A: 0, B: 1, C: 2 };
+const stricter = (a: Band, b: Band): Band => (RANK[a] >= RANK[b] ? a : b);
 
 export function reachesA(c: RowChoice): boolean {
   return c.kind === "delegable" && Object.values(c.routing).includes("A");
 }
 
-export function weeklyLoad(meta: DecisionMeta, c: RowChoice): Partial<Record<Band, number>> {
+export function weeklyLoad(meta: DecisionMeta, c: RowChoice, gate: Gate = CONTROLLER_GATE): Partial<Record<Band, number>> {
   const out: Partial<Record<Band, number>> = {};
-  for (const [level, n] of Object.entries(meta.volume) as [Level, number][]) out[c.routing[level]] = (out[c.routing[level]] ?? 0) + n;
+  const add = (b: Band, n: number) => { if (n > 0) out[b] = Math.round((out[b] ?? 0) + n); };
+  const volume = meta.id === "invoice.approve" ? gate.volume : meta.volume;
+  const total = Object.values(volume).reduce((a, b) => a + (b ?? 0), 0) || 1;
+  const over = meta.id === "invoice.approve" ? gate.overCeilingPerWeek : 0;
+  for (const [level, n] of Object.entries(volume) as [Level, number][]) {
+    add(c.routing[level], n * (1 - over / total));
+    add(stricter(c.routing[level], gate.ceiling.onExceed), n * (over / total));
+  }
   return out;
 }
 
 /** Reviewer hours a week, computed the way the core's oversight.unfunded rule computes them. */
-export function reviewHours(policy: Round1Policy): { hours: number; funded: number } {
-  const m = buildMatrix(policy);
+export function reviewHours(policy: Round1Policy, gate: Gate = CONTROLLER_GATE, tweak?: MatrixTweak): { hours: number; funded: number } {
+  const m = buildMatrix(policy, gate);
+  tweak?.(m);
   let minutes = 0;
   for (const row of m.rows as Doc[]) {
     const o = row.oversight;
@@ -148,14 +191,14 @@ export function reviewHours(policy: Round1Policy): { hours: number; funded: numb
   return { hours: minutes / 60, funded: m.oversight.fundedReviewerHoursPerWeek * (m.oversight.maxUtilization ?? 0.8) };
 }
 
-export function buildMatrix(policy: Round1Policy): Doc {
+export function buildMatrix(policy: Round1Policy, gate: Gate = CONTROLLER_GATE): Doc {
   const m: Doc = structuredClone(example);
   delete m.$schema;
   m.id = "lab.ap.invoice";
-  m.version = "1.0.0";
+  m.version = gate.version;
   m.title = "Vendor invoice approval (your matrix)";
-  m.description = "Built in the Delegation Lab, round 1.";
-  m.approval = { role: "ap-owner", date: DATE, ref: "placeholder://lab/round-1" };
+  m.description = `Built in the Delegation Lab, round ${gate.round}.`;
+  m.approval = { role: "ap-owner", date: DATE, ref: `placeholder://lab/round-${gate.round}` };
 
   const rows: Doc[] = [];
   for (const meta of DECISIONS) {
@@ -176,9 +219,10 @@ export function buildMatrix(policy: Round1Policy): Doc {
         ? base.authority
         : { kind: "delegable", reviewer: "ap-clerk", escalation: { role: "finance-controller", sla: "PT8H" } };
       a.routing = { ...c.routing };
+      if (meta.id === "invoice.approve") applyGate(a, gate);
       row.authority = a;
       const o: Doc = base.oversight ?? {};
-      row.oversight = { ...o, expectedPerWeek: weeklyLoad(meta, c), reviewMinutes: meta.reviewMinutes, escalationMinutes: meta.escalationMinutes };
+      row.oversight = { ...o, expectedPerWeek: weeklyLoad(meta, c, gate), reviewMinutes: meta.reviewMinutes, escalationMinutes: meta.escalationMinutes };
       if (reachesA(c)) row.oversight = { auditSampleRate: 0.05, auditMinutes: 4, ...row.oversight };
     }
     rows.push(row);
@@ -195,6 +239,19 @@ export function buildMatrix(policy: Round1Policy): Doc {
   return m;
 }
 
+/** Put the gate's limits on the approve row's authority. A ceiling the player moved loses the example's
+ *  derivation, which justified 5,000 and nothing else. */
+function applyGate(a: Doc, gate: Gate): void {
+  a.confidence.thresholds = { ...gate.thresholds };
+  if (gate.calibration) a.confidence.calibration = { ...gate.calibration };
+  else delete a.confidence.calibration;
+  if (gate.ceiling.amount !== Number(a.valueCeiling.limit.amount)) delete a.valueCeiling.derivation;
+  a.valueCeiling.limit = { amount: String(gate.ceiling.amount), currency: "EUR" };
+  a.valueCeiling.onExceed = gate.ceiling.onExceed;
+  if (gate.cap === null) delete a.cumulativeCaps;
+  else a.cumulativeCaps = [{ ...a.cumulativeCaps[0], total: { amount: String(gate.cap), currency: "EUR" } }];
+}
+
 /** The example binding, cut to the capabilities the matrix governs. A delegable contract row means the
  *  agent was given a contract-write tool, so the binding gains one. */
 export function buildBinding(policy: Round1Policy, matrix: Doc): Doc {
@@ -209,8 +266,12 @@ export function buildBinding(policy: Round1Policy, matrix: Doc): Doc {
   return b;
 }
 
-export function lintPolicy(policy: Round1Policy): { matrix: Doc; lint: LintResult } {
-  const matrix = buildMatrix(policy);
+/** A change a later round makes to the built matrix (round 3: oversight funding and seeding). */
+export type MatrixTweak = (matrix: Doc) => void;
+
+export function lintPolicy(policy: Round1Policy, gate: Gate = CONTROLLER_GATE, tweak?: MatrixTweak): { matrix: Doc; lint: LintResult } {
+  const matrix = buildMatrix(policy, gate);
+  tweak?.(matrix);
   return { matrix, lint: lintMatrix(matrix) };
 }
 
@@ -222,18 +283,20 @@ const VENDORS: Record<string, number[]> = {
   "V-NORD": [3600, 4200, 3850, 3980, 4400],
   "V-PRINT": [1700, 1850, 1780, 1920, 1640, 1810],
   "V-CLEAN": [940, 1010, 1080, 960, 1120, 990],
+  "V-STEEL": [4800, 5200, 6100, 5500, 4900, 5300],
+  "V-CRANE": [6200, 7100, 6600, 6900, 6400],
 };
 
-const approve = (invoice: string, vendor: string, amount: number, po = "PO-4471"): Call => ({
+export const approve = (invoice: string, vendor: string, amount: number, po = "PO-4471"): Call => ({
   tool: "mcp__erp__approve_invoice",
   arguments: { invoice_id: invoice, vendor_id: vendor, amount: String(amount), currency: "EUR", po_number: po },
 });
 
-const FACT_KEY = new Uint8Array(32).fill(7);
+export const FACT_KEY = new Uint8Array(32).fill(7);
 
 /** Past approvals, decided under the published example and signed off by a human, so the ledger knows
  *  which vendors are familiar and what they usually bill. */
-function seedHistory(ledger: CapLedger): void {
+export function seedHistory(ledger: CapLedger): void {
   const ref: Doc = structuredClone(example);
   ref.effective = { from: "2026-06-01T00:00:00Z" };
   const compiled = compilePolicy(ref, exampleBinding, [standard, duplicate]);
@@ -261,6 +324,8 @@ export interface BatchItem {
   label: string;
   call: Call;
   truth: Truth;
+  /** What a reviewer sees, and the right call, for asks that reach the player's queue (round 3). */
+  review?: { facts: string[]; correct: "approve" | "reject"; why: string };
   /** Did an independent check (a PO three-way match) pass? */
   verified: boolean;
   /** Why it matters, shown after the run. */
@@ -271,7 +336,7 @@ export interface BatchItem {
   amount: number;
 }
 
-const item = (id: string, label: string, vendor: string, amount: number, truth: Truth, type: BatchItem["type"], teaching: string, opts: { po?: string; verified?: boolean } = {}): BatchItem => ({
+export const item = (id: string, label: string, vendor: string, amount: number, truth: Truth, type: BatchItem["type"], teaching: string, opts: { po?: string; verified?: boolean } = {}): BatchItem => ({
   id, label, call: approve(id, vendor, amount, opts.po), truth, verified: opts.verified ?? true, teaching, type, vendor, amount,
 });
 
@@ -339,10 +404,18 @@ export interface Round1Run {
   binding: Doc;
   policy: Policy;
   steps: Round1Step[];
+  /** The ledger and contexts after the batch, for planting seeds (round 3). */
+  ledger: CapLedger;
+  contexts: ContextRegistry;
 }
 
 export function runRound1(choices: Round1Policy): Round1Run {
-  const { matrix, lint } = lintPolicy(choices);
+  return runBatch(choices, CONTROLLER_GATE, BATCH, "2026-10-14T09:00:00Z");
+}
+
+/** Decide a batch, call by call, under the player's matrix and gate, against the seeded history. */
+export function runBatch(choices: Round1Policy, gate: Gate, batch: BatchItem[], startIso: string, tweak?: MatrixTweak): Round1Run {
+  const { matrix, lint } = lintPolicy(choices, gate, tweak);
   if (!lint.ok) throw new Error("the matrix doesn't lint, so it can't run");
   const binding = buildBinding(choices, matrix);
   const compiled = compilePolicy(matrix, binding, [standard, duplicate]);
@@ -353,17 +426,17 @@ export function runRound1(choices: Round1Policy): Round1Run {
   ledger.load([]);
   seedHistory(ledger);
 
-  const start = Date.parse("2026-10-14T09:00:00Z");
+  const start = Date.parse(startIso);
   const contexts = new ContextRegistry(policy);
   const rows = (matrix.rows as Doc[]).filter((r) => r.authority.kind !== "preparatory").map((r) => r.id as string);
 
-  const steps = BATCH.map((it, i): Round1Step => {
+  const steps = batch.map((it, i): Round1Step => {
     const at = start + (i + 1) * 90_000;
     const ts = new Date(at).toISOString();
     // One execution context per piece of work, as the agent's host would open them.
     if (rows.length) contexts.open({ id: `ctx-${it.id}`, session: "lab", agent: { id: "ap-agent" }, rows }, at);
     const record = decide(policy, it.call, ledger, {
-      id: `lab-r1-${i + 1}`, ts, agent: { id: "ap-agent" }, session: { id: "lab" }, contexts, factKey: FACT_KEY,
+      id: `lab-${it.id}`, ts, agent: { id: "ap-agent" }, session: { id: "lab" }, contexts, factKey: FACT_KEY,
       verifications: { "erp:invoice.approve": it.verified },
     });
     const lane = laneOf(record);
@@ -376,5 +449,5 @@ export function runRound1(choices: Round1Policy): Round1Run {
     ) as Round1Step["wire"];
     return { item: it, record, wire, lane, ...judge(it, record, lane, choices) };
   });
-  return { matrix, binding, policy, steps };
+  return { matrix, binding, policy, steps, ledger, contexts };
 }

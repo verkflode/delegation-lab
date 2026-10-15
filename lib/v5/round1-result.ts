@@ -1,7 +1,8 @@
-// A round 1 run in the shape the rest of the game reads (debrief, final score, profile), and VAOM's
-// debrief for it. The score is interim: M4 replaces it with the core's scorecard().
+// A v5 round's run in the shape the rest of the game reads (debrief, final score, profile), and VAOM's
+// briefings and debriefs for rounds 1 and 2. The score is interim: M4 replaces it with the core's scorecard().
+import type { GateChoice } from "./round2";
 import type { Invoice, ProcessedInvoice, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
-import { DECISIONS, lintPolicy, type Lane, type Round1Policy, type Round1Run, type Round1Step } from "./round1";
+import { CONTROLLER_GATE, DECISIONS, lintPolicy, type Gate, type Lane, type Round1Policy, type Round1Run, type Round1Step } from "./round1";
 
 const BAND: Record<Lane, RoutingBand> = { A: "auto_approve", B: "human_review", C: "escalation", held: "blocked" };
 
@@ -24,13 +25,13 @@ function toProcessed(s: Round1Step): ProcessedInvoice {
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
 
-export function round1Score(run: Round1Run, policy: Round1Policy): ScoreBreakdown {
+export function v5Score(run: Round1Run, policy: Round1Policy, gate: Gate = CONTROLLER_GATE): ScoreBreakdown {
   const routine = run.steps.filter((s) => s.item.truth === "clean");
   const hazards = run.steps.filter((s) => s.item.truth === "hazard");
   const risky = hazards.filter((s) => s.verdict === "risky").length;
   const missing = DECISIONS.filter((d) => !policy[d.id].included).length;
   // The run only exists for a matrix that lints, so only warnings are left to count.
-  const warnings = lintPolicy(policy).lint.findings.filter((f) => f.severity === "warning").length;
+  const warnings = lintPolicy(policy, gate).lint.findings.filter((f) => f.severity === "warning").length;
   return {
     efficiency: clamp((20 * routine.filter((s) => s.verdict === "good").length) / (routine.length || 1)),
     riskControl: clamp((20 * hazards.filter((s) => s.verdict === "good").length) / (hazards.length || 1) - 4 * risky),
@@ -40,11 +41,11 @@ export function round1Score(run: Round1Run, policy: Round1Policy): ScoreBreakdow
   };
 }
 
-export function round1Result(run: Round1Run, policy: Round1Policy): RoundResult {
+export function v5Result(run: Round1Run, policy: Round1Policy, round: 1 | 2, gate: Gate = CONTROLLER_GATE): RoundResult {
   return {
-    round: 1,
+    round,
     processed: run.steps.map(toProcessed),
-    score: round1Score(run, policy),
+    score: v5Score(run, policy, gate),
     incidents: run.steps.filter((s) => s.verdict === "risky" || s.verdict === "missed").map((s) => s.item.id),
     antiPatterns: [],
   };
@@ -92,5 +93,39 @@ export function round1Debrief(result: RoundResult, policy: Round1Policy): string
     "A threshold says how sure the agent is. The matrix says what it may do, who answers for it, and what watching it costs. Every answer in this round came from the VAOM Guardian's core reading your matrix: the same code and the same file format an organisation would run.",
   );
   out.push("Round two hands you the dials this round kept fixed. The vocabulary is going to expand.");
+  return out.join("\n\n");
+}
+
+export const ROUND2_BRIEFING = [
+  "Last round the controller set the limits on invoice approval for you. This round they are yours: the error target, the thresholds, the value ceiling and the per-vendor cap.",
+  "One of them you don't set directly. In VAOM the threshold for Band A is the output of a calibration, not a number someone liked. You choose how many wrong approvals you can tolerate; a test on 240 past approvals, checked by hand, tells you which threshold that supports, and with what confidence. Ask for more certainty than your sample can show, and there is no threshold at all.",
+  "Every limit you tighten sends more invoices to people, and their hours are funded, not infinite. Every limit you loosen is a bet on the score. Wednesday's batch has been waiting for you.",
+].join("\n\n");
+
+/** VAOM's debrief for round 2. */
+export function round2Debrief(result: RoundResult, gate: GateChoice, threshold: number | null): string {
+  const p = result.processed;
+  const risky = p.filter((x) => x.outcome === "risky");
+  const wasteful = p.filter((x) => x.outcome === "wasteful");
+  const out: string[] = [];
+  const pct = (x: number) => `${+(x * 100).toFixed(1)} percent`;
+  out.push(
+    threshold === null
+      ? `You asked for an error rate of ${pct(gate.errorTarget)}. The sample couldn't show it, so nothing was calibrated and nothing ran in Band A.`
+      : `You asked for at most ${pct(gate.errorTarget)} wrong approvals in Band A, at 95 percent confidence. The sample supported a threshold of ${threshold}. ${p.filter((x) => x.band === "auto_approve").length} of ${p.length} calls ran in Band A.`,
+  );
+  if (risky.length) {
+    const r = risky[0];
+    out.push(`${r.invoice.id}: ${r.invoice.description}. ${r.reason} ${r.invoice.teachingPoint}`);
+  } else if (wasteful.length) {
+    const w = wasteful[0];
+    out.push(`${w.invoice.id}: ${w.invoice.description}. ${w.reason} ${w.invoice.teachingPoint} Safe, and somebody's six minutes, every time.`);
+  } else {
+    out.push("Every hazard was held and every routine invoice ran. The score did some of that; the ceiling, the cap and the PO check did the rest. None of them alone would have.");
+  }
+  out.push(
+    "Notice what caught what. The score lowered the unfamiliar vendor. The PO match, an independent check, stopped the invoice whose numbers all looked fine. The ceiling stopped the slipped decimal the score let through. The cap saw the split that every single invoice hid. Confidence informs authority. The limits define it.",
+  );
+  out.push("Every one of those Band B asks landed on a person. Next round, that person is you.");
   return out.join("\n\n");
 }

@@ -32,6 +32,8 @@ function schemaRulesBroken(id: RowId, policy: Round1Policy, row: Doc | undefined
   const p = c.profile;
   const out: string[] = [];
   const order = { A: 0, B: 1, C: 2 } as const;
+  const ov = row?.oversight;
+  if (ov?.seeding?.enabled && (ov.recordsFeed ?? []).length > 0) out.push(`Seeding is never allowed where records feed ${ov.recordsFeed.join(", ")}: a planted case would end up in the filing.`);
   if (c.kind === "delegable") {
     if (p.accountabilityClarity !== "clear-single-owner") out.push("Ambiguous or missing ownership cannot be delegated. Name one owner who has accepted it, or keep it with a human.");
     if (order[c.routing.medium] < order[c.routing.high] || order[c.routing.low] < order[c.routing.medium]) out.push("Monotone routing: lower confidence never loosens. Medium must be at least as strict as high, and low at least as strict as medium.");
@@ -39,10 +41,17 @@ function schemaRulesBroken(id: RowId, policy: Round1Policy, row: Doc | undefined
   if (reachesA(c)) {
     if (p.confidenceMeasurability === "judgment-dependent" || p.regulatoryExposure === "prohibited-from-full-automation") out.push("No Band A where regulation requires human involvement, or where confidence cannot be measured.");
     if (p.regulatoryExposure === "regulated-decision") out.push("A regulated decision reaches Band A only with a written justification, and this matrix has none.");
-    if (!row?.authority?.confidence?.calibration) out.push("Band A needs calibrated confidence. Nobody has calibrated this decision yet.");
+    if (!row?.authority?.confidence?.calibration) out.push(id === "invoice.approve"
+      ? "Band A needs calibrated confidence, and your calibration test passed no threshold at the error target you chose."
+      : "Band A needs calibrated confidence. Nobody has calibrated this decision yet.");
     if (p.consequenceScope !== "internal-operational" && !row?.authority?.valueCeiling && !row?.authority?.noValueCeiling) out.push("A row that can act on its own with financial or external consequences states its value limit. This one has none, so Band A would be unbounded.");
   }
   return out;
+}
+
+function workflowRulesBroken(matrix: Doc): string[] {
+  const m = matrix.oversight?.reviewerLevelMetrics;
+  return m?.enabled && !m.approvalRef ? ["Per-reviewer metrics are employee monitoring. Turning them on needs a recorded approval, such as a DPIA."] : [];
 }
 
 export function explain(lint: LintResult, matrix: Doc, policy: Round1Policy): Explained[] {
@@ -65,7 +74,7 @@ export function explain(lint: LintResult, matrix: Doc, policy: Round1Policy): Ex
   }
   for (const [key, findings] of bySchemaRow) {
     const { id, row } = rowAt(key);
-    const rules = id ? schemaRulesBroken(id, policy, row) : [];
+    const rules = id ? schemaRulesBroken(id, policy, row) : workflowRulesBroken(matrix);
     if (rules.length === 0) out.push({ severity: "error", ...(id ? { row: id } : {}), text: "The matrix doesn't pass its schema here, for a reason the Lab can't put in plain words.", findings });
     else rules.forEach((text, i) => out.push({ severity: "error", ...(id ? { row: id } : {}), text, findings: i === 0 ? findings : [] }));
   }
