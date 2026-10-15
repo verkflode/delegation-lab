@@ -1,20 +1,17 @@
 import type { NextConfig } from "next";
-import { join } from "node:path";
 
-// SPIKE (v5): the Guardian core is linked from the sibling repo with a file: dependency, and the ACS
-// package is aliased to its source. Both ship TypeScript, so Next transpiles them. The Turbopack root is
-// widened to ~/Development so it can read them. Replaced by normal package dependencies once the
-// Guardian repo is public.
-const acs = "../../ACS project/packages/acs/src/translate.ts"; // translation only: the endpoint and its validators stay out of the bundle
-
+// The VAOM Guardian's core and its ACS translation are vendored (vendor/vaom-guardian, pinned to a commit;
+// see scripts/vendor-guardian.mjs) and imported under their package names.
 const nextConfig: NextConfig = {
   // Self-contained server build for the container image (see Dockerfile).
   // Vercel builds work unchanged with it.
   output: "standalone",
-  transpilePackages: ["@verkflode/vaom-guardian-core"],
   turbopack: {
-    root: join(import.meta.dirname, "..", ".."),
-    resolveAlias: { "@verkflode/vaom-guardian-acs": acs },
+    resolveAlias: {
+      "@verkflode/vaom-guardian-core": "./vendor/vaom-guardian/core/src/index.ts",
+      // Translation only: the ACS endpoint and its validators stay out of the bundle.
+      "@verkflode/vaom-guardian-acs": "./vendor/vaom-guardian/acs/src/translate.ts",
+    },
   },
 };
 

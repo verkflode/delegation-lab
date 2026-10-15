@@ -9,6 +9,8 @@ const eslintConfig = defineConfig([
   globalIgnores([
     // Default ignores of eslint-config-next:
     ".next/**",
+    // Vendored from the VAOM Guardian, linted there.
+    "vendor/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

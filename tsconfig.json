@@ -27,7 +27,10 @@
         "./*"
       ],
       "@verkflode/vaom-guardian-acs": [
-        "../../ACS project/packages/acs/src/translate.ts"
+        "./vendor/vaom-guardian/acs/src/translate.ts"
+      ],
+      "@verkflode/vaom-guardian-core": [
+        "./vendor/vaom-guardian/core/src/index.ts"
       ]
     },
     "allowImportingTsExtensions": true

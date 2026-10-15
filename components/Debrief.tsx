@@ -42,17 +42,14 @@ export function Debrief() {
       : "")
   );
 
-  const mountedAt = useRef(Date.now());
+  const mountedAt = useRef(0); // set when the effect runs
 
   useEffect(() => {
     if (!result) return;
     let cancelled = false;
     mountedAt.current = Date.now();
-    if (v5Text) {
-      // Scripted from the run: always right, and the model never improves on that here.
-      setText(v5Text);
-      return;
-    }
+    // v5: scripted from the run, already the initial state; the model never improves on that here.
+    if (v5Text) return;
     setText(
       debriefFallback({
         round: state.round,
