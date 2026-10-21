@@ -2,11 +2,11 @@
 
 **A flight simulator for AI governance.**
 
-Delegation Lab is an interactive simulation that teaches the [Verkflode Agent Operating Model (VAOM)](https://verkflode.com/vaom) through play. Players take the role of Head of AI Operations at a European enterprise, design delegation policies for AI-powered workflows, and experience the consequences in real time.
+Delegation Lab is an interactive simulation that teaches the [Verkflöde Agent Operating Model (VAOM)](https://vaom.ai) through play. Players take the role of Head of AI Operations at a European enterprise, design delegation policies for AI-powered workflows, and experience the consequences in real time.
 
 Three rounds. Five to seven minutes. One delegation philosophy.
 
-**Live at [verkflode.eu](https://verkflode.eu)**
+**Live at [lab.vaom.ai](https://lab.vaom.ai)**
 
 ## How It Works
 
@@ -91,7 +91,7 @@ AZURE_SPEECH_REGION=swedencentral
 
 The Verkflode Agent Operating Model (VAOM) is an open framework for structuring AI decision authority in enterprise workflows. It defines how AI systems are permitted to act -- separating statistical confidence from organisational authority.
 
-- **Whitepaper:** [verkflode.com/vaom](https://verkflode.com/vaom)
+- **Whitepaper:** [vaom.ai](https://vaom.ai)
 - **License:** CC BY 4.0
 
 ## License

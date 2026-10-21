@@ -139,13 +139,13 @@ export function FinalScore() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <CTA
-              href="https://verkflode.com/vaom"
+              href="https://vaom.ai"
               icon={<ExternalLink size={14} />}
               label="Explore the framework"
-              sub="verkflode.com/vaom"
+              sub="vaom.ai"
             />
             <CTA
-              href="https://verkflode.com/vaom"
+              href="https://vaom.ai"
               icon={<ArrowRight size={14} />}
               label="Download the whitepaper"
               sub="VAOM 5.0 · PDF · CC BY 4.0"

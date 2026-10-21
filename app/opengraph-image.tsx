@@ -1,6 +1,6 @@
 import { ImageResponse } from "next/og";
 
-// The link preview for verkflode.eu. Shared links travel without context, so the card names the framework
+// The link preview for lab.vaom.ai. Shared links travel without context, so the card names the framework
 // in full, next to its acronym, in the VAOM 5.0 light identity.
 export const alt = "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play";
 export const size = { width: 1200, height: 630 };
@@ -10,7 +10,7 @@ export default function OpengraphImage() {
   return new ImageResponse(
     (
       <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", justifyContent: "space-between", background: "#F7F5F0", padding: "72px 80px", color: "#14140F" }}>
-        <div style={{ display: "flex", fontSize: 26, letterSpacing: 6, color: "#2D6A4F", textTransform: "uppercase" }}>Delegation Lab · verkflode.eu</div>
+        <div style={{ display: "flex", fontSize: 26, letterSpacing: 6, color: "#2D6A4F", textTransform: "uppercase" }}>Delegation Lab · lab.vaom.ai</div>
         <div style={{ display: "flex", flexDirection: "column" }}>
           <div style={{ fontSize: 84, lineHeight: 1.05, color: "#0A382B" }}>A flight simulator</div>
           <div style={{ fontSize: 84, lineHeight: 1.05, color: "#0A382B" }}>for AI governance.</div>

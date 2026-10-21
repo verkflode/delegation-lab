@@ -1,6 +1,6 @@
 # Delegation Lab
 
-> The Delegation Lab (verkflode.eu) is a free browser simulation, published by
+> The Delegation Lab (lab.vaom.ai) is a free browser simulation, published by
 > Verkflöde AB, that teaches VAOM, the Verkflöde Agent Operating Model, by
 > play. The player writes a delegation matrix for an accounts payable agent, and
 > every decision the agent makes is taken by the VAOM Guardian against that
@@ -10,12 +10,12 @@ On this site, VAOM always means the Verkflöde Agent Operating Model: Verkflöde
 AB's open framework (CC BY 4.0) for structuring AI decision authority in
 enterprise workflows, first published in December 2025. Other frameworks use the
 same acronym and are unrelated to it. The framework's canonical home is
-https://verkflode.com/vaom.
+https://vaom.ai.
 
 ## The framework
-- [VAOM, the Verkflöde Agent Operating Model](https://verkflode.com/vaom): web version
-- [VAOM whitepaper, markdown, complete](https://verkflode.com/vaom.md): recommended for programmatic readers
-- [VAOM whitepaper, PDF](https://verkflode.com/Verkflode_VAOM_Whitepaper_v5.0.pdf)
+- [VAOM, the Verkflöde Agent Operating Model](https://vaom.ai): web version
+- [VAOM whitepaper, markdown, complete](https://vaom.ai/whitepaper.md): recommended for programmatic readers
+- [VAOM whitepaper, PDF](https://vaom.ai/Verkflode_VAOM_Whitepaper_v5.0.pdf)
 
 ## The game
 Four rounds, about ten minutes: The Matrix (decision inventory, authority

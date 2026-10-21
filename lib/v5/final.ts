@@ -22,7 +22,7 @@ export function finalMatrix(c: Choices): Doc {
   reviewTweak(c.v5r3 ?? startingReview())(m);
   nightTweak(c.v5r4 ?? startingNight())(m);
   m.version = EXPORT_VERSION;
-  m.description = "Built in the Delegation Lab (verkflode.eu): the four rounds' choices, as one matrix. A Delegation Authority Matrix in the Verkflöde Agent Operating Model (VAOM) 5.0, https://verkflode.com/vaom.";
+  m.description = "Built in the Delegation Lab (lab.vaom.ai): the four rounds' choices, as one matrix. A Delegation Authority Matrix in the Verkflöde Agent Operating Model (VAOM) 5.0, https://vaom.ai.";
   return m;
 }
 

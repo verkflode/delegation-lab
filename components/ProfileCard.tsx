@@ -6,7 +6,7 @@ import type { ScoreBreakdown } from "../lib/types";
 /**
  * The shareable profile card. Designed to look polished as a LinkedIn
  * screenshot — clean lockup with the brand mark, profile name, VAOM
- * quote, score breakdown, and the verkflode.eu URL for the viral loop.
+ * quote, score breakdown, and the lab.vaom.ai URL for the viral loop.
  */
 export function ProfileCard({
   name,
@@ -81,10 +81,10 @@ export function ProfileCard({
       {/* Footer URL */}
       <div className="flex items-center justify-between border-t border-ink/8 pt-4">
         <div className="font-mono text-[10px] text-muted-2">
-          Take it for yourself · framework at verkflode.com/vaom
+          Take it for yourself · framework at vaom.ai
         </div>
         <div className="font-mono text-[12px] text-mint font-bold">
-          verkflode.eu
+          lab.vaom.ai
         </div>
       </div>
 

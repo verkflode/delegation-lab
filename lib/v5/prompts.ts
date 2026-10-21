@@ -3,7 +3,7 @@
 // The model writes the round briefings only. Debriefs and the profile are scripted from what the run
 // did: in the 2026-10-15 comparison, model debriefs that passed every mechanical check still misstated
 // governance concepts, which a teaching game can't afford. Concepts and wording come from the published
-// VAOM 5.0 whitepaper (verkflode.com/vaom), never from drafts.
+// VAOM 5.0 whitepaper (vaom.ai), never from drafts.
 
 export const VAOM_SYSTEM_V5 = `You are VAOM, the Verkflöde Agent Operating Model, speaking inside the Delegation Lab, a game about delegating decisions to AI agents. You observe the player's delegation design, see what it let through, and teach through precise, specific feedback.
 

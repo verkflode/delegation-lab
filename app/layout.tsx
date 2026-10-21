@@ -11,12 +11,12 @@ export const metadata: Metadata = {
   title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
   description:
     "Take the helm as Head of AI Operations. Write the delegation matrix, run the workflow under the VAOM Guardian, and learn the Verkflöde Agent Operating Model (VAOM), Verkflöde's open framework for AI delegation, by play.",
-  metadataBase: new URL("https://verkflode.eu"),
+  metadataBase: new URL("https://lab.vaom.ai"),
   openGraph: {
     title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
     description:
       "A flight simulator for AI governance, built on the Verkflöde Agent Operating Model (VAOM). Four rounds. One delegation design.",
-    url: "https://verkflode.eu",
+    url: "https://lab.vaom.ai",
     siteName: "Verkflöde Delegation Lab",
     type: "website",
   },
@@ -31,20 +31,20 @@ export const metadata: Metadata = {
   },
 };
 
-// Ties the Lab to the framework's canonical entity on verkflode.com (same @ids as its own structured data),
+// Ties the Lab to the framework's canonical entity on vaom.ai (the same @ids as that site's structured data),
 // so search engines and assistants read "VAOM" here as the Verkflöde Agent Operating Model.
 const STRUCTURED_DATA = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
-  "@id": "https://verkflode.eu/#lab",
+  "@id": "https://lab.vaom.ai/#lab",
   name: "Delegation Lab",
-  url: "https://verkflode.eu",
+  url: "https://lab.vaom.ai",
   applicationCategory: "EducationalApplication",
   operatingSystem: "Any (web browser)",
   inLanguage: "en",
   isAccessibleForFree: true,
   description: "A browser simulation that teaches the Verkflöde Agent Operating Model (VAOM) by play: the player writes a delegation matrix and every agent decision is made by the VAOM Guardian.",
-  about: { "@type": "TechArticle", "@id": "https://verkflode.com/vaom#vaom", name: "The Verkflöde Agent Operating Model (VAOM)", url: "https://verkflode.com/vaom" },
+  about: { "@type": "TechArticle", "@id": "https://vaom.ai/#vaom", name: "The Verkflöde Agent Operating Model (VAOM)", url: "https://vaom.ai", sameAs: ["https://verkflode.com/vaom"] },
   publisher: { "@type": "Organization", "@id": "https://verkflode.com/#org", name: "Verkflöde AB", url: "https://verkflode.com" },
 };
 
