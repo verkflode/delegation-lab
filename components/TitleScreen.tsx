@@ -1,22 +1,25 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowRight, Cpu, FileText, Lock, Moon, ShieldCheck, Users, Workflow } from "lucide-react";
+import { ArrowRight, Cpu, FileText, Lock, Moon, ServerCrash, ShieldCheck, ShoppingCart, Workflow } from "lucide-react";
 import { VerkflodeLogo } from "./VerkflodeLogo";
 import { useGame } from "../lib/game-state";
 import type { ScenarioDomain } from "../lib/types";
 
-const SCENARIOS: {
-  id: ScenarioDomain;
-  label: string;
-  sub: string;
-  icon: React.ReactNode;
-  available: boolean;
-}[] = [
+// What the picker offers. Playable entries are game scenarios; the ones coming later are the next v5
+// domains in the Lab plan, each with a finished matrix, binding and scoring policies in the VAOM Guardian's
+// examples (the whitepaper's worked examples 7B, 7D and 7E). They aren't game scenarios yet, so they carry
+// no ScenarioDomain until their rounds exist.
+type Entry = { label: string; sub: string; icon: React.ReactNode } & (
+  | { available: true; id: ScenarioDomain }
+  | { available: false; id: string }
+);
+
+const SCENARIOS: Entry[] = [
   { id: "invoice_processing", label: "Invoice processing", sub: "Accounts payable at a European financial services firm", icon: <FileText size={14} />, available: true },
-  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alert classification · coming later", icon: <ShieldCheck size={14} />, available: false },
-  { id: "customer_complaints", label: "Customer complaints", sub: "Retail banking complaint triage and response · coming later", icon: <Users size={14} />, available: false },
-  { id: "hr_investigation", label: "HR investigation", sub: "Policy violation assessment · coming later", icon: <Cpu size={14} />, available: false },
+  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alerts at a European bank · coming later", icon: <ShieldCheck size={14} />, available: false },
+  { id: "incident_remediation", label: "Incident remediation", sub: "A SaaS provider's agent restarting services during incidents · coming later", icon: <ServerCrash size={14} />, available: false },
+  { id: "delegated_purchasing", label: "Delegated purchasing", sub: "A manufacturer's agent reordering supplies under a monthly mandate · coming later", icon: <ShoppingCart size={14} />, available: false },
 ];
 
 export function TitleScreen() {
