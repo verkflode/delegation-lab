@@ -80,7 +80,7 @@ export function TitleScreen() {
                 CC BY 4.0
               </span>
               <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
-                EU data residency
+                Hosted in the EU · no cookies
               </span>
               <span className="rounded-full border border-ink/8 bg-ink/3 px-3 py-1">
                 ~10 minutes
@@ -91,7 +91,8 @@ export function TitleScreen() {
               Built by Claude Fable 5 under Verkflöde direction, using the
               Draft &amp; Approve pattern this game teaches. Every decision in it
               is made by the VAOM Guardian; VAOM&apos;s voice is written live by a
-              language model from the game&apos;s own facts.
+              language model from the game&apos;s own facts.{" "}
+              <a href="/privacy" className="underline hover:text-cyan">Privacy</a>
             </p>
           </div>
 
