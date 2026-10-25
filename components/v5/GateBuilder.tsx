@@ -130,7 +130,7 @@ export function GateBuilder() {
               <Segmented
                 options={[{ value: "off", label: "No cap" }, { value: "on", label: G.capOn }]}
                 value={choice.cap === null ? "off" : "on"}
-                onChange={(v) => set({ cap: v === "off" ? null : ceiling ?? G.capStart })}
+                onChange={(v) => set({ cap: v === "off" ? null : G.capStart })}
               />
               {choice.cap !== null && (
                 <input

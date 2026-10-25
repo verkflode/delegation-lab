@@ -217,7 +217,7 @@ export interface V5Scenario {
       unitAria: string;
       ceilingRange: [number, number, number];
       capRange: [number, number, number];
-      /** The cap's value in words, and where a newly switched-on cap starts. */
+      /** The cap's value in words, and where a newly switched-on cap starts (the controller's own cap). */
       capValue: (n: number) => string;
       capStart: number;
     };
