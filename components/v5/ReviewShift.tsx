@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
 import { useGame, useScenario } from "../../lib/game-state";
 import { startingGate, toGate } from "../../lib/v5/round2";
-import { judgeShift, lintReview, secondsPerAsk, SPEED, startShift, startingReview, type Ask, type Click, type ShiftResult } from "../../lib/v5/round3";
+import { judgeShift, lintReview, secondsPerAsk, speedOf, startShift, startingReview, type Ask, type Click, type ShiftResult } from "../../lib/v5/round3";
 import { round3Debrief, round3Result } from "../../lib/v5/round3-result";
 
 /**
@@ -92,7 +92,7 @@ export function ReviewShift() {
               </div>
             )}
             <div className="surface px-5 py-4 text-[13px] text-muted">
-              You get about <b className="text-ink">{setup.seconds} seconds</b> per ask; the game clock runs {SPEED} times faster
+              You get about <b className="text-ink">{setup.seconds} seconds</b> per ask; the game clock runs {speedOf(sc)} times faster
               than yours. An ask you don&apos;t decide expires, and an expired ask is denied.
             </div>
             <button
@@ -108,7 +108,7 @@ export function ReviewShift() {
         )}
 
         {phase === "queue" && current && (
-          <AskCard key={current.key} ask={current} n={index + 1} of={asks.length} approver={sc.round3.reviewer} seconds={setup.seconds!} onShow={onShow} onDecide={decide} />
+          <AskCard key={current.key} ask={current} n={index + 1} of={asks.length} approver={sc.round3.reviewer} speed={speedOf(sc)} seconds={setup.seconds!} onShow={onShow} onDecide={decide} />
         )}
 
         {phase === "done" && verdict && (
@@ -122,7 +122,7 @@ export function ReviewShift() {
   );
 }
 
-function AskCard({ ask, n, of, approver, seconds, onShow, onDecide }: { ask: Ask; n: number; of: number; approver: string; seconds: number; onShow: (t: number) => void; onDecide: (d: Click["decision"]) => void }) {
+function AskCard({ ask, n, of, approver, speed, seconds, onShow, onDecide }: { ask: Ask; n: number; of: number; approver: string; speed: number; seconds: number; onShow: (t: number) => void; onDecide: (d: Click["decision"]) => void }) {
   const [left, setLeft] = useState(seconds * 1000);
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -137,7 +137,7 @@ function AskCard({ ask, n, of, approver, seconds, onShow, onDecide }: { ask: Ask
     return () => window.clearInterval(id);
   }, [seconds, onShow, onDecide]);
 
-  const game = Math.floor((elapsed * SPEED) / 1000);
+  const game = Math.floor((elapsed * speed) / 1000);
   return (
     <div className="surface-strong mt-6 px-5 py-5 animate-fade-up">
       <div className="flex items-baseline justify-between gap-3">

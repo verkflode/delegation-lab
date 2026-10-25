@@ -41,7 +41,7 @@ function schemaRulesBroken(sc: V5Scenario, id: string, policy: Round1Policy, row
   }
   if (reachesA(c)) {
     if (p.confidenceMeasurability === "judgment-dependent" || p.regulatoryExposure === "prohibited-from-full-automation") out.push("No Band A where regulation requires human involvement, or where confidence cannot be measured.");
-    if (p.regulatoryExposure === "regulated-decision") out.push("A regulated decision reaches Band A only with a written justification, and this matrix has none.");
+    if (p.regulatoryExposure === "regulated-decision" && !row?.authority?.regulatedJustification) out.push("A regulated decision reaches Band A only with a written justification, and this matrix has none.");
     if (!row?.authority?.confidence?.calibration) out.push(id === sc.round1.gatedRow
       ? "Band A needs calibrated confidence, and your calibration test passed no threshold at the error target you chose."
       : "Band A needs calibrated confidence. Nobody has calibrated this decision yet.");

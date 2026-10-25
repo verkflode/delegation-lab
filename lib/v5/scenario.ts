@@ -139,6 +139,8 @@ export interface V5Scenario {
     /** Which limits the gated row takes: a value ceiling or none, and a cap on a summed value (the example's
      *  own cap, re-totalled) or on a count of actions (this template, with the player's count). */
     limits: { ceiling: boolean; cap: { kind: "total" } | { kind: "count"; template: Doc } };
+    /** The error targets the player chooses from, where the default list (1% to 10%) doesn't fit. */
+    errorTargets?: number[];
     /** What the gated row's decisions are called in the calibration's words ("approvals", "restarts"). */
     noun: string;
     batch: BatchItem[];
@@ -154,6 +156,9 @@ export interface V5Scenario {
     /** Planted cases with a known error, by row. */
     plants: Plant[];
     seeds: { id: string; approvedBy: string; date: string; handbookRef: string };
+    /** How many times faster than real time the shift's clock runs (default 4): enough that a careful
+     *  player's reviews clear the row's minimum plausible review time. */
+    speed?: number;
     /** Reviewer hours a week: where the player starts, and the slider's range and step. */
     funded: { start: number; range: [number, number, number] };
   };

@@ -8,12 +8,13 @@
 // Rules the core enforces here: seeding is never allowed on a row whose records feed regulatory reporting
 // (in the invoice scenario, approval feeds VAT returns); planted cases never execute; reviewers are told planted cases
 // exist (the seeds file's disclosure); per-reviewer metrics are employee monitoring and need a recorded
-// approval such as a DPIA. The game clock runs four times faster than real time.
+// approval such as a DPIA. The game clock runs faster than real time: four times, or the scenario's speed.
 import { lintSeeds, preview, resolveRecord, scorecard, type DecisionRecord, type LintResult, type Metric, type SeedOutcome } from "@verkflode/vaom-guardian-core";
 import { FACT_KEY, lintPolicy, reviewHours, runBatch, type Doc, type Gate, type MatrixTweak, type Round1Policy, type Round1Run } from "./round1";
 import type { V5Scenario } from "./scenario";
 
 export const SPEED = 4;
+export const speedOf = (sc: V5Scenario) => sc.round3.speed ?? SPEED;
 
 // ── The player's oversight choices ─────────────────────────────────────────
 
@@ -167,6 +168,7 @@ export interface ShiftResult {
 
 export function judgeShift(sc: V5Scenario, shift: Shift, clicks: Record<string, Click>): ShiftResult {
   const date = sc.round3.start.slice(0, 10);
+  const speed = speedOf(sc);
   const records: DecisionRecord[] = [];
   const seeds: SeedOutcome[] = [];
   const wrong: ShiftResult["wrong"] = [];
@@ -176,9 +178,9 @@ export function judgeShift(sc: V5Scenario, shift: Shift, clicks: Record<string, 
 
   for (const a of shift.asks) {
     const c = clicks[a.key] ?? { decision: "expired", realMs: 0 };
-    const at = new Date(Date.parse(a.record.request.ts) + c.realMs * SPEED).toISOString();
-    const approval = { approver_role: sc.round3.reviewer, record: `placeholder://lab/approvals/${a.key}`, latency_ms: c.realMs * SPEED };
-    if (c.decision !== "expired") latencies.push(c.realMs * SPEED);
+    const at = new Date(Date.parse(a.record.request.ts) + c.realMs * speed).toISOString();
+    const approval = { approver_role: sc.round3.reviewer, record: `placeholder://lab/approvals/${a.key}`, latency_ms: c.realMs * speed };
+    if (c.decision !== "expired") latencies.push(c.realMs * speed);
     if (c.decision === a.correct) correct++;
     else wrong.push({ ask: a, click: c });
     if (a.seed) {

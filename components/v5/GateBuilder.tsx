@@ -58,7 +58,7 @@ export function GateBuilder() {
                 finds the lowest threshold whose error rate stays under it with {CONFIDENCE * 100}% confidence.
               </p>
               <Segmented
-                options={ERROR_TARGETS.map((t) => ({ value: String(t), label: `${t * 100}%` }))}
+                options={(sc.round2.errorTargets ?? ERROR_TARGETS).map((t) => ({ value: String(t), label: `${t * 100}%` }))}
                 value={String(choice.errorTarget)}
                 onChange={(v) => set({ errorTarget: Number(v) })}
               />

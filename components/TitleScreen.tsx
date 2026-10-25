@@ -18,7 +18,7 @@ type Entry = { label: string; sub: string; icon: React.ReactNode } & (
 
 const SCENARIOS: Entry[] = [
   { id: "invoice_processing", ...PLAYABLE.invoice_processing.ui.title, icon: <FileText size={14} />, available: true },
-  { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alerts at a European bank · coming later", icon: <ShieldCheck size={14} />, available: false },
+  { id: "aml_triage", ...PLAYABLE.aml_triage.ui.title, icon: <ShieldCheck size={14} />, available: true },
   { id: "incident_remediation", ...PLAYABLE.incident_remediation.ui.title, icon: <ServerCrash size={14} />, available: true },
   { id: "delegated_purchasing", label: "Delegated purchasing", sub: "A manufacturer's agent reordering supplies under a monthly mandate · coming later", icon: <ShoppingCart size={14} />, available: false },
 ];

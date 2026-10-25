@@ -18,6 +18,7 @@ import { chooseArchetypeV5 } from "../lib/v5/archetypes.ts";
 import { vaomSystem } from "../lib/v5/prompts.ts";
 import { INVOICE } from "../lib/v5/scenarios/invoice.ts";
 import { INCIDENT } from "../lib/v5/scenarios/incident.ts";
+import { AML } from "../lib/v5/scenarios/aml.ts";
 import type { V5Scenario } from "../lib/v5/scenario.ts";
 
 type Game = { name: string; r1: Round1Policy; r2: GateChoice; r3: ReviewChoice; r4: NightChoice; clicks: "careful" | "stamp" | "mixed" };
@@ -59,6 +60,25 @@ function incidentGames(): Game[] {
       r3: { ...startingReview(sc), fundedHours: 10, seedRows: { "remediation.restart": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
     { name: "mixed", r1: good, r2: { errorTarget: 0.03, medium: 0.7, ceiling: null, onExceed: "B", cap: null },
       r3: { ...startingReview(sc), fundedHours: 8, seedRows: { "remediation.restart": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
+      r4: { ...goodNight, boundary: { mechanism: "policy", every: "P7D", onManifest: false }, breakers: { ...goodNight.breakers, outOfBounds: "alert" } }, clicks: "mixed" },
+  ];
+}
+
+function amlGames(): Game[] {
+  const sc = AML;
+  const startingPolicy = sc.round1.startingPolicy;
+  const good: Round1Policy = startingPolicy();
+  good["alert.dismiss"].routing = { high: "A", medium: "B", low: "C" };
+  good["alert.dismiss"].profile = { reversibility: "fully-reversible", consequenceScope: "external-regulatory", regulatoryExposure: "regulated-decision", confidenceMeasurability: "quantifiable", accountabilityClarity: "clear-single-owner" };
+  good["sar.determine"] = { ...good["sar.determine"], included: true, kind: "non-delegable", pattern: "prepare-and-present", owner: "mlro",
+    profile: { reversibility: "irreversible", consequenceScope: "external-regulatory", regulatoryExposure: "prohibited-from-full-automation", confidenceMeasurability: "judgment-dependent", accountabilityClarity: "clear-single-owner" } };
+  const goodNight: NightChoice = { chain: { maxDepth: 1, maxFanOut: 2, subagents: { "typology-check": true, "package-builder": true, "bulk-dismisser": false }, childCeilingB: true }, boundary: { mechanism: "absent", every: "P1D", onManifest: true }, breakers: { outOfBounds: "suspend", chainDepth: "alert", notify: "mlro" } };
+  return [
+    { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(sc), r4: startingNight(sc), clicks: "stamp" },
+    { name: "careful", r1: good, r2: { errorTarget: 0.005, medium: 0.7, ceiling: null, onExceed: "B", cap: 60 },
+      r3: { ...startingReview(sc), fundedHours: 300 }, r4: goodNight, clicks: "careful" },
+    { name: "mixed", r1: good, r2: { errorTarget: 0.01, medium: 0.7, ceiling: null, onExceed: "B", cap: null },
+      r3: { ...startingReview(sc), fundedHours: 250, reviewerMetrics: true, dpia: true },
       r4: { ...goodNight, boundary: { mechanism: "policy", every: "P7D", onManifest: false }, breakers: { ...goodNight.breakers, outOfBounds: "alert" } }, clicks: "mixed" },
   ];
 }
@@ -106,13 +126,13 @@ function play(sc: V5Scenario, g: Game) {
 
 const snapshot = (sc: V5Scenario, games: Game[]) => ({
   games: Object.fromEntries(games.map((g) => [g.name, play(sc, g)])),
-  calibration: ERROR_TARGETS.map((t) => calibrate(sc, t)),
+  calibration: (sc.round2.errorTargets ?? ERROR_TARGETS).map((t) => calibrate(sc, t)),
   text: { briefings: [1, 2, 3, 4].map((r) => sc.briefings[r as 1 | 2 | 3 | 4]), archetypes: sc.archetypes, system: vaomSystem(sc), prompts: sc.prompts.briefings },
 });
 
 // Stable JSON: byte arrays as hex, undefined dropped, as JSON would.
 let failed = false;
-for (const [sc, games] of [[INVOICE, invoiceGames()], [INCIDENT, incidentGames()]] as const) {
+for (const [sc, games] of [[INVOICE, invoiceGames()], [INCIDENT, incidentGames()], [AML, amlGames()]] as const) {
   const json = JSON.stringify(snapshot(sc, games), (_k, v) => (v instanceof Uint8Array ? Buffer.from(v).toString("hex") : v), 1) + "\n";
   const name = sc.id.split("_")[0];
   const file = new URL(`./golden/${name}.json`, import.meta.url);
