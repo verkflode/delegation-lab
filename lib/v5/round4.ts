@@ -62,7 +62,11 @@ export function nightTweak(sc: V5Scenario, c: NightChoice): MatrixTweak {
         ...(c.boundary.onManifest ? { alsoOn: ["tool-manifest", "deploy"] } : {}),
       },
     };
-    (m.rows as Doc[]).push(structuredClone(B.row));
+    // The row the boundary guards, as the scenario defines it: added, or replacing the player's version of
+    // it (a boundary only guards a decision nobody may delegate; see nightPolicy).
+    const at = (m.rows as Doc[]).findIndex((r) => r.id === B.row.id);
+    if (at >= 0) m.rows[at] = structuredClone(B.row);
+    else (m.rows as Doc[]).push(structuredClone(B.row));
     const gatedRow = (m.rows as Doc[]).find((r) => r.id === sc.round1.gatedRow);
     if (gatedRow?.authority.kind === "delegable") {
       const subagents: Doc[] = Object.entries(sc.round4.subagents).filter(([type]) => c.chain.subagents[type])
@@ -82,7 +86,15 @@ export function nightTweak(sc: V5Scenario, c: NightChoice): MatrixTweak {
 
 const both = (a?: MatrixTweak, b?: MatrixTweak): MatrixTweak => (m) => { a?.(m); b?.(m); };
 
-export function lintNight(sc: V5Scenario, policy: Round1Policy, gate: Gate, review: MatrixTweak | undefined, c: NightChoice): { matrix: Doc; lint: LintResult; hours: number; funded: number } {
+/** The player's choices as the night runs them. Where the boundary's row is one the player could edit, it
+ *  is in the matrix and non-delegable tonight, so no tool for it is in the binding. */
+export function nightPolicy(sc: V5Scenario, policy: Round1Policy): Round1Policy {
+  const id = sc.round4.boundary.row.id;
+  return policy[id] ? { ...policy, [id]: { ...policy[id], included: true, kind: "non-delegable" } } : policy;
+}
+
+export function lintNight(sc: V5Scenario, roundPolicy: Round1Policy, gate: Gate, review: MatrixTweak | undefined, c: NightChoice): { matrix: Doc; lint: LintResult; hours: number; funded: number } {
+  const policy = nightPolicy(sc, roundPolicy);
   const tweak = both(review, nightTweak(sc, c));
   const matrix = buildMatrix(sc, policy, gate);
   tweak(matrix);
@@ -188,7 +200,8 @@ export interface Night {
   matrix: Doc;
 }
 
-export function runNight(sc: V5Scenario, policy: Round1Policy, gate: Gate, review: MatrixTweak | undefined, c: NightChoice): Night {
+export function runNight(sc: V5Scenario, roundPolicy: Round1Policy, gate: Gate, review: MatrixTweak | undefined, c: NightChoice): Night {
+  const policy = nightPolicy(sc, roundPolicy);
   const R = sc.round4, B = R.boundary;
   const ts = (hhmm: string) => `${R.night.date}T${hhmm}:00Z`;
   const pre = preNight(sc, c);

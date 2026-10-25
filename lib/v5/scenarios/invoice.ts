@@ -336,6 +336,8 @@ export const INVOICE: V5Scenario = {
     // Share of approvals above an amount (EUR).
     over: [[1000, 0.45], [2000, 0.25], [3000, 0.15], [5000, 0.06], [7500, 0.035], [10000, 0.02], [15000, 0.008], [20000, 0.004]],
     startingGate: { errorTarget: 0.05, medium: 0.7, ceiling: 15000, onExceed: "B", cap: null },
+    limits: { ceiling: true, cap: { kind: "total" } },
+    noun: "approvals",
     batch: BATCH2,
     debrief: {
       wasteTail: "Safe, and somebody's six minutes, every time.",
@@ -434,6 +436,8 @@ export const INVOICE: V5Scenario = {
       unitAria: "in euros",
       ceilingRange: [1000, 20000, 500],
       capRange: [2500, 20000, 500],
+      capValue: (n) => `€${n.toLocaleString("en-IE")}`,
+      capStart: 5000,
     },
     night: {
       subagentLabels: { "vendor-check": "vendor-check: reads invoices and vendors", "batch-approver": "batch-approver: approves invoices" },

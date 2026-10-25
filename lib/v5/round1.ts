@@ -55,10 +55,10 @@ export function weeklyLoad(sc: V5Scenario, meta: DecisionMeta, c: RowChoice, gat
   const gated = meta.id === sc.round1.gatedRow;
   const volume = gated ? gate.volume : meta.volume;
   const total = Object.values(volume).reduce((a, b) => a + (b ?? 0), 0) || 1;
-  const over = gated ? gate.overCeilingPerWeek : 0;
+  const over = gated && gate.ceiling ? gate.overCeilingPerWeek : 0;
   for (const [level, n] of Object.entries(volume) as [Level, number][]) {
     add(c.routing[level], n * (1 - over / total));
-    add(stricter(c.routing[level], gate.ceiling.onExceed), n * (over / total));
+    if (gate.ceiling) add(stricter(c.routing[level], gate.ceiling.onExceed), n * (over / total));
   }
   return out;
 }
@@ -106,7 +106,7 @@ export function buildMatrix(sc: V5Scenario, policy: Round1Policy, gate: Gate = s
         ? base.authority
         : { kind: "delegable", reviewer: sc.fallbackAuthority.reviewer, escalation: { ...sc.fallbackAuthority.escalation } };
       a.routing = { ...c.routing };
-      if (meta.id === sc.round1.gatedRow) applyGate(a, gate);
+      if (meta.id === sc.round1.gatedRow) applyGate(sc, a, gate);
       row.authority = a;
       const o: Doc = base.oversight ?? {};
       row.oversight = { ...o, expectedPerWeek: weeklyLoad(sc, meta, c, gate), reviewMinutes: meta.reviewMinutes, escalationMinutes: meta.escalationMinutes };
@@ -128,16 +128,21 @@ export function buildMatrix(sc: V5Scenario, policy: Round1Policy, gate: Gate = s
 }
 
 /** Put the gate's limits on the gated row's authority, in the example's currency. A ceiling the player
- *  moved loses the example's derivation, which justified its own amount and nothing else. */
-function applyGate(a: Doc, gate: Gate): void {
-  const currency = a.valueCeiling.limit.currency;
+ *  moved loses the example's derivation, which justified its own amount and nothing else. Where the gated
+ *  row has no value ceiling, the example's own statement of why (noValueCeiling) stands. */
+function applyGate(sc: V5Scenario, a: Doc, gate: Gate): void {
+  const currency = a.valueCeiling?.limit.currency;
   a.confidence.thresholds = { ...gate.thresholds };
   if (gate.calibration) a.confidence.calibration = { ...gate.calibration };
   else delete a.confidence.calibration;
-  if (gate.ceiling.amount !== Number(a.valueCeiling.limit.amount)) delete a.valueCeiling.derivation;
-  a.valueCeiling.limit = { amount: String(gate.ceiling.amount), currency };
-  a.valueCeiling.onExceed = gate.ceiling.onExceed;
+  if (gate.ceiling) {
+    if (gate.ceiling.amount !== Number(a.valueCeiling.limit.amount)) delete a.valueCeiling.derivation;
+    a.valueCeiling.limit = { amount: String(gate.ceiling.amount), currency };
+    a.valueCeiling.onExceed = gate.ceiling.onExceed;
+  }
+  const cap = sc.round2.limits.cap;
   if (gate.cap === null) delete a.cumulativeCaps;
+  else if (cap.kind === "count") a.cumulativeCaps = [{ ...structuredClone(cap.template), count: gate.cap }];
   else a.cumulativeCaps = [{ ...a.cumulativeCaps[0], total: { amount: String(gate.cap), currency } }];
 }
 

@@ -104,7 +104,7 @@ export function round2Debrief(sc: V5Scenario, result: RoundResult, gate: GateCho
   out.push(
     threshold === null
       ? `You asked for an error rate of ${pct(gate.errorTarget)}. The sample couldn't show it, so nothing was calibrated and nothing ran in Band A.`
-      : `You asked for at most ${pct(gate.errorTarget)} wrong approvals in Band A, at 95 percent confidence. The sample supported a threshold of ${threshold}. ${p.filter((x) => x.band === "auto_approve").length} of ${p.length} calls ran in Band A.`,
+      : `You asked for at most ${pct(gate.errorTarget)} wrong ${sc.round2.noun} in Band A, at 95 percent confidence. The sample supported a threshold of ${threshold}. ${p.filter((x) => x.band === "auto_approve").length} of ${p.length} calls ran in Band A.`,
   );
   if (risky.length) {
     const r = risky[0];

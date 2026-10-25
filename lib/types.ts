@@ -20,7 +20,7 @@ export type ScenarioDomain = "invoice_processing";
 // ────────────────────────────────────────────────────────────────────────────
 
 /** The item's kind, for the debrief and final screens. */
-export type DecisionType = "standard" | "high_value" | "duplicate" | "modified_terms" | "new_vendor" | "split_invoice";
+export type DecisionType = string;
 
 export type ConfidenceDimensions = {
   modelCertainty: number; // 0..1

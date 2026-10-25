@@ -16,10 +16,12 @@ export function GateBuilder() {
   const { state, setV5R1, setV5R2, advance } = useGame();
   const sc = useScenario();
   const G = sc.ui.gate;
+  const noun = sc.round2.noun;
   const gated = sc.round1.gatedRow;
   const [policy, setPolicy] = useState<Round1Policy>(() => state.v5r1 ?? sc.round1.startingPolicy());
   const [choice, setChoice] = useState<GateChoice>(() => state.v5r2 ?? startingGate(sc));
   const gate = useMemo(() => toGate(sc, choice), [sc, choice]);
+  const ceiling = sc.round2.limits.ceiling ? choice.ceiling : null;
   const { matrix, lint } = useMemo(() => lintPolicy(sc, policy, gate), [sc, policy, gate]);
   const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
   const load = useMemo(() => reviewHours(sc, policy, gate), [sc, policy, gate]);
@@ -50,9 +52,9 @@ export function GateBuilder() {
               </div>
             )}
 
-            <Card kicker="Calibration" title="How many wrong approvals can you tolerate?">
+            <Card kicker="Calibration" title={`How many wrong ${noun} can you tolerate?`}>
               <p className="text-[13px] text-muted mb-3">
-                Choose an error target for Band A. A learn-then-test on {sampleSize(sc)} past approvals, checked by hand,
+                Choose an error target for Band A. A learn-then-test on {sampleSize(sc)} past {noun}, checked by hand,
                 finds the lowest threshold whose error rate stays under it with {CONFIDENCE * 100}% confidence.
               </p>
               <Segmented
@@ -64,7 +66,7 @@ export function GateBuilder() {
                 <table className="w-full font-mono text-[11px] text-ink tabular-nums">
                   <thead>
                     <tr className="text-muted-2 text-left">
-                      <th className="font-normal py-1 pr-3">score ≥</th><th className="font-normal pr-3">approvals</th><th className="font-normal pr-3">wrong</th><th className="font-normal pr-3">upper bound</th><th className="font-normal" />
+                      <th className="font-normal py-1 pr-3">score ≥</th><th className="font-normal pr-3">{noun}</th><th className="font-normal pr-3">wrong</th><th className="font-normal pr-3">upper bound</th><th className="font-normal" />
                     </tr>
                   </thead>
                   <tbody>
@@ -108,27 +110,27 @@ export function GateBuilder() {
               </div>
             </Card>
 
-            <Card kicker="Value ceiling" title={`At most ${G.money(choice.ceiling)} ${G.per}`}>
+            {ceiling !== null && <Card kicker="Value ceiling" title={`At most ${G.money(ceiling)} ${G.per}`}>
               <input
-                type="range" min={G.ceilingRange[0]} max={G.ceilingRange[1]} step={G.ceilingRange[2]} value={choice.ceiling}
+                type="range" min={G.ceilingRange[0]} max={G.ceilingRange[1]} step={G.ceilingRange[2]} value={ceiling}
                 onChange={(e) => set({ ceiling: Number(e.target.value) })}
                 aria-label={`Value ceiling ${G.unitAria}`}
                 className="w-full accent-cyan cursor-pointer"
               />
               <div className="flex items-center justify-between gap-3 flex-wrap mt-2">
-                <span className="font-mono text-[11px] text-muted">about {Math.round(sc.round2.weekly * shareOver(sc, choice.ceiling))} {G.overNote}</span>
+                <span className="font-mono text-[11px] text-muted">about {Math.round(sc.round2.weekly * shareOver(sc, ceiling))} {G.overNote}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] text-muted">above it:</span>
                   <Segmented options={[{ value: "B", label: "Band B at best" }, { value: "C", label: "Band C" }]} value={choice.onExceed} onChange={(v) => set({ onExceed: v as "B" | "C" })} />
                 </div>
               </div>
-            </Card>
+            </Card>}
 
-            <Card kicker="Cumulative cap" title={choice.cap === null ? G.capNone : `At most ${G.money(choice.cap)} ${G.capPer}`}>
+            <Card kicker="Cumulative cap" title={choice.cap === null ? G.capNone : `At most ${G.capValue(choice.cap)} ${G.capPer}`}>
               <Segmented
                 options={[{ value: "off", label: "No cap" }, { value: "on", label: G.capOn }]}
                 value={choice.cap === null ? "off" : "on"}
-                onChange={(v) => set({ cap: v === "off" ? null : choice.ceiling })}
+                onChange={(v) => set({ cap: v === "off" ? null : ceiling ?? G.capStart })}
               />
               {choice.cap !== null && (
                 <input
@@ -138,7 +140,7 @@ export function GateBuilder() {
                   className="w-full accent-cyan cursor-pointer mt-3"
                 />
               )}
-              <p className="text-[12px] text-muted-2 mt-2">Pending approvals count towards it. A breach lowers the band to B; it never blocks and never loosens.</p>
+              <p className="text-[12px] text-muted-2 mt-2">Pending {noun} count towards it. A breach lowers the band to B; it never blocks and never loosens.</p>
             </Card>
           </div>
 

@@ -81,7 +81,8 @@ function volumeByLevel(sc: V5Scenario, high: number, medium: number): Partial<Re
 export interface GateChoice {
   errorTarget: number;
   medium: number;
-  ceiling: number;
+  /** The value ceiling; null where the scenario's gated row has none. */
+  ceiling: number | null;
   onExceed: "B" | "C";
   /** The cumulative cap's total; null for none. */
   cap: number | null;
@@ -105,10 +106,10 @@ export function toGate(sc: V5Scenario, c: GateChoice): Gate & { calibrationRun: 
       errorTarget: c.errorTarget, confidenceLevel: CONFIDENCE, sampleSize: sampleSize(sc), sampleDate: sc.round2.sampleDate,
       sampleRef: "placeholder://lab/calibration-sample", method: "learn-then-test",
     },
-    ceiling: { amount: c.ceiling, onExceed: c.onExceed },
+    ceiling: c.ceiling === null ? null : { amount: c.ceiling, onExceed: c.onExceed },
     cap: c.cap,
     volume: volumeByLevel(sc, high, medium),
-    overCeilingPerWeek: Math.round(sc.round2.weekly * shareOver(sc, c.ceiling)),
+    overCeilingPerWeek: c.ceiling === null ? 0 : Math.round(sc.round2.weekly * shareOver(sc, c.ceiling)),
     version: "1.1.0",
     round: 2,
     calibrationRun: cal,

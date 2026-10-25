@@ -6,7 +6,7 @@ import type { RoundResult } from "../types";
 import { buildBinding, buildMatrix, type Doc, type Round1Policy } from "./round1";
 import { startingGate, toGate, type GateChoice } from "./round2";
 import { reviewTweak, seedsDoc, startingReview, type ReviewChoice } from "./round3";
-import { nightTweak, startingNight, type NightChoice } from "./round4";
+import { nightPolicy, nightTweak, startingNight, type NightChoice } from "./round4";
 import type { V5Scenario } from "./scenario";
 
 export interface Choices { v5r1?: Round1Policy; v5r2?: GateChoice; v5r3?: ReviewChoice; v5r4?: NightChoice }
@@ -22,7 +22,7 @@ const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; del
 
 /** The matrix as it stood after the night: every round's choices applied. */
 export function finalMatrix(sc: V5Scenario, c: Choices): Doc {
-  const policy = c.v5r1 ?? sc.round1.startingPolicy();
+  const policy = nightPolicy(sc, c.v5r1 ?? sc.round1.startingPolicy());
   const m = buildMatrix(sc, policy, toGate(sc, c.v5r2 ?? startingGate(sc)));
   reviewTweak(c.v5r3 ?? startingReview())(m);
   nightTweak(sc, c.v5r4 ?? startingNight(sc))(m);
@@ -35,7 +35,7 @@ export interface ExportFile { name: string; doc: Doc; lint?: LintResult; what: s
 
 /** The files a Guardian needs to enforce the player's design, each checked as createGuardian checks it. */
 export function exportFiles(sc: V5Scenario, c: Choices): { files: ExportFile[]; ok: boolean; problems: string[] } {
-  const policy = c.v5r1 ?? sc.round1.startingPolicy();
+  const policy = nightPolicy(sc, c.v5r1 ?? sc.round1.startingPolicy());
   const matrix = finalMatrix(sc, c);
   const binding = buildBinding(sc, policy, matrix);
   binding.id = sc.exportFiles.bindingId;

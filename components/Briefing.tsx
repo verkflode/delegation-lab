@@ -27,7 +27,7 @@ export function Briefing() {
     return () => { cancelled = true; };
   }, [state.scenario, state.round, sc]);
 
-  const meta = TITLES[state.round];
+  const meta = state.round === 2 && sc.ui.gateConcept ? { ...TITLES[2], concept: sc.ui.gateConcept } : TITLES[state.round];
 
   return (
     <div className="min-h-screen flex items-center px-6 py-16 animate-fade-in">
