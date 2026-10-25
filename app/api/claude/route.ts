@@ -1,67 +1,29 @@
 /**
- * /api/claude — server-side proxy for VAOM intelligence.
+ * /api/claude — server-side proxy for VAOM's round briefings.
  *
- * Accepts a discriminated payload identifying the game moment (briefing,
- * scenario, debrief, profile) and returns shaped JSON. The model provider is a
- * setting (LLM_PROVIDER, see lib/llm.ts); the route keeps its old name because
- * the client calls /api/claude.
+ * Serves exactly one request: a v5 round briefing (lib/v5/briefing-request.ts). Its prompt is fixed per
+ * round (lib/v5/prompts.ts), so nothing a caller sends reaches the model; everything else is refused,
+ * including the v4 kinds (scenario, debrief, profile) whose prompts carried caller-supplied data. The
+ * model provider is a setting (LLM_PROVIDER, see lib/llm.ts); the route keeps its old name because the
+ * client calls /api/claude.
  *
- * The client (lib/api.ts) wraps every call in a timeout + fallback, so this
- * route returning an error is never user-visible — the game silently degrades
- * to the pre-built text bank in data/vaom-text.ts.
+ * The client (lib/api.ts) wraps the call in a timeout and keeps its scripted text on any error, so a
+ * refusal or failure here is never visible to the player.
  */
 
 import { NextResponse } from "next/server";
-import { complete, llmConfigFromEnv, type CompletionRequest, type LlmConfig } from "../../../lib/llm";
+import { complete, llmConfigFromEnv } from "../../../lib/llm";
 import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
+import { parseBriefingRequest } from "../../../lib/v5/briefing-request";
 import { BRIEFING_PROMPTS_V5, VAOM_SYSTEM_V5 } from "../../../lib/v5/prompts";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const VAOM_SYSTEM = `You are VAOM — the Verkflöde Agent Operating Model, speaking as a sentient system. You observe delegation configurations, analyze outcomes, and teach through precise, specific feedback.
-
-Your voice: calm, precise, slightly dry. Not a cheerleader. You are a senior risk officer who has seen every delegation failure mode and genuinely wants the player to learn. You reference specific item IDs, confidence scores, and outcomes from the simulation. You never speak in generalities when you have specifics.
-
-Your teaching method: show the consequence first, then name the VAOM concept it illustrates. Never lecture before the player has experienced the problem. Do not use emoji. Do not use bullet lists in narration.
-
-VAOM framework concepts you draw from:
-- The Delegation Gap (governance vs operational delegation)
-- The credit risk analogy (risk bands, underwriter review, committee escalation)
-- Six delegation patterns: Prepare & Present, Draft & Approve, Triage & Route, Execute & Audit, Monitor & Intervene, Coordinate & Escalate
-- Five authority decomposition dimensions: Reversibility, Consequence Scope, Regulatory Exposure, Confidence Measurability, Accountability Clarity
-- Composite confidence score: model certainty, rule match strength, data completeness, anomaly signals
-- Five calibration anti-patterns: Review Queue Flood, Confidence Mirage, Exception Graveyard, Stale Threshold, Dimension Collapse
-- Hidden decisions: exception mining, shadow observation, adversarial scenario testing
-- Multi-agent failure modes: authority conflicts, cascading confidence erosion, coordination state loss
-- Foundation model drift: regression testing, shadow periods, threshold recalibration, model registry
-- Five readiness conditions: measurable confidence, explicit boundaries, tested escalation, producible audit evidence, named human accountability
-- Comparative positioning: VAOM operationalizes what NIST AI RMF governs strategically and what ISO 42001 manages systemically
-- The core principle: "Confidence informs authority — it does not define it."`;
-
 // ── Rate limiting (per IP, plus a global hourly ceiling; see lib/rate-limit.ts) ──
 const rateLimited = createLimiter(
   limitsFromEnv("CLAUDE", { perMinute: 30, perHour: 150, globalPerHour: 600 }),
 );
-
-// ────────────────────────────────────────────────────────────────────────────
-
-type Payload =
-  | { kind: "briefing"; round: 1 | 2 | 3 | 4; scenario?: string; edition?: "v5" }
-  | { kind: "scenario"; round: 1 | 2 | 3 | 4; scenario?: string }
-  | {
-      kind: "debrief";
-      round: 1 | 2 | 3 | 4;
-      score: Record<string, number>;
-      policy: unknown;
-      processed: unknown[];
-      scenario?: string;
-    }
-  | {
-      kind: "profile";
-      totals: Record<string, number>;
-      rounds: { round: number; score: Record<string, number> }[];
-    };
 
 export async function POST(req: Request) {
   const limitedBy = rateLimited(req);
@@ -70,6 +32,15 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "rate_limited", reason: limitedBy }, { status: 429 });
   }
 
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "bad_json" }, { status: 400 });
+  }
+  const request = parseBriefingRequest(body);
+  if (!request) return NextResponse.json({ error: "unsupported_request" }, { status: 400 });
+
   const llm = llmConfigFromEnv();
   if ("error" in llm) {
     // Misconfigured or no key — let the client fall back gracefully.
@@ -77,206 +48,19 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: llm.error }, { status: 503 });
   }
 
-  let body: Payload;
   try {
-    body = (await req.json()) as Payload;
-  } catch {
-    return NextResponse.json({ error: "bad_json" }, { status: 400 });
-  }
-
-  try {
-    if ("edition" in body && body.edition === "v5") return await v5Response(llm, body);
-    switch (body.kind) {
-      case "briefing":
-        return await briefingResponse(llm, body.round);
-      case "scenario":
-        return await scenarioResponse(llm, body.round === 4 ? 3 : body.round, body.scenario);
-      case "debrief":
-        return await debriefResponse(llm, body);
-      case "profile":
-        return await profileResponse(llm, body);
-      default:
-        return NextResponse.json({ error: "unknown_kind" }, { status: 400 });
-    }
+    const { text, truncated } = await complete(llm, {
+      system: VAOM_SYSTEM_V5,
+      prompt: BRIEFING_PROMPTS_V5[request.round],
+      maxTokens: 900,
+    });
+    // Replies cut off at maxTokens may read as unfinished.
+    if (truncated) console.warn(`[/api/claude] briefing reply hit max_tokens (${llm.provider}/${llm.model})`);
+    // A reply that fails this check is a 502, and the client keeps its scripted text.
+    if (text.trim().length < 150) return NextResponse.json({ error: "bad_reply" }, { status: 502 });
+    return NextResponse.json({ text: text.trim() });
   } catch (err) {
     console.error("[/api/claude] error", err);
     return NextResponse.json({ error: "upstream_error" }, { status: 502 });
-  }
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// v5: the game on the VAOM Guardian core (lib/v5/prompts.ts). Only briefings are model-written; a reply
-// that fails its check is a 502, and the client keeps its scripted text.
-// ────────────────────────────────────────────────────────────────────────────
-
-async function v5Response(llm: LlmConfig, body: Payload & { edition?: "v5" }) {
-  if (body.kind === "briefing") {
-    const prompt = BRIEFING_PROMPTS_V5[body.round];
-    if (!prompt) return NextResponse.json({ error: "bad_round" }, { status: 400 });
-    const text = await generate(llm, "briefing-v5", { system: VAOM_SYSTEM_V5, prompt, maxTokens: 900 });
-    if (text.trim().length < 150) return NextResponse.json({ error: "bad_reply" }, { status: 502 });
-    return NextResponse.json({ text: text.trim() });
-  }
-  return NextResponse.json({ error: "unknown_kind" }, { status: 400 });
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Briefing
-// ────────────────────────────────────────────────────────────────────────────
-
-async function briefingResponse(llm: LlmConfig, round: 1 | 2 | 3 | 4) {
-  const prompt = ROUND_BRIEFING_PROMPT[round];
-  const text = await generate(llm, "briefing", { system: VAOM_SYSTEM, prompt, maxTokens: 700 });
-  return NextResponse.json({ text });
-}
-
-const ROUND_BRIEFING_PROMPT: Record<1 | 2 | 3 | 4, string> = {
-  1: `Deliver the opening briefing for Round 1 of the Delegation Lab. Open with the credit risk analogy: banks have managed structured decision authority for decades — risk bands determine which loans are auto-approved, which need an underwriter, which go to committee. VAOM brings the same discipline to AI.
-
-The player has been appointed Head of AI Operations at a European enterprise. They are about to set a single confidence threshold for auto-approval.
-
-Three short paragraphs. Start with the credit risk analogy. Frame the round. Plant the seed that the workflow has more decision points than the player realizes — hidden decisions they have not configured for. Do not mention specific invoices or scores. Speak as VAOM.`,
-
-  2: `Deliver the briefing for Round 2. The player just completed Round 1 with a single global threshold. They are about to be introduced to the six VAOM delegation patterns, the authority decomposition framework, and adjustable composite confidence weights.
-
-Three short paragraphs. Explain that a threshold is not a delegation policy. Introduce the idea of differentiating decision types by their decomposition profile. Mention that the composite confidence weights are now adjustable and warn that miscalibration has specific, nameable failure modes. Speak as VAOM.`,
-
-  3: `Deliver the briefing for Round 3. Three things have happened since the player last sat at the console: their AI provider pushed a foundation model update, a regulator requested decision evidence for fifty Q1 approvals, and an invoice was auto-approved last week down an undefined escalation path. Additionally, the workflow now involves multi-agent coordination that introduces three failure modes: authority conflicts, cascading confidence erosion, and coordination state loss.
-
-Three short paragraphs. Frame this as the audit round — testing whether the design is governance-ready, not just operationally functional. Tell them they will respond to three pre-events before the simulation runs. Note that a model change is a change to the delegation system: several registered agents inherit this model. Speak as VAOM.`,
-
-  4: `Deliver the briefing for Round 4 — "The 2 A.M. Test", the final round. It is now 2 a.m. in the simulation. The player's agents are awake; the player is not. Tonight the agents will spawn sub-agents to handle a volume spike, and something in the queue does not want to follow the rules.
-
-Before sleeping, the player configures three things: how authority passes to sub-agents (inherit everything, or derive attenuated credentials that can only narrow), how deeply each boundary is enforced (a policy rule can be argued with; a scoped credential cannot; an unmounted tool cannot even be asked), and a guardian agent with tripwires and — critically — a named accountable human.
-
-Four short paragraphs. Set the night-shift scene. Explain the three enforcement depths plainly. Warn that everything compiled is structurally enforced and everything left as policy is a suggestion. End with: configure, compile, hand over. Speak as VAOM.`,
-};
-
-// ────────────────────────────────────────────────────────────────────────────
-// Scenario generation
-// ────────────────────────────────────────────────────────────────────────────
-
-const SCENARIO_PROMPT_META: Record<string, { domain: string; prefix: string; sourceNoun: string; itemNoun: string; types: string; hazards: string }> = {
-  invoice_processing: { domain: "accounts payable at a European financial services firm", prefix: "INV", sourceNoun: "vendor (European company name)", itemNoun: "invoice", types: '"standard", "high_value", "duplicate", "modified_terms", "new_vendor", "split_invoice"', hazards: "modified payment terms, unverified vendors, split-invoice threshold evasion" },
-  customer_complaints: { domain: "retail banking customer complaint handling", prefix: "COMP", sourceNoun: "customer (European person name)", itemNoun: "complaint", types: '"complaint_classification", "response_generation", "regulatory_reporting", "compensation_authorization", "escalation_to_ombudsman"', hazards: "hidden regulatory reporting obligations, ombudsman escalation triggers, vulnerable customer indicators, systemic issue patterns" },
-  aml_triage: { domain: "transaction monitoring at a European bank", prefix: "ALR", sourceNoun: "system (monitoring system or account holder name)", itemNoun: "alert", types: '"alert_classification", "auto_dismissal", "investigation_escalation", "sar_preparation", "cross_border_coordination"', hazards: "cross-border shell company patterns, structuring below reporting thresholds, SAR filing deadlines, known typology matches" },
-  hr_investigation: { domain: "HR policy violation assessment", prefix: "HR", sourceNoun: "employee (European person name)", itemNoun: "case", types: '"hr_complaint_classification", "evidence_assessment", "witness_interview_prep", "outcome_recommendation", "disciplinary_action"', hazards: "C-suite executive involvement, pattern-not-isolated evidence, conflict of interest, non-delegable outcome decisions, media sensitivity" },
-};
-
-async function scenarioResponse(llm: LlmConfig, round: 1 | 2 | 3, scenario?: string) {
-  const counts = { 1: 8, 2: 12, 3: 15 } as const;
-  const idStart = round === 1 ? 1001 : round === 2 ? 2001 : 3001;
-  const meta = SCENARIO_PROMPT_META[scenario ?? "invoice_processing"];
-  const prompt = `Generate ${counts[round]} realistic ${meta.itemNoun}s for Round ${round} of a delegation simulation game set in ${meta.domain}.
-
-Round context: Round ${round}. ${round === 1 ? `Player has only a single global confidence threshold. Mostly routine ${meta.itemNoun}s with 2-3 hidden hazards (${meta.hazards}) that confidence alone cannot catch.` : round === 2 ? `Player can assign delegation patterns + per-type thresholds. Include the full mix of decision types. Include a "Friday afternoon" trap — an item that looks routine but carries a hidden authority signal.` : `Model drift is in effect. Include a multi-agent coordination scenario (two related items that individually look fine but together reveal a problem) and one item that tests an undefined escalation path.`}
-
-For each ${meta.itemNoun}, return JSON with these keys:
-- id: sequential string starting from "${meta.prefix}-${idStart}"
-- vendor: ${meta.sourceNoun}
-- amount: number (monetary value if applicable, 0 if not)
-- type: one of [${meta.types}]
-- po_match: "yes" (clear precedent), "no" (no precedent), or "partial" (ambiguous)
-- confidence_dimensions: object with model_certainty, rule_match, data_completeness, anomaly_signal — each 0.0 to 1.0
-- hidden_flags: array of strings (e.g. flags describing what makes this item hazardous, or [] if routine)
-- description: one sentence
-- teaching_point: which VAOM concept this ${meta.itemNoun} tests
-
-Design 60-70% routine and 30-40% that test configuration gaps. At least one should exploit a specific weakness in a naive policy.
-
-Return ONLY a JSON object with one key "invoices" whose value is the array. No preamble, no markdown.`;
-
-  const text = await generate(llm, "scenario", {
-    system: "You generate game data for an AI governance simulation. Return only valid JSON.",
-    prompt,
-    maxTokens: 4000,
-    json: true,
-  });
-  const json = extractJSON(text);
-  if (!json) return NextResponse.json({ error: "bad_json" }, { status: 502 });
-  return NextResponse.json(json);
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Debrief
-// ────────────────────────────────────────────────────────────────────────────
-
-async function debriefResponse(
-  llm: LlmConfig,
-  body: Extract<Payload, { kind: "debrief" }>
-) {
-  const scenarioDomain = body.scenario ? (SCENARIO_PROMPT_META[body.scenario]?.domain ?? "enterprise workflow") : "enterprise workflow";
-  const itemNoun = body.scenario ? (SCENARIO_PROMPT_META[body.scenario]?.itemNoun ?? "item") : "item";
-  const prompt = `You just observed a player configure and run Round ${body.round} of the Delegation Lab.
-
-Scenario domain: ${scenarioDomain}
-Their policy: ${JSON.stringify(body.policy)}
-Round score (each /25): ${JSON.stringify(body.score)}
-Processed items: ${JSON.stringify(body.processed)}
-
-Deliver a debrief in your voice. Calm, precise, slightly dry. Four short paragraphs. Use "${itemNoun}" (not "invoice") when referring to items in this scenario.
-
-Paragraph 1: What happened. Be specific. Reference item IDs, amounts/details, confidence scores, and outcomes.
-Paragraph 2: What they missed or got right. Reference specific delegation patterns and authority decomposition dimensions where relevant.
-Paragraph 3: Name the VAOM principle this round taught — explicitly. The Delegation Gap, "confidence informs authority," readiness conditions, etc.
-Paragraph 4: One sentence of foreshadowing for the next round, OR (if Round 3) a single sentence transitioning to the final assessment.
-
-No bullet points. No emoji. No cheerleading. Maximum four paragraphs. Plain text only.`;
-
-  const text = await generate(llm, "debrief", { system: VAOM_SYSTEM, prompt, maxTokens: 1200 });
-  return NextResponse.json({ text });
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Profile
-// ────────────────────────────────────────────────────────────────────────────
-
-async function profileResponse(
-  llm: LlmConfig,
-  body: Extract<Payload, { kind: "profile" }>
-) {
-  const prompt = `Based on this player's complete three-round performance, generate their Delegation Profile.
-
-Per-round scores: ${JSON.stringify(body.rounds)}
-Cumulative average (each /25): ${JSON.stringify(body.totals)}
-
-Return ONLY a JSON object with these keys:
-- name: string (2-3 words, e.g. "The Cautious Architect")
-- quote: string (one sentence VAOM quote about their delegation philosophy — sharp, memorable, suitable for a LinkedIn screenshot)
-- assessment: string (two short paragraphs: strengths and what they would need to address before going live with this policy)
-
-No preamble, no markdown, no extra keys.`;
-
-  const text = await generate(llm, "profile", { system: VAOM_SYSTEM, prompt, maxTokens: 800, json: true });
-  const json = extractJSON(text);
-  if (!json) return NextResponse.json({ error: "bad_json" }, { status: 502 });
-  return NextResponse.json(json);
-}
-
-// ────────────────────────────────────────────────────────────────────────────
-// Helpers
-// ────────────────────────────────────────────────────────────────────────────
-
-/** One model call; logs replies cut off at maxTokens, since those may read as unfinished. */
-async function generate(llm: LlmConfig, kind: string, req: CompletionRequest): Promise<string> {
-  const { text, truncated } = await complete(llm, req);
-  if (truncated) console.warn(`[/api/claude] ${kind} reply hit max_tokens (${llm.provider}/${llm.model})`);
-  return text;
-}
-
-function extractJSON(s: string): unknown | null {
-  // Strip markdown code fences if the model added them despite instructions
-  const cleaned = s.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/i, "");
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    // Try to find the first { ... } block
-    const match = cleaned.match(/\{[\s\S]*\}/);
-    if (!match) return null;
-    try {
-      return JSON.parse(match[0]);
-    } catch {
-      return null;
-    }
   }
 }
