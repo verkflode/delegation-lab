@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import Script from "next/script";
 import { DM_Serif_Display, JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
@@ -65,6 +66,17 @@ export default function RootLayout({
       <body className="min-h-full">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(STRUCTURED_DATA) }} />
         {children}
+        {/* Umami, self-hosted and cookieless, served first-party by the Lab's server (Caddy passes /m/s.js
+            and /m/e to it). Counts only on lab.vaom.ai, and not for browsers that send Do Not Track.
+            host-url is needed: without it the tracker posts next to the script, to /m/m/e. */}
+        <Script
+          src="/m/s.js"
+          strategy="afterInteractive"
+          data-website-id="75983176-225b-4346-9c05-40dcd72996c6"
+          data-host-url="https://lab.vaom.ai"
+          data-domains="lab.vaom.ai"
+          data-do-not-track="true"
+        />
       </body>
     </html>
   );

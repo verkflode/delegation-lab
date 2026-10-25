@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { GameProvider, isV5Round, useGame } from "../lib/game-state";
 import { clearNarration, prefetchBriefing } from "../lib/v5/narration";
+import { track } from "../lib/analytics";
 import { TitleScreen } from "../components/TitleScreen";
 import { Briefing } from "../components/Briefing";
 import { ConfigBasic } from "../components/ConfigBasic";
@@ -32,6 +33,13 @@ export default function Page() {
 function Router() {
   const { state } = useGame();
   const v5 = isV5Round(state.round, state.scenario);
+
+  // How far visits get, for the Lab's analytics (lib/analytics.ts): a start, each round finished, the end.
+  useEffect(() => {
+    if (state.phase === "briefing" && state.round === 1) track("game-start", { scenario: state.scenario });
+    if (state.phase === "debrief") track("round-done", { round: state.round, scenario: state.scenario });
+    if (state.phase === "final") track("game-complete", { scenario: state.scenario });
+  }, [state.phase, state.round, state.scenario]);
 
   // v5 briefings are fetched ahead of the screen that shows them (lib/v5/narration.ts).
   useEffect(() => {

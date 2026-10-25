@@ -5,6 +5,7 @@ import { Check, ChevronDown, Download, X } from "lucide-react";
 import type { Metric, Scorecard } from "@verkflode/vaom-guardian-core";
 import type { RoundResult } from "../../lib/types";
 import { evidence, exportFiles, finalScorecard, GAME_MIN_SAMPLE, wireOf, type Choices } from "../../lib/v5/final";
+import { track } from "../../lib/analytics";
 
 /**
  * The final screen's v5 panels: the core's Delegation Scorecard over the game's four days, every decision
@@ -186,7 +187,7 @@ function ExportPanel({ choices }: { choices: Choices }) {
               <div className="font-mono text-[12px] text-ink">{f.name}</div>
               <div className="text-[12px] text-muted">{f.what}{f.lint ? ` · ${f.lint.ok ? "lints" : "doesn't lint"}${f.lint.findings.some((x) => x.severity === "warning") ? " with warnings" : ""}` : ""}</div>
             </div>
-            <button onClick={() => download(f.name, f.doc)} className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-cyan/40 text-cyan font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 hover:bg-cyan/5 focus-ring">
+            <button onClick={() => { download(f.name, f.doc); track("export", { file: f.name }); }} className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-cyan/40 text-cyan font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 hover:bg-cyan/5 focus-ring">
               <Download size={12} /> Save
             </button>
           </li>
