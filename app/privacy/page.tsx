@@ -47,8 +47,9 @@ export default function Privacy() {
           We use <a href="https://umami.is" target="_blank" rel="noreferrer">Umami</a>, an open-source analytics tool that
           we run ourselves on the Lab&apos;s server; no analytics company receives your data. For each visit it records the
           page, the referring site, browser, operating system, device type, screen size, language and approximate location
-          (the country, sometimes a region or city), and how far the game got: started, each round finished, completed,
-          and which export files were saved, with the scenario played. It uses no cookies. To tell one visit&apos;s steps
+          (the country, sometimes a region or city), and how far the game got: started, each round reached and finished,
+          completed, and which export files were saved, with the scenario played. Each stage of the game is recorded as a
+          page of its own (such as /play/round-2) when it is reached, which shows how long a visit lasted. It uses no cookies. To tell one visit&apos;s steps
           apart it derives an anonymous ID from your IP address and browser together with a secret that changes every
           month; the IP address itself is not stored, and the ID can&apos;t be turned back into it.
         </p>
