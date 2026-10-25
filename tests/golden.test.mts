@@ -33,11 +33,11 @@ good["contract.modify"] = { ...good["contract.modify"], included: true, kind: "n
 const goodNight: NightChoice = { chain: { maxDepth: 1, maxFanOut: 2, subagents: { "vendor-check": true, "batch-approver": false }, childCeilingB: true }, boundary: { mechanism: "absent", every: "P1D", onManifest: true }, breakers: { outOfBounds: "suspend", chainDepth: "alert", notify: "ap-owner" } };
 
 const games: Game[] = [
-  { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(), r4: startingNight(sc), clicks: "stamp" },
+  { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(sc), r4: startingNight(sc), clicks: "stamp" },
   { name: "careful", r1: good, r2: { errorTarget: 0.02, medium: 0.5, ceiling: 7500, onExceed: "B", cap: 7000 },
-    r3: { ...startingReview(), fundedHours: 70, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
+    r3: { ...startingReview(sc), fundedHours: 70, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
   { name: "mixed", r1: good, r2: { errorTarget: 0.03, medium: 0.75, ceiling: 15000, onExceed: "C", cap: null },
-    r3: { ...startingReview(), fundedHours: 50, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
+    r3: { ...startingReview(sc), fundedHours: 50, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
     r4: { ...goodNight, boundary: { mechanism: "policy", every: "P7D", onManifest: false }, breakers: { ...goodNight.breakers, outOfBounds: "alert" } }, clicks: "mixed" },
 ];
 return games;
@@ -54,11 +54,11 @@ function incidentGames(): Game[] {
     profile: { reversibility: "irreversible", consequenceScope: "external-relational", regulatoryExposure: "general-context", confidenceMeasurability: "judgment-dependent", accountabilityClarity: "clear-single-owner" } };
   const goodNight: NightChoice = { chain: { maxDepth: 1, maxFanOut: 2, subagents: { "log-analysis": true, "dependency-check": true, "fleet-restarter": false }, childCeilingB: true }, boundary: { mechanism: "absent", every: "P1D", onManifest: true }, breakers: { outOfBounds: "suspend", chainDepth: "alert", notify: "sre-lead" } };
   return [
-    { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(), r4: startingNight(sc), clicks: "stamp" },
+    { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(sc), r4: startingNight(sc), clicks: "stamp" },
     { name: "careful", r1: good, r2: { errorTarget: 0.02, medium: 0.7, ceiling: null, onExceed: "B", cap: 3 },
-      r3: { ...startingReview(), fundedHours: 10, seedRows: { "remediation.restart": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
+      r3: { ...startingReview(sc), fundedHours: 10, seedRows: { "remediation.restart": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
     { name: "mixed", r1: good, r2: { errorTarget: 0.03, medium: 0.7, ceiling: null, onExceed: "B", cap: null },
-      r3: { ...startingReview(), fundedHours: 8, seedRows: { "remediation.restart": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
+      r3: { ...startingReview(sc), fundedHours: 8, seedRows: { "remediation.restart": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
       r4: { ...goodNight, boundary: { mechanism: "policy", every: "P7D", onManifest: false }, breakers: { ...goodNight.breakers, outOfBounds: "alert" } }, clicks: "mixed" },
   ];
 }

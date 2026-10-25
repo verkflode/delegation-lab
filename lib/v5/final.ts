@@ -24,7 +24,7 @@ const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; del
 export function finalMatrix(sc: V5Scenario, c: Choices): Doc {
   const policy = nightPolicy(sc, c.v5r1 ?? sc.round1.startingPolicy());
   const m = buildMatrix(sc, policy, toGate(sc, c.v5r2 ?? startingGate(sc)));
-  reviewTweak(c.v5r3 ?? startingReview())(m);
+  reviewTweak(c.v5r3 ?? startingReview(sc))(m);
   nightTweak(sc, c.v5r4 ?? startingNight(sc))(m);
   m.version = EXPORT_VERSION;
   m.description = "Built in the Delegation Lab (lab.vaom.ai): the four rounds' choices, as one matrix. A Delegation Authority Matrix in the Verkflöde Agent Operating Model (VAOM) 5.0, https://vaom.ai.";
@@ -40,7 +40,7 @@ export function exportFiles(sc: V5Scenario, c: Choices): { files: ExportFile[]; 
   const binding = buildBinding(sc, policy, matrix);
   binding.id = sc.exportFiles.bindingId;
   binding.title = sc.exportFiles.bindingTitle;
-  const seeds = seedsDoc(sc, c.v5r3 ?? startingReview());
+  const seeds = seedsDoc(sc, c.v5r3 ?? startingReview(sc));
   const hasSeeds = (seeds.seeds as Doc[]).length > 0;
 
   const problems: string[] = [];

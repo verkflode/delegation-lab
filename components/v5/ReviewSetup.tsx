@@ -17,7 +17,7 @@ export function ReviewSetup() {
   const sc = useScenario();
   const policy = state.v5r1 ?? sc.round1.startingPolicy();
   const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
-  const [choice, setChoice] = useState<ReviewChoice>(() => state.v5r3 ?? startingReview());
+  const [choice, setChoice] = useState<ReviewChoice>(() => state.v5r3 ?? startingReview(sc));
   const { matrix, lint, hours, funded } = useMemo(() => lintReview(sc, policy, gate, choice), [sc, policy, gate, choice]);
   const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
   const set = (patch: Partial<ReviewChoice>) => setChoice((c) => ({ ...c, ...patch }));
@@ -43,7 +43,7 @@ export function ReviewSetup() {
           <div className="space-y-4 min-w-0">
             <Card kicker="Funding" title={`${choice.fundedHours} reviewer hours a week`}>
               <input
-                type="range" min={30} max={120} step={5} value={choice.fundedHours}
+                type="range" min={sc.round3.funded.range[0]} max={sc.round3.funded.range[1]} step={sc.round3.funded.range[2]} value={choice.fundedHours}
                 onChange={(e) => set({ fundedHours: Number(e.target.value) })}
                 aria-label="Funded reviewer hours per week"
                 className="w-full accent-cyan cursor-pointer"

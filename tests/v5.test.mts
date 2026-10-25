@@ -31,7 +31,7 @@ good["invoice.duplicate-anomaly"] = { ...good["invoice.duplicate-anomaly"], incl
 good["contract.modify"] = { ...good["contract.modify"], included: true, kind: "non-delegable", pattern: "prepare-and-present", owner: "legal-counsel",
   profile: { reversibility: "irreversible", consequenceScope: "external-relational", regulatoryExposure: "general-context", confidenceMeasurability: "judgment-dependent", accountabilityClarity: "clear-single-owner" } };
 const goodGate: GateChoice = { errorTarget: 0.02, medium: 0.5, ceiling: 7500, onExceed: "B", cap: 7000 };
-const goodReview: ReviewChoice = { ...startingReview(), fundedHours: 70, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.1 };
+const goodReview: ReviewChoice = { ...startingReview(sc), fundedHours: 70, seedRows: { "invoice.duplicate-anomaly": true }, seedRate: 0.1 };
 const goodNight: NightChoice = { chain: { maxDepth: 1, maxFanOut: 2, subagents: { "vendor-check": true, "batch-approver": false }, childCeilingB: true }, boundary: { mechanism: "absent", every: "P1D", onManifest: true }, breakers: { outOfBounds: "suspend", chainDepth: "alert", notify: "ap-owner" } };
 
 // ── Round 1 ────────────────────────────────────────────────────────────────

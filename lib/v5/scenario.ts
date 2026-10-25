@@ -154,6 +154,8 @@ export interface V5Scenario {
     /** Planted cases with a known error, by row. */
     plants: Plant[];
     seeds: { id: string; approvedBy: string; date: string; handbookRef: string };
+    /** Reviewer hours a week: where the player starts, and the slider's range and step. */
+    funded: { start: number; range: [number, number, number] };
   };
 
   round4: {
@@ -189,6 +191,8 @@ export interface V5Scenario {
     days: [string, string, string];
     /** Round 2's concept line on its briefing, where the scenario's limits differ from the default. */
     gateConcept?: string;
+    /** Who set round 1's fixed limits ("the controller"). */
+    limitsSetBy: string;
     /** The prefix the scenario's tools share, dropped where a screen names a tool. */
     toolPrefix: string;
     matrixIntro: string;

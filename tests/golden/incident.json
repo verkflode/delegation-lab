@@ -10122,7 +10122,7 @@
        }
       },
       "oversight": {
-       "fundedReviewerHoursPerWeek": 60,
+       "fundedReviewerHoursPerWeek": 8,
        "fundedBy": {
         "role": "head-of-engineering",
         "date": "2026-10-01"
@@ -10358,7 +10358,7 @@
       "findings": []
      },
      "hours": 1.7333333333333334,
-     "funded": 48
+     "funded": 6.4
     },
     "shift": {
      "run": {
@@ -10427,7 +10427,7 @@
         }
        },
        "oversight": {
-        "fundedReviewerHoursPerWeek": 60,
+        "fundedReviewerHoursPerWeek": 8,
         "fundedBy": {
          "role": "head-of-engineering",
          "date": "2026-10-01"
@@ -10787,7 +10787,7 @@
          }
         },
         "oversight": {
-         "fundedReviewerHoursPerWeek": 60,
+         "fundedReviewerHoursPerWeek": 8,
          "fundedBy": {
           "role": "head-of-engineering",
           "date": "2026-10-01"
@@ -13367,7 +13367,7 @@
           }
          },
          "oversight": {
-          "fundedReviewerHoursPerWeek": 60,
+          "fundedReviewerHoursPerWeek": 8,
           "fundedBy": {
            "role": "head-of-engineering",
            "date": "2026-10-01"
@@ -15479,7 +15479,7 @@
       }
      ],
      "score": {
-      "efficiency": 11,
+      "efficiency": 19,
       "riskControl": 0,
       "compliance": 20,
       "adaptability": 10,
@@ -16695,7 +16695,7 @@
        }
       },
       "oversight": {
-       "fundedReviewerHoursPerWeek": 60,
+       "fundedReviewerHoursPerWeek": 8,
        "fundedBy": {
         "role": "head-of-engineering",
         "date": "2026-10-01"
@@ -16934,7 +16934,7 @@
       "findings": []
      },
      "hours": 1.7333333333333334,
-     "funded": 48
+     "funded": 6.4
     },
     "night": {
      "pre": {
@@ -18254,7 +18254,7 @@
        }
       },
       "oversight": {
-       "fundedReviewerHoursPerWeek": 60,
+       "fundedReviewerHoursPerWeek": 8,
        "fundedBy": {
         "role": "head-of-engineering",
         "date": "2026-10-01"
@@ -19899,7 +19899,7 @@
          }
         },
         "oversight": {
-         "fundedReviewerHoursPerWeek": 60,
+         "fundedReviewerHoursPerWeek": 8,
          "fundedBy": {
           "role": "head-of-engineering",
           "date": "2026-10-01"
@@ -20448,7 +20448,7 @@
      "workflow": {
       "oversightLoad": {
        "status": "insufficient-sample",
-       "fundedHoursPerWeek": 60,
+       "fundedHoursPerWeek": 8,
        "periodDays": 3.25,
        "note": "the period is 3.25 days; review load is judged over at least a week"
       },

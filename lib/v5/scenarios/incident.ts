@@ -333,6 +333,7 @@ export const INCIDENT: V5Scenario = {
     batch: BATCH3,
     plants: PLANTS,
     seeds: { id: "lab.ops.incident.seeds", approvedBy: "sre-lead", date: "2026-10-16", handbookRef: "placeholder://lab/sre-handbook-oversight" },
+    funded: { start: 8, range: [2, 24, 1] },
   },
 
   round4: {
@@ -386,6 +387,7 @@ export const INCIDENT: V5Scenario = {
   ui: {
     title: { label: "Incident remediation", sub: "A SaaS provider's agent restarting services during incidents" },
     team: "incident response",
+    limitsSetBy: "the SRE lead",
     days: ["Tuesday", "Wednesday", "Thursday"],
     gateConcept: "Calibrated thresholds · Restart caps · Independent checks",
     toolPrefix: "mcp__",

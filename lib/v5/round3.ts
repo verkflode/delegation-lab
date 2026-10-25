@@ -30,8 +30,8 @@ export interface ReviewChoice {
 
 export const SEED_RATES = [0.05, 0.1, 0.2];
 
-export function startingReview(): ReviewChoice {
-  return { fundedHours: 60, seedRows: {}, seedRate: 0.1, targetDetection: 0.9, reviewerMetrics: false, dpia: false };
+export function startingReview(sc: V5Scenario): ReviewChoice {
+  return { fundedHours: sc.round3.funded.start, seedRows: {}, seedRate: 0.1, targetDetection: 0.9, reviewerMetrics: false, dpia: false };
 }
 
 export function reviewTweak(c: ReviewChoice): MatrixTweak {

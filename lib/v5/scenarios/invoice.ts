@@ -352,6 +352,7 @@ export const INVOICE: V5Scenario = {
     batch: BATCH3,
     plants: PLANTS,
     seeds: { id: "lab.ap.invoice.seeds", approvedBy: "ap-owner", date: "2026-10-16", handbookRef: "placeholder://lab/ap-handbook-oversight" },
+    funded: { start: 60, range: [30, 120, 5] },
   },
 
   round4: {
@@ -413,6 +414,7 @@ export const INVOICE: V5Scenario = {
   ui: {
     title: { label: "Invoice processing", sub: "Accounts payable at a European financial services firm" },
     team: "accounts payable",
+    limitsSetBy: "the controller",
     days: ["Tuesday", "Wednesday", "Thursday"],
     toolPrefix: "mcp__erp__",
     matrixIntro: "Your agent works accounts payable: it reads invoices, matches them to purchase orders and approves them for payment.",

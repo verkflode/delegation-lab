@@ -298,7 +298,7 @@ function FixedThisRound() {
   const sc = useScenario();
   return (
     <div className="surface px-5 py-4">
-      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-2">Already set by the controller</div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-2">Already set by {sc.ui.limitsSetBy}</div>
       <ul className="text-[12px] text-muted space-y-1">
         {sc.ui.controllerLimits.map((l) => <li key={l}>{l}</li>)}
       </ul>

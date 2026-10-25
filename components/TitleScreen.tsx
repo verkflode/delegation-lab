@@ -151,7 +151,7 @@ export function TitleScreen() {
                 num={2}
                 title="The Gate"
                 concept="Calibrated Thresholds"
-                line="Choose an error target and let calibration set the threshold. Then the ceiling and the caps."
+                line="Choose an error target and let calibration set the threshold. Then the limits around it."
               />
               <RoundPreview
                 icon={<ShieldCheck size={16} />}
