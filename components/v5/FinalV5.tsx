@@ -193,10 +193,10 @@ function ExportPanel({ choices }: { choices: Choices }) {
           </li>
         ))}
       </ul>
-      <p className="font-mono text-[11px] text-muted mt-4 break-words">vaom-guardian verify --config guardian.config.json</p>
+      <p className="font-mono text-[11px] text-muted mt-4 break-words">node packages/guardian/src/cli.ts verify --config your-folder/guardian.config.json</p>
       <p className="text-[12px] text-muted-2 mt-1">
-        Save them in one folder. The <a className="text-cyan underline" href="https://github.com/verkflode/vaom-guardian" target="_blank" rel="noreferrer">VAOM Guardian</a> checks
-        them with the line above. The binding speaks to a placeholder ERP server: it shows the shape, not a live integration.
+        Save them in one folder. In a clone of the <a className="text-cyan underline" href="https://github.com/verkflode/vaom-guardian#check-a-matrix" target="_blank" rel="noreferrer">VAOM Guardian</a>,
+        the line above checks them the way the Guardian does before it starts. The binding speaks to a placeholder ERP server: it shows the shape, not a live integration.
       </p>
     </div>
   );
