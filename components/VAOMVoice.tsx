@@ -20,46 +20,51 @@ const LIVE_VOICE = process.env.NEXT_PUBLIC_VOICE === "1";
 type Props = {
   text: string;
   moment: GameMoment;
-  typingSpeed?: number;
+  /** Seconds the typing takes at most, whatever the text's length; 0 shows the text at once. */
+  typingSeconds?: number;
   label?: string;
   /** Pre-generated audio URL (e.g. /audio/briefing-r1-invoice.mp3). Instant playback. */
   cachedAudioUrl?: string;
 };
 
+// The typing is a cue that VAOM is speaking, not a reading pace: it runs faster than anyone reads (a few
+// characters a frame, at least MIN_CPS a second), a click or Escape shows the rest, and reduced motion skips it.
+const MIN_CPS = 160;
+
 export function VAOMVoice({
   text,
   moment,
-  typingSpeed = 18,
+  typingSeconds = 3.5,
   label = "VAOM",
   cachedAudioUrl,
 }: Props) {
-  const [shown, setShown] = useState("");
-  const [done, setDone] = useState(false);
+  const [count, setCount] = useState(0);
   const { status, speak, stop } = useVAOMVoice();
+  const done = count >= text.length;
 
-  // Type out the text character by character
+  // Type out the text a few characters per animation frame
   useEffect(() => {
-    setShown("");
-    setDone(false);
-    if (!text) return;
-    if (typingSpeed === 0) {
-      setShown(text);
-      setDone(true);
-      return;
-    }
-    let i = 0;
-    const tick = () => {
-      i++;
-      setShown(text.slice(0, i));
-      if (i >= text.length) {
-        setDone(true);
-        return;
-      }
-      timer = window.setTimeout(tick, typingSpeed);
+    const reduced = typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const cps = Math.max(MIN_CPS, text.length / Math.max(typingSeconds, 0.001));
+    const instant = !text || typingSeconds === 0 || reduced;
+    let frame = 0;
+    const start = performance.now();
+    const tick = (now: number) => {
+      const n = instant ? text.length : Math.min(text.length, Math.floor(((now - start) / 1000) * cps));
+      setCount(n);
+      if (n < text.length) frame = window.requestAnimationFrame(tick);
     };
-    let timer = window.setTimeout(tick, typingSpeed);
-    return () => window.clearTimeout(timer);
-  }, [text, typingSpeed]);
+    frame = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frame);
+  }, [text, typingSeconds]);
+
+  const finish = () => { if (!done) setCount(text.length); };
+  useEffect(() => {
+    if (done) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") setCount(text.length); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [done, text]);
 
   // Stop audio if the text changes (new screen / new round)
   useEffect(() => {
@@ -85,8 +90,8 @@ export function VAOMVoice({
         </div>
         {(LIVE_VOICE || cachedAudioUrl) && <ListenButton status={status} onClick={handleListen} />}
       </div>
-      <div className="font-mono text-[13.5px] leading-[1.75] text-ink whitespace-pre-wrap">
-        {shown}
+      <div onClick={finish} className="font-mono text-[13.5px] leading-[1.75] text-ink whitespace-pre-wrap">
+        {text.slice(0, count)}
         {!done && (
           <span className="inline-block w-[0.55em] h-[1.05em] bg-amber/80 ml-0.5 align-middle animate-pulse-soft" />
         )}

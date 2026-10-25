@@ -43,15 +43,17 @@ export function Briefing() {
   // v5 rounds use their own scripted text until the model prompts are rewritten for v5 (M5).
   const v5 = isV5Round(state.round, state.scenario);
   const v5Text = state.round === 4 ? ROUND4_BRIEFING : state.round === 3 ? ROUND3_BRIEFING : state.round === 2 ? ROUND2_BRIEFING : ROUND1_BRIEFING;
-  const [text, setText] = useState(() => (v5 ? v5Text : briefingFallback(state.round, state.scenario)));
+  // v5 waits (briefly, and usually not at all: it was prefetched) for the model's text before typing anything,
+  // so the typing never restarts when a different text lands.
+  const [text, setText] = useState(() => (v5 ? "" : briefingFallback(state.round, state.scenario)));
   const mountedAt = useRef(0); // set when the effect runs
 
   useEffect(() => {
     let cancelled = false;
     mountedAt.current = Date.now();
     if (v5) {
-      // The scripted text is the initial state (the screen remounts every round). The model's version, if it's already here (prefetched) or arrives before the player starts reading.
-      ready<string>(briefingKey(state.round), 1500).then((t) => { if (t && !cancelled) setText(t); });
+      // The model's version if it's already here (prefetched) or arrives within 1.5 s, else the scripted text.
+      ready<string>(briefingKey(state.round), 1500).then((t) => { if (!cancelled) setText(t || v5Text); });
       return () => { cancelled = true; };
     }
     setText(briefingFallback(state.round, state.scenario));
