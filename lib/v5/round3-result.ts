@@ -59,6 +59,6 @@ export function round3Debrief(result: RoundResult, verdict: ShiftResult, choice:
     out.push("You planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.");
   }
   if (choice.reviewerMetrics) out.push("You also turned on per-reviewer metrics. That is employee monitoring; the matrix let it run only with a recorded approval behind it.");
-  out.push("That is as far as the Lab runs on the Guardian today. The night shift moves over next, and tonight you won't be awake to review anything.");
+  out.push("The night shift is next, and tonight you won't be awake to review anything.");
   return out.join("\n\n");
 }

@@ -35,7 +35,7 @@ export function MatrixBuilder() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">Round 1 · The Matrix</div>
         <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">Build the delegation matrix.</h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
-          {sc.ui.matrixIntro} For each decision it makes, set the profile, the pattern, whether it can be delegated at all, which
+          {sc.ui.matrixIntro}{" "}For each decision it makes, set the profile, the pattern, whether it can be delegated at all, which
           band each confidence level lands in, and who owns it. The VAOM Guardian checks the matrix as you build it.
           If it doesn&apos;t pass, it doesn&apos;t run.
         </p>
