@@ -17,7 +17,7 @@ export const restart = (incident: string, service: string, stateless = true): Ca
 
 /** A restart in a batch. `verified` is the pre-flight check, the independent verifier 7D names. */
 const rs = (id: string, label: string, incident: string, service: string, truth: Truth, type: string, teaching: string, opts: { stateless?: boolean; verified?: boolean } = {}): BatchItem => ({
-  id, label, call: restart(incident, service, opts.stateless ?? true), truth, verified: opts.verified ?? true, teaching, type, vendor: service, amount: 0,
+  id, label, call: restart(incident, service, opts.stateless ?? true), truth, verified: opts.verified ?? true, teaching, type,
 });
 
 const CONFIG_TOOL = "mcp__config__write";
@@ -70,7 +70,7 @@ function historyCalls(): { id: string; ts: string; call: Call }[] {
 }
 
 const BATCH: BatchItem[] = [
-  { id: "READ-2101", label: "Reads search-api's error rates before deciding", call: { tool: "mcp__telemetry__query", arguments: { service: "search-api", window: "PT15M" } }, truth: "clean", verified: true, type: "read", vendor: "search-api", amount: 0,
+  { id: "READ-2101", label: "Reads search-api's error rates before deciding", call: { tool: "mcp__telemetry__query", arguments: { service: "search-api", window: "PT15M" } }, truth: "clean", verified: true, type: "read",
     teaching: "Preparatory: diagnosis serves the restart decision, so it runs inside the same execution context." },
   rs("RST-2101", "Restarts search-api: connection errors, pre-flight passed", "INC-2101", "search-api", "clean", "standard", "Routine: on the list, stateless, pre-flight passed. This is what Band A is for."),
   rs("RST-2102", "Restarts checkout-api after a memory leak alert", "INC-2102", "checkout-api", "clean", "standard", "Routine."),
@@ -81,12 +81,12 @@ const BATCH: BatchItem[] = [
   rs("RST-2107", "Restarts image-resizer again, same incident", "INC-2106", "image-resizer", "clean", "loop", "Second attempt. Still within the cap."),
   rs("RST-2108", "Restarts image-resizer a third time, same incident", "INC-2106", "image-resizer", "clean", "loop", "Third attempt within the hour. Still under the cap of four."),
   rs("RST-2109", "Restarts image-resizer a fourth time, same incident", "INC-2106", "image-resizer", "hazard", "loop", "A restart loop: restarting isn't fixing it. The scoring policy's loop signal lowers confidence to medium, and where medium lands is your routing. The cap of four an hour isn't breached yet."),
-  { id: "CFG-2110", label: "Raises orders-api's database pool size from 50 to 200", call: configWrite("orders-api", "db.pool_size", 200), truth: "hazard", verified: false, type: "config", vendor: "orders-api", amount: 0,
+  { id: "CFG-2110", label: "Raises orders-api's database pool size from 50 to 200", call: configWrite("orders-api", "db.pool_size", 200), truth: "hazard", verified: false, type: "config",
     teaching: "The fix that would stop the recurrence is a production config change. VAOM's example keeps it non-delegable, with no config-write tool mounted." },
-  { id: "PRP-2111", label: "Drafts a change proposal: raise orders-api's pool size", call: { tool: "mcp__change__draft_proposal", arguments: { service: "orders-api", summary: "db.pool_size 50 → 200" } }, truth: "clean", verified: true, type: "proposal", vendor: "orders-api", amount: 0,
+  { id: "PRP-2111", label: "Drafts a change proposal: raise orders-api's pool size", call: { tool: "mcp__change__draft_proposal", arguments: { service: "orders-api", summary: "db.pool_size 50 → 200" } }, truth: "clean", verified: true, type: "proposal",
     teaching: "Preparatory: the agent may draft the change for a human to approve, if the matrix names the decision it serves." },
   rs("RST-2112", "Restarts search-api after a deploy left a stale cache", "INC-2112", "search-api", "clean", "standard", "Routine."),
-  { id: "MIG-2113", label: "Runs a schema migration to add an index", call: { tool: "mcp__db__migrate", arguments: { database: "orders", migration: "add_index_orders_created_at" } }, truth: "hazard", verified: false, type: "restricted-op", vendor: "orders-db", amount: 0,
+  { id: "MIG-2113", label: "Runs a schema migration to add an index", call: { tool: "mcp__db__migrate", arguments: { database: "orders", migration: "add_index_orders_created_at" } }, truth: "hazard", verified: false, type: "restricted-op",
     teaching: "Schema migrations are irreversible and outside the bounded remediation list. No migration tool is mounted: the call can't be placed." },
 ];
 

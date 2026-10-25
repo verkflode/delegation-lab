@@ -25,7 +25,7 @@ export function Debrief() {
 
   if (!result) return null;
 
-  const isMissed = result.processed.some(
+  const isMissed = result.items.some(
     (p) => p.outcome === "risky" || p.outcome === "missed"
   );
   const moment: GameMoment = isMissed ? "debrief_missed" : "debrief_good";

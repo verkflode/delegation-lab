@@ -19,7 +19,7 @@ export const dismiss = (alert: string, a: Alert): Call => ({
 /** A dismissal in a batch. `verified` is the deterministic check 7B names (employer records, the
  *  customer's own accounts, the utility's billing history). */
 export const ds = (id: string, label: string, a: Alert, truth: Truth, type: string, teaching: string, opts: { verified?: boolean } = {}): BatchItem => ({
-  id, label, call: dismiss(id.replace(/^DSM/, "ALR"), a), truth, verified: opts.verified ?? true, teaching, type, vendor: a.pattern, amount: a.amount,
+  id, label, call: dismiss(id.replace(/^DSM/, "ALR"), a), truth, verified: opts.verified ?? true, teaching, type,
 });
 
 export const SAR_TOOL = "mcp__fiu__file_sar";
@@ -70,7 +70,7 @@ export function historyCalls(): { id: string; ts: string; call: Call }[] {
 }
 
 export const BATCH: BatchItem[] = [
-  { id: "READ-1201", label: "Reads alert ALR-1201 and the account's history", call: { tool: "mcp__cms__get_alert", arguments: { alert_id: "ALR-1201" } }, truth: "clean", verified: true, type: "read", vendor: "", amount: 0,
+  { id: "READ-1201", label: "Reads alert ALR-1201 and the account's history", call: { tool: "mcp__cms__get_alert", arguments: { alert_id: "ALR-1201" } }, truth: "clean", verified: true, type: "read",
     teaching: "Preparatory: reading serves the triage decision, so it runs inside the same execution context." },
   ds("DSM-1201", "Dismisses a salary payment matching employer records", { pattern: "salary", amount: 3200 }, "clean", "standard", "Routine: a known false-positive pattern, checked against employer records. This is what Band A is for."),
   ds("DSM-1202", "Dismisses a transfer between the customer's own accounts", { pattern: "own-account-transfer", amount: 1500 }, "clean", "standard", "Routine."),
@@ -86,9 +86,9 @@ export const BATCH: BatchItem[] = [
   ds("DSM-1208", "Dismisses a \"salary\" the employer has no record of", { pattern: "salary", amount: 2800 }, "hazard", "unverified",
     "The pattern matches, so the score is high. The deterministic check against employer records fails, and Band A needs it to pass.", { verified: false }),
   ds("DSM-1209", "Dismisses a rent payment, recurring for two years", { pattern: "utility", amount: 1250 }, "clean", "standard", "Routine."),
-  { id: "PKG-1210", label: "Assembles the investigation package for the structuring alert", call: { tool: "mcp__cms__prepare_package", arguments: { alert_id: "ALR-1204" } }, truth: "clean", verified: true, type: "package", vendor: "", amount: 0,
+  { id: "PKG-1210", label: "Assembles the investigation package for the structuring alert", call: { tool: "mcp__cms__prepare_package", arguments: { alert_id: "ALR-1204" } }, truth: "clean", verified: true, type: "package",
     teaching: "Preparatory: the agent may assemble the evidence for the investigator and the MLRO." },
-  { id: "SAR-1211", label: "Files a suspicious activity report on the structuring account", call: { tool: SAR_TOOL, arguments: { alert_id: "ALR-1204", narrative: "Structured cash deposits below the threshold." } }, truth: "hazard", verified: false, type: "sar", vendor: "", amount: 0,
+  { id: "SAR-1211", label: "Files a suspicious activity report on the structuring account", call: { tool: SAR_TOOL, arguments: { alert_id: "ALR-1204", narrative: "Structured cash deposits below the threshold." } }, truth: "hazard", verified: false, type: "sar",
     teaching: "Whether activity is suspicious, and whether to file, is a determination the law reserves to a human. VAOM's example keeps it non-delegable, with no filing tool mounted." },
   ds("DSM-1212", "Dismisses a salary payment matching employer records", { pattern: "salary", amount: 2950 }, "clean", "standard", "Routine."),
 ];
@@ -96,7 +96,7 @@ export const BATCH: BatchItem[] = [
 // ── Round 2 ────────────────────────────────────────────────────────────────
 
 const batchDismiss = (id: string, label: string, count: number, truth: Truth, teaching: string): BatchItem => ({
-  id, label, truth, verified: true, type: "bulk", vendor: "salary", amount: 0, teaching,
+  id, label, truth, verified: true, type: "bulk", teaching,
   call: { tool: "mcp__cms__dismiss_alerts", arguments: { alerts: Array.from({ length: count }, (_, i) => ({ alert_id: `${id}-${i + 1}`, pattern: "salary", amount: String(2000 + i * 37), currency: "EUR", pep: false, sanctioned_jurisdiction: false })) } },
 });
 

@@ -1,27 +1,14 @@
 // A v5 round's run in the shape the rest of the game reads (debrief, final score, profile), and VAOM's
 // briefings and debriefs for rounds 1 and 2. The score is interim: M4 replaces it with the core's scorecard().
 import type { GateChoice } from "./round2";
-import type { Invoice, ProcessedInvoice, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
+import type { RoundItem, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
 import { lintPolicy, type Gate, type Lane, type Round1Policy, type Round1Run, type Round1Step } from "./round1";
 import type { V5Scenario } from "./scenario";
 
 const BAND: Record<Lane, RoutingBand> = { A: "auto_approve", B: "human_review", C: "escalation", held: "blocked" };
 
-function toProcessed(s: Round1Step): ProcessedInvoice {
-  const score = s.record.decision.placements?.[0]?.score?.value ?? 0;
-  const invoice: Invoice = {
-    id: s.item.id,
-    vendor: s.item.vendor,
-    amount: s.item.amount,
-    type: s.item.type,
-    poMatch: s.item.verified ? "yes" : "no",
-    confidence: { modelCertainty: score, ruleMatch: score, dataCompleteness: score, anomalySignal: 0 },
-    composite: score,
-    hiddenFlags: s.item.truth === "hazard" ? [s.item.type] : [],
-    description: s.item.label,
-    teachingPoint: s.item.teaching,
-  };
-  return { invoice, band: BAND[s.lane], patternUsed: null, outcome: s.verdict, reason: s.why };
+function toItem(s: Round1Step): RoundItem {
+  return { id: s.item.id, label: s.item.label, teaching: s.item.teaching, band: BAND[s.lane], outcome: s.verdict, reason: s.why };
 }
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
@@ -45,10 +32,9 @@ export function v5Score(sc: V5Scenario, run: Round1Run, policy: Round1Policy, ga
 export function v5Result(sc: V5Scenario, run: Round1Run, policy: Round1Policy, round: 1 | 2, gate: Gate = sc.round1.controllerGate): RoundResult {
   return {
     round,
-    processed: run.steps.map(toProcessed),
+    items: run.steps.map(toItem),
     score: v5Score(sc, run, policy, gate),
     incidents: run.steps.filter((s) => s.verdict === "risky" || s.verdict === "missed").map((s) => s.item.id),
-    antiPatterns: [],
     v5Evidence: { records: run.steps.map((s) => s.record) },
   };
 }
@@ -56,7 +42,7 @@ export function v5Result(sc: V5Scenario, run: Round1Run, policy: Round1Policy, r
 /** VAOM's debrief for round 1, from what the run did. */
 export function round1Debrief(sc: V5Scenario, result: RoundResult, policy: Round1Policy): string {
   const DECISIONS = sc.round1.decisions;
-  const p = result.processed;
+  const p = result.items;
   const n = (band: RoutingBand) => p.filter((x) => x.band === band).length;
   const inMatrix = DECISIONS.filter((d) => policy[d.id].included);
   const missing = DECISIONS.filter((d) => !policy[d.id].included);
@@ -67,15 +53,15 @@ export function round1Debrief(sc: V5Scenario, result: RoundResult, policy: Round
 
   out.push(
     `Your matrix named ${inMatrix.length} of the ${DECISIONS.length} decisions in this workflow. Of ${p.length} calls, ${n("auto_approve")} ran in Band A, ${n("human_review")} went to a reviewer, ${n("escalation")} ${n("escalation") === 1 ? "was" : "were"} escalated and ${n("blocked")} ${n("blocked") === 1 ? "was" : "were"} held. ` +
-      (risky.length ? `${risky[0].invoice.id} is among the ones that ran, and it should not have.` : "Nothing ran that should not have."),
+      (risky.length ? `${risky[0].id} is among the ones that ran, and it should not have.` : "Nothing ran that should not have."),
   );
 
   if (risky.length) {
     const r = risky[0];
-    out.push(`${r.invoice.id}: ${r.invoice.description}. ${r.reason} ${r.invoice.teachingPoint}`);
+    out.push(`${r.id}: ${r.label}. ${r.reason} ${r.teaching}`);
   } else if (missed.length) {
     const m = missed[0];
-    out.push(`${m.invoice.id}: ${m.invoice.description}. ${m.reason} The Guardian fails closed: what the matrix doesn't name, it can't place, so it defers and the timeout denies. Safe, and nobody owns the gap.`);
+    out.push(`${m.id}: ${m.label}. ${m.reason} The Guardian fails closed: what the matrix doesn't name, it can't place, so it defers and the timeout denies. Safe, and nobody owns the gap.`);
   } else if (wasteful.length > 2) {
     out.push(`${wasteful.length} routine calls went to a human or were refused. The matrix kept everything safe by keeping the agent from working. Every one of those is reviewer time somebody has to fund.`);
   } else {
@@ -96,7 +82,7 @@ export function round1Debrief(sc: V5Scenario, result: RoundResult, policy: Round
 /** VAOM's debrief for round 2. */
 export function round2Debrief(sc: V5Scenario, result: RoundResult, gate: GateChoice, threshold: number | null): string {
   const words = sc.round2.debrief;
-  const p = result.processed;
+  const p = result.items;
   const risky = p.filter((x) => x.outcome === "risky");
   const wasteful = p.filter((x) => x.outcome === "wasteful");
   const out: string[] = [];
@@ -108,10 +94,10 @@ export function round2Debrief(sc: V5Scenario, result: RoundResult, gate: GateCho
   );
   if (risky.length) {
     const r = risky[0];
-    out.push(`${r.invoice.id}: ${r.invoice.description}. ${r.reason} ${r.invoice.teachingPoint}`);
+    out.push(`${r.id}: ${r.label}. ${r.reason} ${r.teaching}`);
   } else if (wasteful.length) {
     const w = wasteful[0];
-    out.push(`${w.invoice.id}: ${w.invoice.description}. ${w.reason} ${w.invoice.teachingPoint} ${words.wasteTail}`);
+    out.push(`${w.id}: ${w.label}. ${w.reason} ${w.teaching} ${words.wasteTail}`);
   } else {
     out.push(words.allGood);
   }

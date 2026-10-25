@@ -80,10 +80,8 @@ export interface BatchItem {
   verified: boolean;
   /** Why it matters, shown after the run. */
   teaching: string;
-  /** The item's kind, for the debrief and final screens. */
+  /** The item's kind, which a scenario's judging can read (a read, a disguised decision). */
   type: string;
-  vendor: string;
-  amount: number;
 }
 
 export type Lane = "A" | "B" | "C" | "held";

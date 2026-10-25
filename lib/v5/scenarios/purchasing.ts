@@ -19,7 +19,7 @@ export const order = (requisition: string, c: Cart): Call => ({
 
 /** An order in a batch. `verified` is the price check against the framework price list, 7E's verifier. */
 const po = (id: string, label: string, c: Cart, truth: Truth, type: string, teaching: string, opts: { verified?: boolean } = {}): BatchItem => ({
-  id, label, call: order(id.replace(/^PO/, "REQ"), c), truth, verified: opts.verified ?? true, teaching, type, vendor: c.supplier, amount: c.total,
+  id, label, call: order(id.replace(/^PO/, "REQ"), c), truth, verified: opts.verified ?? true, teaching, type,
 });
 
 const ONBOARD_TOOL = "mcp__erp__onboard_supplier";
@@ -70,7 +70,7 @@ function historyCalls(): { id: string; ts: string; call: Call }[] {
 }
 
 const BATCH: BatchItem[] = [
-  { id: "READ-1301", label: "Compares the three framework suppliers' offers", call: { tool: "mcp__shop__get_offers", arguments: { item: "nitrile gloves" } }, truth: "clean", verified: true, type: "read", vendor: "", amount: 0,
+  { id: "READ-1301", label: "Compares the three framework suppliers' offers", call: { tool: "mcp__shop__get_offers", arguments: { item: "nitrile gloves" } }, truth: "clean", verified: true, type: "read",
     teaching: "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context." },
   po("PO-1301", "Orders cutting fluid from supplier-b at framework prices", { supplier: "supplier-b", category: "cutting-fluids", total: 640 }, "clean", "standard", "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for."),
   po("PO-1302", "Orders a replacement spindle motor, €3,900", { supplier: "supplier-b", category: "spare-parts", total: 3900 }, "hazard", "high_value", "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case."),
@@ -80,9 +80,9 @@ const BATCH: BatchItem[] = [
   po("PO-1306", "Orders consumables; the cart doesn't match the framework price list", { supplier: "supplier-b", category: "consumables", total: 730 }, "hazard", "unverified", "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.", { verified: false }),
   po("PO-1307", "Orders gloves from supplier-a again, the eleventh time today", { supplier: "supplier-a", category: "consumables", total: 200 }, "hazard", "burst",
     "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing."),
-  { id: "FLAG-1308", label: "Flags supplier-c's offer: 40% above last month's price", call: { tool: "mcp__shop__flag_price", arguments: { requisition_id: "REQ-1308" } }, truth: "hazard", verified: true, type: "price-flag", vendor: "supplier-c", amount: 0,
+  { id: "FLAG-1308", label: "Flags supplier-c's offer: 40% above last month's price", call: { tool: "mcp__shop__flag_price", arguments: { requisition_id: "REQ-1308" } }, truth: "hazard", verified: true, type: "price-flag",
     teaching: "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own." },
-  { id: "ONB-1309", label: "Registers webshop-direct as a framework supplier, to get its lower price", call: { tool: ONBOARD_TOOL, arguments: { supplier: "webshop-direct" } }, truth: "hazard", verified: false, type: "onboard", vendor: "webshop-direct", amount: 0,
+  { id: "ONB-1309", label: "Registers webshop-direct as a framework supplier, to get its lower price", call: { tool: ONBOARD_TOOL, arguments: { supplier: "webshop-direct" } }, truth: "hazard", verified: false, type: "onboard",
     teaching: "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted." },
   po("PO-1310", "Orders cutting fluid from supplier-b at framework prices", { supplier: "supplier-b", category: "cutting-fluids", total: 520 }, "clean", "standard", "Routine."),
 ];

@@ -15,43 +15,21 @@ export type GamePhase = "title" | "briefing" | "config" | "simulation" | "debrie
 export type ScenarioDomain = "invoice_processing" | "incident_remediation" | "aml_triage" | "delegated_purchasing";
 
 // ────────────────────────────────────────────────────────────────────────────
-// What a round shows per item. The shape predates v5 and is still how the debrief and final screens
-// read a run; the v5 rounds fill it from their decision records.
+// What a round shows per item: the batch item or event, where the Guardian put it, and the verdict.
 // ────────────────────────────────────────────────────────────────────────────
-
-/** The item's kind, for the debrief and final screens. */
-export type DecisionType = string;
-
-export type ConfidenceDimensions = {
-  modelCertainty: number; // 0..1
-  ruleMatch: number; // 0..1
-  dataCompleteness: number; // 0..1
-  anomalySignal: number; // 0..1, higher is more anomalous
-  verification?: number | null; // 0..1, null or absent when not run
-};
-
-export type Invoice = {
-  id: string; // INV-1001
-  vendor: string;
-  amount: number; // EUR
-  type: DecisionType;
-  poMatch: "yes" | "no" | "partial";
-  confidence: ConfidenceDimensions;
-  composite: number;
-  /** What the item hides that the player's design is meant to catch. */
-  hiddenFlags: string[];
-  description: string;
-  teachingPoint: string;
-};
 
 export type RoutingBand = "auto_approve" | "human_review" | "escalation" | "blocked";
 
-export type ProcessedInvoice = {
-  invoice: Invoice;
+export type RoundItem = {
+  id: string;
+  /** What the agent did, in the workflow's words. */
+  label: string;
+  /** Why it matters, shown after the run. */
+  teaching: string;
   band: RoutingBand;
-  patternUsed: null;
   /** Was this the right call? */
   outcome: "good" | "wasteful" | "risky" | "missed";
+  /** One line on why this verdict. */
   reason: string;
 };
 
@@ -70,11 +48,9 @@ export type ScoreBreakdown = {
 
 export type RoundResult = {
   round: RoundNumber;
-  processed: ProcessedInvoice[];
+  items: RoundItem[];
   score: ScoreBreakdown;
   incidents: string[];
-  /** Always empty in v5; kept so a result's shape is unchanged. */
-  antiPatterns: never[];
   /** VAOM's debrief, written when the round ends from what the core judged (rounds 3 and 4). */
   v5Debrief?: string;
   /** What the archetype choice needs to know about the night. */

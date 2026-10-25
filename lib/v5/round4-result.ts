@@ -1,6 +1,6 @@
 // Round 4 in the shape the rest of the game reads, and VAOM's briefing and morning debrief. The score is
 // interim (M4 replaces it with the scorecard); the verdicts quoted are the core's.
-import type { Invoice, ProcessedInvoice, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
+import type { RoundItem, RoundResult, RoutingBand, ScoreBreakdown } from "../types";
 import { resolveRecord } from "@verkflode/vaom-guardian-core";
 import type { Night, NightChoice } from "./round4";
 import type { V5Scenario } from "./scenario";
@@ -11,15 +11,13 @@ const inSentence = (s: string) => (/^[A-Z][a-z]/.test(s) ? s.charAt(0).toLowerCa
 
 export function round4Result(sc: V5Scenario, night: Night, c: NightChoice, warnings: number): RoundResult {
   const events = night.events.filter((e) => e.kind !== "breaker" && e.kind !== "info");
-  const processed: ProcessedInvoice[] = events.map((e) => {
+  const items: RoundItem[] = events.map((e) => {
     const o = e.record?.decision.outcome;
     const band: RoutingBand = o === "allow" ? "auto_approve" : o === "review" ? "human_review" : o === "escalate" ? "escalation" : "blocked";
-    const invoice: Invoice = {
-      id: e.id, vendor: "", amount: 0, type: "standard", poMatch: "yes",
-      confidence: { modelCertainty: 0, ruleMatch: 0, dataCompleteness: 0, anomalySignal: 0 }, composite: 0,
-      hiddenFlags: e.hazard ? ["night_hazard"] : [], description: e.actor === "agent" ? `The main agent: ${e.label}` : e.label, teachingPoint: e.text,
+    return {
+      id: e.id, label: e.actor === "agent" ? `The main agent: ${e.label}` : e.label, teaching: e.text,
+      band: e.kind === "spawn" ? (e.text.includes(": allowed") ? "auto_approve" : "blocked") : band, outcome: e.verdict === "neutral" ? "good" : e.verdict, reason: e.text,
     };
-    return { invoice, band: e.kind === "spawn" ? (e.text.includes(": allowed") ? "auto_approve" : "blocked") : band, patternUsed: null, outcome: e.verdict === "neutral" ? "good" : e.verdict, reason: e.text };
   });
   const hazards = events.filter((e) => e.hazard), routine = events.filter((e) => !e.hazard);
   const risky = hazards.filter((e) => e.verdict === "risky").length;
@@ -45,7 +43,7 @@ export function round4Result(sc: V5Scenario, night: Night, c: NightChoice, warni
     return [resolveRecord(r, { ts: r.request.ts, result: "not-executed" })];
   });
   return {
-    round: 4, processed, score, incidents: events.filter((e) => e.verdict === "risky").map((e) => e.id), antiPatterns: [],
+    round: 4, items, score, incidents: events.filter((e) => e.verdict === "risky").map((e) => e.id),
     v5Evidence: { records, spawns: night.spawns, probes: night.pre.probes },
     v5Flags: {
       paperTiger,

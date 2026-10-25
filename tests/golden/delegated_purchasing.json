@@ -979,8 +979,6 @@
         "truth": "clean",
         "verified": true,
         "type": "read",
-        "vendor": "",
-        "amount": 0,
         "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
        },
        "record": {
@@ -1085,9 +1083,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 640
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -1244,9 +1240,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3900
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -1420,9 +1414,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 880
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -1612,9 +1604,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
-        "type": "off-framework",
-        "vendor": "webshop-direct",
-        "amount": 420
+        "type": "off-framework"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -1804,9 +1794,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
-        "type": "category",
-        "vendor": "supplier-b",
-        "amount": 610
+        "type": "category"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -1996,9 +1984,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 730
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -2172,9 +2158,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
-        "type": "burst",
-        "vendor": "supplier-a",
-        "amount": 200
+        "type": "burst"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -2329,8 +2313,6 @@
         "truth": "hazard",
         "verified": true,
         "type": "price-flag",
-        "vendor": "supplier-c",
-        "amount": 0,
         "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
        },
        "record": {
@@ -2416,8 +2398,6 @@
         "truth": "hazard",
         "verified": false,
         "type": "onboard",
-        "vendor": "webshop-direct",
-        "amount": 0,
         "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
        },
        "record": {
@@ -2508,9 +2488,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 520
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -3658,273 +3636,92 @@
     },
     "result": {
      "round": 1,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "READ-1301",
-        "vendor": "",
-        "amount": 0,
-        "type": "read",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Compares the three framework suppliers' offers",
-        "teachingPoint": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
-       },
+       "id": "READ-1301",
+       "label": "Compares the three framework suppliers' offers",
+       "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Comparing offers ran inside the context it serves."
       },
       {
-       "invoice": {
-        "id": "PO-1301",
-        "vendor": "supplier-b",
-        "amount": 640,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for."
-       },
+       "id": "PO-1301",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-1302",
-        "vendor": "supplier-b",
-        "amount": 3900,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders a replacement spindle motor, €3,900",
-        "teachingPoint": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case."
-       },
+       "id": "PO-1302",
+       "label": "Orders a replacement spindle motor, €3,900",
+       "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1303",
-        "vendor": "supplier-c",
-        "amount": 880,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review."
-       },
+       "id": "PO-1303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1304",
-        "vendor": "webshop-direct",
-        "amount": 420,
-        "type": "off-framework",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "off-framework"
-        ],
-        "description": "Orders gloves from a cheaper web shop outside the framework",
-        "teachingPoint": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised."
-       },
+       "id": "PO-1304",
+       "label": "Orders gloves from a cheaper web shop outside the framework",
+       "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1305",
-        "vendor": "supplier-b",
-        "amount": 610,
-        "type": "category",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "category"
-        ],
-        "description": "Orders two office chairs for the workshop",
-        "teachingPoint": "Furniture isn't an approved catalogue category. The restriction holds it."
-       },
+       "id": "PO-1305",
+       "label": "Orders two office chairs for the workshop",
+       "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1306",
-        "vendor": "supplier-b",
-        "amount": 730,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the cart doesn't match the framework price list",
-        "teachingPoint": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass."
-       },
+       "id": "PO-1306",
+       "label": "Orders consumables; the cart doesn't match the framework price list",
+       "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1307",
-        "vendor": "supplier-a",
-        "amount": 200,
-        "type": "burst",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.85,
-         "ruleMatch": 0.85,
-         "dataCompleteness": 0.85,
-         "anomalySignal": 0
-        },
-        "composite": 0.85,
-        "hiddenFlags": [
-         "burst"
-        ],
-        "description": "Orders gloves from supplier-a again, the eleventh time today",
-        "teachingPoint": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing."
-       },
+       "id": "PO-1307",
+       "label": "Orders gloves from supplier-a again, the eleventh time today",
+       "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Executed without a human. It should not have been."
       },
       {
-       "invoice": {
-        "id": "FLAG-1308",
-        "vendor": "supplier-c",
-        "amount": 0,
-        "type": "price-flag",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "price-flag"
-        ],
-        "description": "Flags supplier-c's offer: 40% above last month's price",
-        "teachingPoint": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
-       },
+       "id": "FLAG-1308",
+       "label": "Flags supplier-c's offer: 40% above last month's price",
+       "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own.",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "missed",
        "reason": "Your matrix doesn't cover this decision, so the Guardian deferred it and the timeout denied it. Nobody owns what happens next."
       },
       {
-       "invoice": {
-        "id": "ONB-1309",
-        "vendor": "webshop-direct",
-        "amount": 0,
-        "type": "onboard",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "onboard"
-        ],
-        "description": "Registers webshop-direct as a framework supplier, to get its lower price",
-        "teachingPoint": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
-       },
+       "id": "ONB-1309",
+       "label": "Registers webshop-direct as a framework supplier, to get its lower price",
+       "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted.",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "No supplier-admin tool is mounted, so the call is deferred and denied. It held, though your matrix never named the decision."
       },
       {
-       "invoice": {
-        "id": "PO-1310",
-        "vendor": "supplier-b",
-        "amount": 520,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-1310",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       }
@@ -3940,7 +3737,6 @@
       "PO-1307",
       "FLAG-1308"
      ],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -5760,9 +5556,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
-        "type": "standard",
-        "vendor": "supplier-a",
-        "amount": 1840
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -5911,9 +5705,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 2300
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6062,9 +5854,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3100
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6213,9 +6003,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 7200
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6364,9 +6152,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "The stale-price-list restriction holds it, whatever your gate.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 950
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6548,9 +6334,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check fails, and Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 410
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6716,9 +6500,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
-        "type": "mandate",
-        "vendor": "supplier-a",
-        "amount": 2100
+        "type": "mandate"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -6867,9 +6649,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 380
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -7917,196 +7697,68 @@
     },
     "result": {
      "round": 2,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-2301",
-        "vendor": "supplier-a",
-        "amount": 1840,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
-        "teachingPoint": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it."
-       },
+       "id": "PO-2301",
+       "label": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
+       "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2302",
-        "vendor": "supplier-b",
-        "amount": 2300,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders spare parts from supplier-b, €2,300",
-        "teachingPoint": "Normal for this supplier, just under a €2,500 ceiling."
-       },
+       "id": "PO-2302",
+       "label": "Orders spare parts from supplier-b, €2,300",
+       "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2303",
-        "vendor": "supplier-b",
-        "amount": 3100,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders a gearbox from supplier-b, €3,100",
-        "teachingPoint": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost."
-       },
+       "id": "PO-2303",
+       "label": "Orders a gearbox from supplier-b, €3,100",
+       "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2304",
-        "vendor": "supplier-b",
-        "amount": 7200,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders 120 boxes of gloves instead of 12, €7,200",
-        "teachingPoint": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A."
-       },
+       "id": "PO-2304",
+       "label": "Orders 120 boxes of gloves instead of 12, €7,200",
+       "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Executed without a human. It should not have been."
       },
       {
-       "invoice": {
-        "id": "PO-2305",
-        "vendor": "supplier-c",
-        "amount": 950,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c's stale price list",
-        "teachingPoint": "The stale-price-list restriction holds it, whatever your gate."
-       },
+       "id": "PO-2305",
+       "label": "Orders spare parts from supplier-c's stale price list",
+       "teaching": "The stale-price-list restriction holds it, whatever your gate.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2306",
-        "vendor": "supplier-b",
-        "amount": 410,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The price check fails, and Band A needs it to pass."
-       },
+       "id": "PO-2306",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The price check fails, and Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2307",
-        "vendor": "supplier-a",
-        "amount": 2100,
-        "type": "mandate",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "mandate"
-        ],
-        "description": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
-        "teachingPoint": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left."
-       },
+       "id": "PO-2307",
+       "label": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
+       "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Executed without a human. It should not have been."
       },
       {
-       "invoice": {
-        "id": "PO-2308",
-        "vendor": "supplier-b",
-        "amount": 380,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b, €380",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-2308",
+       "label": "Orders cutting fluid from supplier-b, €380",
+       "teaching": "Routine.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       }
@@ -8122,7 +7774,6 @@
       "PO-2304",
       "PO-2307"
      ],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -9911,9 +9562,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-b",
-         "amount": 450
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -10063,8 +9712,6 @@
          "verified": true,
          "teaching": "7E's motor.",
          "type": "high_value",
-         "vendor": "supplier-b",
-         "amount": 3900,
          "review": {
           "facts": [
            "Catalogue item SP-4410, framework price €3,900",
@@ -10223,8 +9870,6 @@
          "verified": true,
          "teaching": "A stale list.",
          "type": "stale",
-         "vendor": "supplier-c",
-         "amount": 1150,
          "review": {
           "facts": [
            "Supplier-c price list review-by date: 1 July",
@@ -10416,8 +10061,6 @@
          "verified": true,
          "teaching": "A missing category.",
          "type": "category",
-         "vendor": "supplier-a",
-         "amount": 380,
          "review": {
           "facts": [
            "Safety audit: glasses required at stations 3 and 4",
@@ -10609,8 +10252,6 @@
          "verified": false,
          "teaching": "A price that doesn't match.",
          "type": "unverified",
-         "vendor": "supplier-b",
-         "amount": 860,
          "review": {
           "facts": [
            "Framework list: €700",
@@ -10785,9 +10426,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-a",
-         "amount": 300
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -10937,8 +10576,6 @@
          "verified": true,
          "teaching": "Off-framework.",
          "type": "off-framework",
-         "vendor": "webshop-direct",
-         "amount": 640,
          "review": {
           "facts": [
            "webshop-direct: no framework agreement",
@@ -11130,8 +10767,6 @@
          "verified": true,
          "teaching": "Not this pump.",
          "type": "high_value",
-         "vendor": "supplier-a",
-         "amount": 2800,
          "review": {
           "facts": [
            "Requisition: coolant pump, machine 3",
@@ -14468,102 +14103,36 @@
     },
     "result": {
      "round": 3,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-3303",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
-       },
+       "id": "PO-3303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
       },
       {
-       "invoice": {
-        "id": "PO-3304",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Orders safety glasses, a category not on the catalogue",
-        "teachingPoint": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
-       },
+       "id": "PO-3304",
+       "label": "Orders safety glasses, a category not on the catalogue",
+       "teaching": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
       },
       {
-       "invoice": {
-        "id": "PO-3305",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
-       },
+       "id": "PO-3305",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
       },
       {
-       "invoice": {
-        "id": "PO-3307",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders from webshop-direct, outside the framework",
-        "teachingPoint": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
-       },
+       "id": "PO-3307",
+       "label": "Orders from webshop-direct, outside the framework",
+       "teaching": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
       }
@@ -14580,7 +14149,6 @@
       "lab-PO-3305",
       "lab-PO-3307"
      ],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -17396,290 +16964,100 @@
     },
     "result": {
      "round": 4,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-4003",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The night reorder run: cutting fluid from supplier-b",
-        "teachingPoint": "The night reorder run: cutting fluid from supplier-b: executed."
-       },
+       "id": "PO-4003",
+       "label": "The main agent: The night reorder run: cutting fluid from supplier-b",
+       "teaching": "The night reorder run: cutting fluid from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The night reorder run: cutting fluid from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "SPAWN-1",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent to compare prices",
-        "teachingPoint": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, for at most 20 minutes."
-       },
+       "id": "SPAWN-1",
+       "label": "The main agent: Spawns an offer-check sub-agent to compare prices",
+       "teaching": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "OFF-4007",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Offer-check reads the three suppliers' offers",
-        "teachingPoint": "Offer-check reads the three suppliers' offers: executed. preparatory"
-       },
+       "id": "OFF-4007",
+       "label": "Offer-check reads the three suppliers' offers",
+       "teaching": "Offer-check reads the three suppliers' offers: executed. preparatory",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Offer-check reads the three suppliers' offers: executed. preparatory"
       },
       {
-       "invoice": {
-        "id": "ONB-4014",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
-        "teachingPoint": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped"
-       },
+       "id": "ONB-4014",
+       "label": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
+       "teaching": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped"
       },
       {
-       "invoice": {
-        "id": "PO-4016",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
-        "teachingPoint": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction"
-       },
+       "id": "PO-4016",
+       "label": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
+       "teaching": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction"
       },
       {
-       "invoice": {
-        "id": "SPAWN-2",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
-        "teachingPoint": "Spawns a bulk-buyer to \"stock up while prices are low\": allowed. The child gets shop:order.place, for at most 20 minutes."
-       },
+       "id": "SPAWN-2",
+       "label": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
+       "teaching": "Spawns a bulk-buyer to \"stock up while prices are low\": allowed. The child gets shop:order.place, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Spawns a bulk-buyer to \"stock up while prices are low\": allowed. The child gets shop:order.place, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "PO-4021",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "Bulk-buyer orders €2,400 of gloves from supplier-b",
-        "teachingPoint": "Bulk-buyer orders €2,400 of gloves from supplier-b: executed."
-       },
+       "id": "PO-4021",
+       "label": "Bulk-buyer orders €2,400 of gloves from supplier-b",
+       "teaching": "Bulk-buyer orders €2,400 of gloves from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Bulk-buyer orders €2,400 of gloves from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "PO-4050",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: consumables from supplier-a",
-        "teachingPoint": "The reorder run: consumables from supplier-a: executed."
-       },
+       "id": "PO-4050",
+       "label": "The main agent: The reorder run: consumables from supplier-a",
+       "teaching": "The reorder run: consumables from supplier-a: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: consumables from supplier-a: executed."
       },
       {
-       "invoice": {
-        "id": "SPAWN-3",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent for the next items",
-        "teachingPoint": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, for at most 20 minutes."
-       },
+       "id": "SPAWN-3",
+       "label": "The main agent: Spawns an offer-check sub-agent for the next items",
+       "teaching": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "SPAWN-4",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The offer-check sub-agent tries to spawn one of its own",
-        "teachingPoint": "The offer-check sub-agent tries to spawn one of its own: allowed. The child gets shop:offer.read, for at most 18 minutes."
-       },
+       "id": "SPAWN-4",
+       "label": "The offer-check sub-agent tries to spawn one of its own",
+       "teaching": "The offer-check sub-agent tries to spawn one of its own: allowed. The child gets shop:offer.read, for at most 18 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "The offer-check sub-agent tries to spawn one of its own: allowed. The child gets shop:offer.read, for at most 18 minutes."
       },
       {
-       "invoice": {
-        "id": "PO-4410",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: spare parts from supplier-b",
-        "teachingPoint": "The reorder run: spare parts from supplier-b: executed."
-       },
+       "id": "PO-4410",
+       "label": "The main agent: The reorder run: spare parts from supplier-b",
+       "teaching": "The reorder run: spare parts from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: spare parts from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "PO-4515",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: cutting fluid from supplier-a",
-        "teachingPoint": "The reorder run: cutting fluid from supplier-a: executed."
-       },
+       "id": "PO-4515",
+       "label": "The main agent: The reorder run: cutting fluid from supplier-a",
+       "teaching": "The reorder run: cutting fluid from supplier-a: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: cutting fluid from supplier-a: executed."
       }
@@ -17696,7 +17074,6 @@
       "PO-4021",
       "SPAWN-4"
      ],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -21675,8 +21052,6 @@
         "truth": "clean",
         "verified": true,
         "type": "read",
-        "vendor": "",
-        "amount": 0,
         "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
        },
        "record": {
@@ -21782,9 +21157,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 640
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -21942,9 +21315,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3900
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -22119,9 +21490,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 880
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -22312,9 +21681,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
-        "type": "off-framework",
-        "vendor": "webshop-direct",
-        "amount": 420
+        "type": "off-framework"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -22505,9 +21872,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
-        "type": "category",
-        "vendor": "supplier-b",
-        "amount": 610
+        "type": "category"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -22698,9 +22063,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 730
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -22875,9 +22238,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
-        "type": "burst",
-        "vendor": "supplier-a",
-        "amount": 200
+        "type": "burst"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -23044,8 +22405,6 @@
         "truth": "hazard",
         "verified": true,
         "type": "price-flag",
-        "vendor": "supplier-c",
-        "amount": 0,
         "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
        },
        "record": {
@@ -23180,8 +22539,6 @@
         "truth": "hazard",
         "verified": false,
         "type": "onboard",
-        "vendor": "webshop-direct",
-        "amount": 0,
         "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
        },
        "record": {
@@ -23272,9 +22629,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 520
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -24536,273 +23891,92 @@
     },
     "result": {
      "round": 1,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "READ-1301",
-        "vendor": "",
-        "amount": 0,
-        "type": "read",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Compares the three framework suppliers' offers",
-        "teachingPoint": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
-       },
+       "id": "READ-1301",
+       "label": "Compares the three framework suppliers' offers",
+       "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Comparing offers ran inside the context it serves."
       },
       {
-       "invoice": {
-        "id": "PO-1301",
-        "vendor": "supplier-b",
-        "amount": 640,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for."
-       },
+       "id": "PO-1301",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-1302",
-        "vendor": "supplier-b",
-        "amount": 3900,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders a replacement spindle motor, €3,900",
-        "teachingPoint": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case."
-       },
+       "id": "PO-1302",
+       "label": "Orders a replacement spindle motor, €3,900",
+       "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1303",
-        "vendor": "supplier-c",
-        "amount": 880,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review."
-       },
+       "id": "PO-1303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1304",
-        "vendor": "webshop-direct",
-        "amount": 420,
-        "type": "off-framework",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "off-framework"
-        ],
-        "description": "Orders gloves from a cheaper web shop outside the framework",
-        "teachingPoint": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised."
-       },
+       "id": "PO-1304",
+       "label": "Orders gloves from a cheaper web shop outside the framework",
+       "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1305",
-        "vendor": "supplier-b",
-        "amount": 610,
-        "type": "category",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "category"
-        ],
-        "description": "Orders two office chairs for the workshop",
-        "teachingPoint": "Furniture isn't an approved catalogue category. The restriction holds it."
-       },
+       "id": "PO-1305",
+       "label": "Orders two office chairs for the workshop",
+       "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1306",
-        "vendor": "supplier-b",
-        "amount": 730,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the cart doesn't match the framework price list",
-        "teachingPoint": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass."
-       },
+       "id": "PO-1306",
+       "label": "Orders consumables; the cart doesn't match the framework price list",
+       "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1307",
-        "vendor": "supplier-a",
-        "amount": 200,
-        "type": "burst",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.85,
-         "ruleMatch": 0.85,
-         "dataCompleteness": 0.85,
-         "anomalySignal": 0
-        },
-        "composite": 0.85,
-        "hiddenFlags": [
-         "burst"
-        ],
-        "description": "Orders gloves from supplier-a again, the eleventh time today",
-        "teachingPoint": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing."
-       },
+       "id": "PO-1307",
+       "label": "Orders gloves from supplier-a again, the eleventh time today",
+       "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "FLAG-1308",
-        "vendor": "supplier-c",
-        "amount": 0,
-        "type": "price-flag",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "price-flag"
-        ],
-        "description": "Flags supplier-c's offer: 40% above last month's price",
-        "teachingPoint": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
-       },
+       "id": "FLAG-1308",
+       "label": "Flags supplier-c's offer: 40% above last month's price",
+       "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "ONB-1309",
-        "vendor": "webshop-direct",
-        "amount": 0,
-        "type": "onboard",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "onboard"
-        ],
-        "description": "Registers webshop-direct as a framework supplier, to get its lower price",
-        "teachingPoint": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
-       },
+       "id": "ONB-1309",
+       "label": "Registers webshop-direct as a framework supplier, to get its lower price",
+       "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted.",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Non-delegable, and no supplier-admin tool is mounted: the Guardian can't place the call, so it defers and the timeout denies."
       },
       {
-       "invoice": {
-        "id": "PO-1310",
-        "vendor": "supplier-b",
-        "amount": 520,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-1310",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       }
@@ -24815,7 +23989,6 @@
       "enforcement": 10
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -26910,9 +26083,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
-        "type": "standard",
-        "vendor": "supplier-a",
-        "amount": 1840
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27070,9 +26241,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 2300
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27230,9 +26399,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3100
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27407,9 +26574,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 7200
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27584,9 +26749,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "The stale-price-list restriction holds it, whatever your gate.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 950
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27777,9 +26940,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check fails, and Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 410
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -27954,9 +27115,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
-        "type": "mandate",
-        "vendor": "supplier-a",
-        "amount": 2100
+        "type": "mandate"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -28131,9 +27290,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 380
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -29393,196 +28550,68 @@
     },
     "result": {
      "round": 2,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-2301",
-        "vendor": "supplier-a",
-        "amount": 1840,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
-        "teachingPoint": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it."
-       },
+       "id": "PO-2301",
+       "label": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
+       "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2302",
-        "vendor": "supplier-b",
-        "amount": 2300,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders spare parts from supplier-b, €2,300",
-        "teachingPoint": "Normal for this supplier, just under a €2,500 ceiling."
-       },
+       "id": "PO-2302",
+       "label": "Orders spare parts from supplier-b, €2,300",
+       "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2303",
-        "vendor": "supplier-b",
-        "amount": 3100,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders a gearbox from supplier-b, €3,100",
-        "teachingPoint": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost."
-       },
+       "id": "PO-2303",
+       "label": "Orders a gearbox from supplier-b, €3,100",
+       "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "A human spent five minutes reviewing a routine order."
       },
       {
-       "invoice": {
-        "id": "PO-2304",
-        "vendor": "supplier-b",
-        "amount": 7200,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders 120 boxes of gloves instead of 12, €7,200",
-        "teachingPoint": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A."
-       },
+       "id": "PO-2304",
+       "label": "Orders 120 boxes of gloves instead of 12, €7,200",
+       "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2305",
-        "vendor": "supplier-c",
-        "amount": 950,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c's stale price list",
-        "teachingPoint": "The stale-price-list restriction holds it, whatever your gate."
-       },
+       "id": "PO-2305",
+       "label": "Orders spare parts from supplier-c's stale price list",
+       "teaching": "The stale-price-list restriction holds it, whatever your gate.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2306",
-        "vendor": "supplier-b",
-        "amount": 410,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The price check fails, and Band A needs it to pass."
-       },
+       "id": "PO-2306",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The price check fails, and Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2307",
-        "vendor": "supplier-a",
-        "amount": 2100,
-        "type": "mandate",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "mandate"
-        ],
-        "description": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
-        "teachingPoint": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left."
-       },
+       "id": "PO-2307",
+       "label": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
+       "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2308",
-        "vendor": "supplier-b",
-        "amount": 380,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b, €380",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-2308",
+       "label": "Orders cutting fluid from supplier-b, €380",
+       "teaching": "Routine.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "A human spent five minutes reviewing a routine order."
       }
@@ -29595,7 +28624,6 @@
       "enforcement": 10
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -31835,9 +30863,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-b",
-         "amount": 450
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -31996,8 +31022,6 @@
          "verified": true,
          "teaching": "7E's motor.",
          "type": "high_value",
-         "vendor": "supplier-b",
-         "amount": 3900,
          "review": {
           "facts": [
            "Catalogue item SP-4410, framework price €3,900",
@@ -32182,8 +31206,6 @@
          "verified": true,
          "teaching": "A stale list.",
          "type": "stale",
-         "vendor": "supplier-c",
-         "amount": 1150,
          "review": {
           "facts": [
            "Supplier-c price list review-by date: 1 July",
@@ -32384,8 +31406,6 @@
          "verified": true,
          "teaching": "A missing category.",
          "type": "category",
-         "vendor": "supplier-a",
-         "amount": 380,
          "review": {
           "facts": [
            "Safety audit: glasses required at stations 3 and 4",
@@ -32586,8 +31606,6 @@
          "verified": false,
          "teaching": "A price that doesn't match.",
          "type": "unverified",
-         "vendor": "supplier-b",
-         "amount": 860,
          "review": {
           "facts": [
            "Framework list: €700",
@@ -32771,9 +31789,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-a",
-         "amount": 300
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -32932,8 +31948,6 @@
          "verified": true,
          "teaching": "Off-framework.",
          "type": "off-framework",
-         "vendor": "webshop-direct",
-         "amount": 640,
          "review": {
           "facts": [
            "webshop-direct: no framework agreement",
@@ -33134,8 +32148,6 @@
          "verified": true,
          "teaching": "Not this pump.",
          "type": "high_value",
-         "vendor": "supplier-a",
-         "amount": 2800,
          "review": {
           "facts": [
            "Requisition: coolant pump, machine 3",
@@ -36641,200 +35653,68 @@
     },
     "result": {
      "round": 3,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-3302",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Orders a spindle motor from supplier-b, €3,900",
-        "teachingPoint": "A catalogue item at the framework price, for a machine that is down. Over the ceiling, so it was always going to be yours to sign."
-       },
+       "id": "PO-3302",
+       "label": "Orders a spindle motor from supplier-b, €3,900",
+       "teaching": "A catalogue item at the framework price, for a machine that is down. Over the ceiling, so it was always going to be yours to sign.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "A catalogue item at the framework price, for a machine that is down. Over the ceiling, so it was always going to be yours to sign."
       },
       {
-       "invoice": {
-        "id": "SEED · double-order",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders a second spindle motor for requisition REQ-3302",
-        "teachingPoint": "The requisition was for one motor, already ordered. This is a second."
-       },
+       "id": "SEED · double-order",
+       "label": "Orders a second spindle motor for requisition REQ-3302",
+       "teaching": "The requisition was for one motor, already ordered. This is a second.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The requisition was for one motor, already ordered. This is a second."
       },
       {
-       "invoice": {
-        "id": "PO-3303",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
-       },
+       "id": "PO-3303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
       },
       {
-       "invoice": {
-        "id": "SEED · wrong-site",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders a drive belt set, €2,700, delivered to the Malmö plant",
-        "teachingPoint": "The delivery goes to the wrong plant; Malmö can't use the part."
-       },
+       "id": "SEED · wrong-site",
+       "label": "Orders a drive belt set, €2,700, delivered to the Malmö plant",
+       "teaching": "The delivery goes to the wrong plant; Malmö can't use the part.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The delivery goes to the wrong plant; Malmö can't use the part."
       },
       {
-       "invoice": {
-        "id": "PO-3304",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Orders safety glasses, a category not on the catalogue",
-        "teachingPoint": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
-       },
+       "id": "PO-3304",
+       "label": "Orders safety glasses, a category not on the catalogue",
+       "teaching": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
       },
       {
-       "invoice": {
-        "id": "PO-3305",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
-       },
+       "id": "PO-3305",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
       },
       {
-       "invoice": {
-        "id": "PO-3307",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders from webshop-direct, outside the framework",
-        "teachingPoint": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
-       },
+       "id": "PO-3307",
+       "label": "Orders from webshop-direct, outside the framework",
+       "teaching": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
       },
       {
-       "invoice": {
-        "id": "PO-3308",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders a coolant pump from supplier-a, €2,800",
-        "teachingPoint": "The requisition was for a pump for machine 3; this part number fits machine 5. The order would arrive and not fit."
-       },
+       "id": "PO-3308",
+       "label": "Orders a coolant pump from supplier-a, €2,800",
+       "teaching": "The requisition was for a pump for machine 3; this part number fits machine 5. The order would arrive and not fit.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The requisition was for a pump for machine 3; this part number fits machine 5. The order would arrive and not fit."
       }
@@ -36847,7 +35727,6 @@
       "enforcement": 10
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -40526,265 +39405,92 @@
     },
     "result": {
      "round": 4,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-4003",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The night reorder run: cutting fluid from supplier-b",
-        "teachingPoint": "The night reorder run: cutting fluid from supplier-b: executed."
-       },
+       "id": "PO-4003",
+       "label": "The main agent: The night reorder run: cutting fluid from supplier-b",
+       "teaching": "The night reorder run: cutting fluid from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The night reorder run: cutting fluid from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "SPAWN-1",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent to compare prices",
-        "teachingPoint": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
-       },
+       "id": "SPAWN-1",
+       "label": "The main agent: Spawns an offer-check sub-agent to compare prices",
+       "teaching": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "OFF-4007",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Offer-check reads the three suppliers' offers",
-        "teachingPoint": "Offer-check reads the three suppliers' offers: executed. preparatory"
-       },
+       "id": "OFF-4007",
+       "label": "Offer-check reads the three suppliers' offers",
+       "teaching": "Offer-check reads the three suppliers' offers: executed. preparatory",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Offer-check reads the three suppliers' offers: executed. preparatory"
       },
       {
-       "invoice": {
-        "id": "ONB-4014",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
-        "teachingPoint": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped"
-       },
+       "id": "ONB-4014",
+       "label": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
+       "teaching": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: can't be placed: deferred, denied on timeout. unmapped"
       },
       {
-       "invoice": {
-        "id": "PO-4016",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
-        "teachingPoint": "Orders bearings from Nordbolt AB, outside the framework, €1,900: can't be placed: deferred, denied on timeout. context.none"
-       },
+       "id": "PO-4016",
+       "label": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
+       "teaching": "Orders bearings from Nordbolt AB, outside the framework, €1,900: can't be placed: deferred, denied on timeout. context.none",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Orders bearings from Nordbolt AB, outside the framework, €1,900: can't be placed: deferred, denied on timeout. context.none"
       },
       {
-       "invoice": {
-        "id": "SPAWN-2",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
-        "teachingPoint": "Spawns a bulk-buyer to \"stock up while prices are low\": refused (the agent is suspended: its contexts were revoked)."
-       },
+       "id": "SPAWN-2",
+       "label": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
+       "teaching": "Spawns a bulk-buyer to \"stock up while prices are low\": refused (the agent is suspended: its contexts were revoked).",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns a bulk-buyer to \"stock up while prices are low\": refused (the agent is suspended: its contexts were revoked)."
       },
       {
-       "invoice": {
-        "id": "PO-4050",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: consumables from supplier-a",
-        "teachingPoint": "The reorder run: consumables from supplier-a: can't be placed: deferred, denied on timeout. context.none"
-       },
+       "id": "PO-4050",
+       "label": "The main agent: The reorder run: consumables from supplier-a",
+       "teaching": "The reorder run: consumables from supplier-a: can't be placed: deferred, denied on timeout. context.none",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "The reorder run: consumables from supplier-a: can't be placed: deferred, denied on timeout. context.none"
       },
       {
-       "invoice": {
-        "id": "SPAWN-3",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent for the next items",
-        "teachingPoint": "Spawns an offer-check sub-agent for the next items: refused (the agent is suspended: its contexts were revoked)."
-       },
+       "id": "SPAWN-3",
+       "label": "The main agent: Spawns an offer-check sub-agent for the next items",
+       "teaching": "Spawns an offer-check sub-agent for the next items: refused (the agent is suspended: its contexts were revoked).",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "Spawns an offer-check sub-agent for the next items: refused (the agent is suspended: its contexts were revoked)."
       },
       {
-       "invoice": {
-        "id": "SPAWN-4",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The offer-check sub-agent tries to spawn one of its own",
-        "teachingPoint": "The offer-check sub-agent tries to spawn one of its own: refused (the agent is suspended: its contexts were revoked)."
-       },
+       "id": "SPAWN-4",
+       "label": "The offer-check sub-agent tries to spawn one of its own",
+       "teaching": "The offer-check sub-agent tries to spawn one of its own: refused (the agent is suspended: its contexts were revoked).",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The offer-check sub-agent tries to spawn one of its own: refused (the agent is suspended: its contexts were revoked)."
       },
       {
-       "invoice": {
-        "id": "PO-4410",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: spare parts from supplier-b",
-        "teachingPoint": "The reorder run: spare parts from supplier-b: can't be placed: deferred, denied on timeout. context.none"
-       },
+       "id": "PO-4410",
+       "label": "The main agent: The reorder run: spare parts from supplier-b",
+       "teaching": "The reorder run: spare parts from supplier-b: can't be placed: deferred, denied on timeout. context.none",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "The reorder run: spare parts from supplier-b: can't be placed: deferred, denied on timeout. context.none"
       },
       {
-       "invoice": {
-        "id": "PO-4515",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: cutting fluid from supplier-a",
-        "teachingPoint": "The reorder run: cutting fluid from supplier-a: can't be placed: deferred, denied on timeout. context.none"
-       },
+       "id": "PO-4515",
+       "label": "The main agent: The reorder run: cutting fluid from supplier-a",
+       "teaching": "The reorder run: cutting fluid from supplier-a: can't be placed: deferred, denied on timeout. context.none",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "wasteful",
        "reason": "The reorder run: cutting fluid from supplier-a: can't be placed: deferred, denied on timeout. context.none"
       }
@@ -40797,7 +39503,6 @@
       "enforcement": 20
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -45593,8 +44298,6 @@
         "truth": "clean",
         "verified": true,
         "type": "read",
-        "vendor": "",
-        "amount": 0,
         "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
        },
        "record": {
@@ -45700,9 +44403,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 640
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -45860,9 +44561,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3900
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46037,9 +44736,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 880
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46230,9 +44927,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
-        "type": "off-framework",
-        "vendor": "webshop-direct",
-        "amount": 420
+        "type": "off-framework"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46423,9 +45118,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
-        "type": "category",
-        "vendor": "supplier-b",
-        "amount": 610
+        "type": "category"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46616,9 +45309,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 730
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46793,9 +45484,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
-        "type": "burst",
-        "vendor": "supplier-a",
-        "amount": 200
+        "type": "burst"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -46962,8 +45651,6 @@
         "truth": "hazard",
         "verified": true,
         "type": "price-flag",
-        "vendor": "supplier-c",
-        "amount": 0,
         "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
        },
        "record": {
@@ -47098,8 +45785,6 @@
         "truth": "hazard",
         "verified": false,
         "type": "onboard",
-        "vendor": "webshop-direct",
-        "amount": 0,
         "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
        },
        "record": {
@@ -47190,9 +45875,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 520
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -48454,273 +47137,92 @@
     },
     "result": {
      "round": 1,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "READ-1301",
-        "vendor": "",
-        "amount": 0,
-        "type": "read",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Compares the three framework suppliers' offers",
-        "teachingPoint": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context."
-       },
+       "id": "READ-1301",
+       "label": "Compares the three framework suppliers' offers",
+       "teaching": "Preparatory: comparing offers serves the order decision, so it runs inside the same execution context.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Comparing offers ran inside the context it serves."
       },
       {
-       "invoice": {
-        "id": "PO-1301",
-        "vendor": "supplier-b",
-        "amount": 640,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for."
-       },
+       "id": "PO-1301",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine: a framework supplier, an approved category, a current price list, prices checked. This is what Band A is for.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-1302",
-        "vendor": "supplier-b",
-        "amount": 3900,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders a replacement spindle motor, €3,900",
-        "teachingPoint": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case."
-       },
+       "id": "PO-1302",
+       "label": "Orders a replacement spindle motor, €3,900",
+       "teaching": "Over the €2,500 per-order ceiling. The procurement manager reviews the cart: 7E's own case.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1303",
-        "vendor": "supplier-c",
-        "amount": 880,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review."
-       },
+       "id": "PO-1303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Stale knowledge: an offer from a price list past its review-by date can't support a Band A decision. The restriction holds it for review.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1304",
-        "vendor": "webshop-direct",
-        "amount": 420,
-        "type": "off-framework",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "off-framework"
-        ],
-        "description": "Orders gloves from a cheaper web shop outside the framework",
-        "teachingPoint": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised."
-       },
+       "id": "PO-1304",
+       "label": "Orders gloves from a cheaper web shop outside the framework",
+       "teaching": "Only the three framework suppliers are in the mandate. Cheaper isn't authorised.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1305",
-        "vendor": "supplier-b",
-        "amount": 610,
-        "type": "category",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "category"
-        ],
-        "description": "Orders two office chairs for the workshop",
-        "teachingPoint": "Furniture isn't an approved catalogue category. The restriction holds it."
-       },
+       "id": "PO-1305",
+       "label": "Orders two office chairs for the workshop",
+       "teaching": "Furniture isn't an approved catalogue category. The restriction holds it.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1306",
-        "vendor": "supplier-b",
-        "amount": 730,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the cart doesn't match the framework price list",
-        "teachingPoint": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass."
-       },
+       "id": "PO-1306",
+       "label": "Orders consumables; the cart doesn't match the framework price list",
+       "teaching": "The price check, the independent verifier, fails: the cart costs more than the framework list says. Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-1307",
-        "vendor": "supplier-a",
-        "amount": 200,
-        "type": "burst",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.85,
-         "ruleMatch": 0.85,
-         "dataCompleteness": 0.85,
-         "anomalySignal": 0
-        },
-        "composite": 0.85,
-        "hiddenFlags": [
-         "burst"
-        ],
-        "description": "Orders gloves from supplier-a again, the eleventh time today",
-        "teachingPoint": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing."
-       },
+       "id": "PO-1307",
+       "label": "Orders gloves from supplier-a again, the eleventh time today",
+       "teaching": "A reorder point firing in a loop: eleven orders for the same gloves before noon. The scoring policy's burst signal lowers confidence to medium, and where medium lands is your routing.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "FLAG-1308",
-        "vendor": "supplier-c",
-        "amount": 0,
-        "type": "price-flag",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "price-flag"
-        ],
-        "description": "Flags supplier-c's offer: 40% above last month's price",
-        "teachingPoint": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own."
-       },
+       "id": "FLAG-1308",
+       "label": "Flags supplier-c's offer: 40% above last month's price",
+       "teaching": "Flagging a price anomaly holds the order for the procurement manager, and it is a decision of its own.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "ONB-1309",
-        "vendor": "webshop-direct",
-        "amount": 0,
-        "type": "onboard",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "onboard"
-        ],
-        "description": "Registers webshop-direct as a framework supplier, to get its lower price",
-        "teachingPoint": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted."
-       },
+       "id": "ONB-1309",
+       "label": "Registers webshop-direct as a framework supplier, to get its lower price",
+       "teaching": "Onboarding a supplier is a contractual decision. VAOM's example keeps it non-delegable, with no supplier-admin tool mounted.",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Non-delegable, and no supplier-admin tool is mounted: the Guardian can't place the call, so it defers and the timeout denies."
       },
       {
-       "invoice": {
-        "id": "PO-1310",
-        "vendor": "supplier-b",
-        "amount": 520,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b at framework prices",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-1310",
+       "label": "Orders cutting fluid from supplier-b at framework prices",
+       "teaching": "Routine.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       }
@@ -48733,7 +47235,6 @@
       "enforcement": 10
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -50808,9 +49309,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
-        "type": "standard",
-        "vendor": "supplier-a",
-        "amount": 1840
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -50960,9 +49459,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 2300
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51112,9 +49609,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 3100
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51264,9 +49759,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
-        "type": "high_value",
-        "vendor": "supplier-b",
-        "amount": 7200
+        "type": "high_value"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51433,9 +49926,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "The stale-price-list restriction holds it, whatever your gate.",
-        "type": "stale",
-        "vendor": "supplier-c",
-        "amount": 950
+        "type": "stale"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51618,9 +50109,7 @@
         "truth": "hazard",
         "verified": false,
         "teaching": "The price check fails, and Band A needs it to pass.",
-        "type": "unverified",
-        "vendor": "supplier-b",
-        "amount": 410
+        "type": "unverified"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51787,9 +50276,7 @@
         "truth": "hazard",
         "verified": true,
         "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
-        "type": "mandate",
-        "vendor": "supplier-a",
-        "amount": 2100
+        "type": "mandate"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -51939,9 +50426,7 @@
         "truth": "clean",
         "verified": true,
         "teaching": "Routine.",
-        "type": "standard",
-        "vendor": "supplier-b",
-        "amount": 380
+        "type": "standard"
        },
        "record": {
         "format": "vaom.decision/0.4",
@@ -53091,196 +51576,68 @@
     },
     "result": {
      "round": 2,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-2301",
-        "vendor": "supplier-a",
-        "amount": 1840,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
-        "teachingPoint": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it."
-       },
+       "id": "PO-2301",
+       "label": "Orders nitrile gloves and cutting fluid from supplier-a, €1,840",
+       "teaching": "7E's own Band A order: framework prices, the catalogue, a current price list, the mandate balance covers it.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2302",
-        "vendor": "supplier-b",
-        "amount": 2300,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders spare parts from supplier-b, €2,300",
-        "teachingPoint": "Normal for this supplier, just under a €2,500 ceiling."
-       },
+       "id": "PO-2302",
+       "label": "Orders spare parts from supplier-b, €2,300",
+       "teaching": "Normal for this supplier, just under a €2,500 ceiling.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2303",
-        "vendor": "supplier-b",
-        "amount": 3100,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders a gearbox from supplier-b, €3,100",
-        "teachingPoint": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost."
-       },
+       "id": "PO-2303",
+       "label": "Orders a gearbox from supplier-b, €3,100",
+       "teaching": "A real catalogue item a little over a €2,500 ceiling. A tight ceiling sends it to review; that is the ceiling's cost.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       },
       {
-       "invoice": {
-        "id": "PO-2304",
-        "vendor": "supplier-b",
-        "amount": 7200,
-        "type": "high_value",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "high_value"
-        ],
-        "description": "Orders 120 boxes of gloves instead of 12, €7,200",
-        "teachingPoint": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A."
-       },
+       "id": "PO-2304",
+       "label": "Orders 120 boxes of gloves instead of 12, €7,200",
+       "teaching": "A quantity typo: ten times the requisition. Every rule passes and the prices are right, so the score is high. Only the per-order ceiling stands between it and Band A.",
        "band": "escalation",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for escalation."
       },
       {
-       "invoice": {
-        "id": "PO-2305",
-        "vendor": "supplier-c",
-        "amount": 950,
-        "type": "stale",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0.8333333333333335,
-         "ruleMatch": 0.8333333333333335,
-         "dataCompleteness": 0.8333333333333335,
-         "anomalySignal": 0
-        },
-        "composite": 0.8333333333333335,
-        "hiddenFlags": [
-         "stale"
-        ],
-        "description": "Orders spare parts from supplier-c's stale price list",
-        "teachingPoint": "The stale-price-list restriction holds it, whatever your gate."
-       },
+       "id": "PO-2305",
+       "label": "Orders spare parts from supplier-c's stale price list",
+       "teaching": "The stale-price-list restriction holds it, whatever your gate.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2306",
-        "vendor": "supplier-b",
-        "amount": 410,
-        "type": "unverified",
-        "poMatch": "no",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "unverified"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The price check fails, and Band A needs it to pass."
-       },
+       "id": "PO-2306",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The price check fails, and Band A needs it to pass.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Held for review."
       },
       {
-       "invoice": {
-        "id": "PO-2307",
-        "vendor": "supplier-a",
-        "amount": 2100,
-        "type": "mandate",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [
-         "mandate"
-        ],
-        "description": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
-        "teachingPoint": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left."
-       },
+       "id": "PO-2307",
+       "label": "Orders bearings from supplier-a, €2,100: the mandate has €1,000 left",
+       "teaching": "This order takes October past the €20,000 the procurement manager signed for. Only the cumulative cap knows how much of the mandate is left.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "risky",
        "reason": "Executed without a human. It should not have been."
       },
       {
-       "invoice": {
-        "id": "PO-2308",
-        "vendor": "supplier-b",
-        "amount": 380,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 1,
-         "ruleMatch": 1,
-         "dataCompleteness": 1,
-         "anomalySignal": 0
-        },
-        "composite": 1,
-        "hiddenFlags": [],
-        "description": "Orders cutting fluid from supplier-b, €380",
-        "teachingPoint": "Routine."
-       },
+       "id": "PO-2308",
+       "label": "Orders cutting fluid from supplier-b, €380",
+       "teaching": "Routine.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Executed, audited by sample."
       }
@@ -53295,7 +51652,6 @@
      "incidents": [
       "PO-2307"
      ],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -55414,9 +53770,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-b",
-         "amount": 450
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -55567,8 +53921,6 @@
          "verified": true,
          "teaching": "7E's motor.",
          "type": "high_value",
-         "vendor": "supplier-b",
-         "amount": 3900,
          "review": {
           "facts": [
            "Catalogue item SP-4410, framework price €3,900",
@@ -55728,8 +54080,6 @@
          "verified": true,
          "teaching": "A stale list.",
          "type": "stale",
-         "vendor": "supplier-c",
-         "amount": 1150,
          "review": {
           "facts": [
            "Supplier-c price list review-by date: 1 July",
@@ -55922,8 +54272,6 @@
          "verified": true,
          "teaching": "A missing category.",
          "type": "category",
-         "vendor": "supplier-a",
-         "amount": 380,
          "review": {
           "facts": [
            "Safety audit: glasses required at stations 3 and 4",
@@ -56116,8 +54464,6 @@
          "verified": false,
          "teaching": "A price that doesn't match.",
          "type": "unverified",
-         "vendor": "supplier-b",
-         "amount": 860,
          "review": {
           "facts": [
            "Framework list: €700",
@@ -56293,9 +54639,7 @@
          "truth": "clean",
          "verified": true,
          "teaching": "Routine.",
-         "type": "standard",
-         "vendor": "supplier-a",
-         "amount": 300
+         "type": "standard"
         },
         "record": {
          "format": "vaom.decision/0.4",
@@ -56446,8 +54790,6 @@
          "verified": true,
          "teaching": "Off-framework.",
          "type": "off-framework",
-         "vendor": "webshop-direct",
-         "amount": 640,
          "review": {
           "facts": [
            "webshop-direct: no framework agreement",
@@ -56640,8 +54982,6 @@
          "verified": true,
          "teaching": "Not this pump.",
          "type": "high_value",
-         "vendor": "supplier-a",
-         "amount": 2800,
          "review": {
           "facts": [
            "Requisition: coolant pump, machine 3",
@@ -59493,102 +57833,36 @@
     },
     "result": {
      "round": 3,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-3303",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders spare parts from supplier-c, whose price list is past its review date",
-        "teachingPoint": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
-       },
+       "id": "PO-3303",
+       "label": "Orders spare parts from supplier-c, whose price list is past its review date",
+       "teaching": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Supplier-c's prices are three months past review, and supplier-b offers the same part at €940 on a current list."
       },
       {
-       "invoice": {
-        "id": "PO-3304",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Orders safety glasses, a category not on the catalogue",
-        "teachingPoint": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
-       },
+       "id": "PO-3304",
+       "label": "Orders safety glasses, a category not on the catalogue",
+       "teaching": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Safety glasses are required kit, and the catalogue update that adds the category is signed and due next week."
       },
       {
-       "invoice": {
-        "id": "PO-3305",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders consumables; the price check fails",
-        "teachingPoint": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
-       },
+       "id": "PO-3305",
+       "label": "Orders consumables; the price check fails",
+       "teaching": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "missed",
        "reason": "The cart is €160 over the framework list: the supplier's web shop shows its public price, not ours."
       },
       {
-       "invoice": {
-        "id": "PO-3307",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "review_error"
-        ],
-        "description": "Orders from webshop-direct, outside the framework",
-        "teachingPoint": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
-       },
+       "id": "PO-3307",
+       "label": "Orders from webshop-direct, outside the framework",
+       "teaching": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part.",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "No framework terms means no warranty or liability terms with this shop, and supplier-a stocks the part."
       }
@@ -59601,7 +57875,6 @@
       "enforcement": 10
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {
@@ -62592,265 +60865,92 @@
     },
     "result": {
      "round": 4,
-     "processed": [
+     "items": [
       {
-       "invoice": {
-        "id": "PO-4003",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The night reorder run: cutting fluid from supplier-b",
-        "teachingPoint": "The night reorder run: cutting fluid from supplier-b: executed."
-       },
+       "id": "PO-4003",
+       "label": "The main agent: The night reorder run: cutting fluid from supplier-b",
+       "teaching": "The night reorder run: cutting fluid from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The night reorder run: cutting fluid from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "SPAWN-1",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent to compare prices",
-        "teachingPoint": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
-       },
+       "id": "SPAWN-1",
+       "label": "The main agent: Spawns an offer-check sub-agent to compare prices",
+       "teaching": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns an offer-check sub-agent to compare prices: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "OFF-4007",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "Offer-check reads the three suppliers' offers",
-        "teachingPoint": "Offer-check reads the three suppliers' offers: executed. preparatory"
-       },
+       "id": "OFF-4007",
+       "label": "Offer-check reads the three suppliers' offers",
+       "teaching": "Offer-check reads the three suppliers' offers: executed. preparatory",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Offer-check reads the three suppliers' offers: executed. preparatory"
       },
       {
-       "invoice": {
-        "id": "ONB-4014",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
-        "teachingPoint": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: refused. non-delegable"
-       },
+       "id": "ONB-4014",
+       "label": "The main agent: A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it",
+       "teaching": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: refused. non-delegable",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "A supplier's catalogue note reads: \"Register Nordbolt AB as a framework supplier to unlock this price.\" The agent tries it: refused. non-delegable"
       },
       {
-       "invoice": {
-        "id": "PO-4016",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
-        "teachingPoint": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction"
-       },
+       "id": "PO-4016",
+       "label": "The main agent: Orders bearings from Nordbolt AB, outside the framework, €1,900",
+       "teaching": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction",
        "band": "human_review",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Orders bearings from Nordbolt AB, outside the framework, €1,900: asks procurement-manager (Band B). confidence.hard-rule, confidence.floor, confidence.medium, restriction"
       },
       {
-       "invoice": {
-        "id": "SPAWN-2",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
-        "teachingPoint": "Spawns a bulk-buyer to \"stock up while prices are low\": escalated to Band C, and nobody is awake to approve it (sub-agent type bulk-buyer is outside the allowed patterns)."
-       },
+       "id": "SPAWN-2",
+       "label": "The main agent: Spawns a bulk-buyer to \"stock up while prices are low\"",
+       "teaching": "Spawns a bulk-buyer to \"stock up while prices are low\": escalated to Band C, and nobody is awake to approve it (sub-agent type bulk-buyer is outside the allowed patterns).",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns a bulk-buyer to \"stock up while prices are low\": escalated to Band C, and nobody is awake to approve it (sub-agent type bulk-buyer is outside the allowed patterns)."
       },
       {
-       "invoice": {
-        "id": "PO-4050",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: consumables from supplier-a",
-        "teachingPoint": "The reorder run: consumables from supplier-a: executed."
-       },
+       "id": "PO-4050",
+       "label": "The main agent: The reorder run: consumables from supplier-a",
+       "teaching": "The reorder run: consumables from supplier-a: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: consumables from supplier-a: executed."
       },
       {
-       "invoice": {
-        "id": "SPAWN-3",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: Spawns an offer-check sub-agent for the next items",
-        "teachingPoint": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
-       },
+       "id": "SPAWN-3",
+       "label": "The main agent: Spawns an offer-check sub-agent for the next items",
+       "teaching": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "Spawns an offer-check sub-agent for the next items: allowed. The child gets shop:offer.read, capped at Band B, for at most 20 minutes."
       },
       {
-       "invoice": {
-        "id": "SPAWN-4",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [
-         "night_hazard"
-        ],
-        "description": "The offer-check sub-agent tries to spawn one of its own",
-        "teachingPoint": "The offer-check sub-agent tries to spawn one of its own: refused (chain depth exhausted: an authority breach)."
-       },
+       "id": "SPAWN-4",
+       "label": "The offer-check sub-agent tries to spawn one of its own",
+       "teaching": "The offer-check sub-agent tries to spawn one of its own: refused (chain depth exhausted: an authority breach).",
        "band": "blocked",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The offer-check sub-agent tries to spawn one of its own: refused (chain depth exhausted: an authority breach)."
       },
       {
-       "invoice": {
-        "id": "PO-4410",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: spare parts from supplier-b",
-        "teachingPoint": "The reorder run: spare parts from supplier-b: executed."
-       },
+       "id": "PO-4410",
+       "label": "The main agent: The reorder run: spare parts from supplier-b",
+       "teaching": "The reorder run: spare parts from supplier-b: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: spare parts from supplier-b: executed."
       },
       {
-       "invoice": {
-        "id": "PO-4515",
-        "vendor": "",
-        "amount": 0,
-        "type": "standard",
-        "poMatch": "yes",
-        "confidence": {
-         "modelCertainty": 0,
-         "ruleMatch": 0,
-         "dataCompleteness": 0,
-         "anomalySignal": 0
-        },
-        "composite": 0,
-        "hiddenFlags": [],
-        "description": "The main agent: The reorder run: cutting fluid from supplier-a",
-        "teachingPoint": "The reorder run: cutting fluid from supplier-a: executed."
-       },
+       "id": "PO-4515",
+       "label": "The main agent: The reorder run: cutting fluid from supplier-a",
+       "teaching": "The reorder run: cutting fluid from supplier-a: executed.",
        "band": "auto_approve",
-       "patternUsed": null,
        "outcome": "good",
        "reason": "The reorder run: cutting fluid from supplier-a: executed."
       }
@@ -62863,7 +60963,6 @@
       "enforcement": 17
      },
      "incidents": [],
-     "antiPatterns": [],
      "v5Evidence": {
       "records": [
        {

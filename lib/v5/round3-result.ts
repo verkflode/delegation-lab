@@ -1,25 +1,16 @@
 // Round 3 in the shape the rest of the game reads, and VAOM's briefing and debrief for it. The score is
 // interim (M4 replaces it with the scorecard); the verdicts quoted in the debrief are the core's.
-import type { Invoice, ProcessedInvoice, RoundResult, ScoreBreakdown } from "../types";
+import type { RoundItem, RoundResult, ScoreBreakdown } from "../types";
 import type { Click, ReviewChoice, Shift, ShiftResult } from "./round3";
 import type { V5Scenario } from "./scenario";
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
 
 export function round3Result(sc: V5Scenario, shift: Shift, clicks: Record<string, Click>, verdict: ShiftResult, choice: ReviewChoice, neededHours: number): RoundResult {
-  // The kind the screens show: a duplicate flag, or anything else.
-  const kind = (a: (typeof shift.asks)[number]) =>
-    (a.seed ? sc.round3.plants.find((p) => p.id === a.seed!.id)?.type : sc.round3.batch.find((b) => `lab-${b.id}` === a.key)?.type) === "duplicate" ? "duplicate" : "standard";
-  const processed: ProcessedInvoice[] = shift.asks.map((a) => {
+  const items: RoundItem[] = shift.asks.map((a) => {
     const c = clicks[a.key]?.decision ?? "expired";
-    const outcome: ProcessedInvoice["outcome"] = c === "expired" ? "missed" : c === a.correct ? "good" : c === "approve" ? "risky" : "wasteful";
-    const invoice: Invoice = {
-      id: a.seed ? `SEED · ${a.seed.id}` : a.record.id.replace(/^lab-/, ""),
-      vendor: "", amount: 0, type: kind(a), poMatch: "yes",
-      confidence: { modelCertainty: 0, ruleMatch: 0, dataCompleteness: 0, anomalySignal: 0 }, composite: 0,
-      hiddenFlags: a.correct === "reject" ? ["review_error"] : [], description: a.label, teachingPoint: a.why,
-    };
-    return { invoice, band: "human_review", patternUsed: null, outcome, reason: a.why };
+    const outcome: RoundItem["outcome"] = c === "expired" ? "missed" : c === a.correct ? "good" : c === "approve" ? "risky" : "wasteful";
+    return { id: a.seed ? `SEED · ${a.seed.id}` : a.record.id.replace(/^lab-/, ""), label: a.label, teaching: a.why, band: "human_review", outcome, reason: a.why };
   });
   const bad = shift.asks.filter((a) => a.correct === "reject"), good = shift.asks.filter((a) => a.correct === "approve");
   const decided = (a: (typeof shift.asks)[number]) => clicks[a.key]?.decision;
@@ -33,12 +24,12 @@ export function round3Result(sc: V5Scenario, shift: Shift, clicks: Record<string
     adaptability: 10,
     enforcement: 10,
   };
-  return { round: 3, processed, score, incidents: verdict.executedBad.map((a) => a.record.id), antiPatterns: [], v5Evidence: { records: verdict.records, seeds: verdict.seeds } };
+  return { round: 3, items, score, incidents: verdict.executedBad.map((a) => a.record.id), v5Evidence: { records: verdict.records, seeds: verdict.seeds } };
 }
 
 export function round3Debrief(result: RoundResult, verdict: ShiftResult, choice: ReviewChoice): string {
   const out: string[] = [];
-  const total = result.processed.length;
+  const total = result.items.length;
   const expired = verdict.wrong.filter((w) => w.click.decision === "expired").length;
   out.push(expired === 0
     ? `You decided ${total} asks and got ${verdict.correct} right. ${verdict.medianGameSeconds !== null ? `Your median review took ${Math.round(verdict.medianGameSeconds)} seconds of game time.` : "You let every ask expire."}`

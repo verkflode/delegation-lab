@@ -47,7 +47,7 @@ export const approve = (invoice: string, vendor: string, amount: number, po = "P
 });
 
 export const item = (id: string, label: string, vendor: string, amount: number, truth: Truth, type: BatchItem["type"], teaching: string, opts: { po?: string; verified?: boolean } = {}): BatchItem => ({
-  id, label, call: approve(id, vendor, amount, opts.po), truth, verified: opts.verified ?? true, teaching, type, vendor, amount,
+  id, label, call: approve(id, vendor, amount, opts.po), truth, verified: opts.verified ?? true, teaching, type,
 });
 
 /** Two months of approvals that ran everything through review: which vendors are familiar, and what they
@@ -77,7 +77,7 @@ function historyCalls(): { id: string; ts: string; call: Call }[] {
 }
 
 const BATCH: BatchItem[] = [
-  { id: "READ-1101", label: "Reads the invoice before deciding", call: { tool: "mcp__erp__get_invoice", arguments: { invoice_id: "INV-1101" } }, truth: "clean", verified: true, type: "standard", vendor: "V-ACME", amount: 0,
+  { id: "READ-1101", label: "Reads the invoice before deciding", call: { tool: "mcp__erp__get_invoice", arguments: { invoice_id: "INV-1101" } }, truth: "clean", verified: true, type: "standard",
     teaching: "Preparatory: reading serves a decision, so it runs inside the same execution context." },
   item("INV-1101", "€1,200 from a regular vendor, PO matched", "V-ACME", 1200, "clean", "standard", "Routine: familiar vendor, usual amount, PO verified. This is what Band A is for."),
   item("INV-1102", "€840 office supplies, PO matched", "V-OFFICE", 840, "clean", "standard", "Routine."),
@@ -89,10 +89,10 @@ const BATCH: BatchItem[] = [
   item("INV-1108", "€1,900 print job, part 3", "V-PRINT", 1900, "hazard", "split_invoice", "€5,700 to one vendor in a day: one €5,700 job split under the ceiling. The cumulative cap catches the third part."),
   item("INV-1109", "€3,900 from a vendor who usually bills €1,000", "V-CLEAN", 3900, "hazard", "standard", "Nearly four times this vendor's median. Under the ceiling, but unusual: the anomaly signal holds it for a human."),
   item("INV-1110", "€1,100, no purchase order cited", "V-ACME", 1100, "hazard", "standard", "No PO: a hard rule in the scoring policy fails, and nothing independent could verify it.", { po: "", verified: false }),
-  { id: "FLAG-1111", label: "Flags INV-1111 as a duplicate of INV-1101", call: { tool: "mcp__erp__flag_invoice", arguments: { invoice_id: "INV-1111", reason: "duplicate", duplicate_of: "INV-1101" } }, truth: "hazard", verified: true, type: "duplicate", vendor: "V-ACME", amount: 1200,
+  { id: "FLAG-1111", label: "Flags INV-1111 as a duplicate of INV-1101", call: { tool: "mcp__erp__flag_invoice", arguments: { invoice_id: "INV-1111", reason: "duplicate", duplicate_of: "INV-1101" } }, truth: "hazard", verified: true, type: "duplicate",
     teaching: "Same vendor, amount and PO as INV-1101. Flagging holds the payment until a human confirms." },
   item("INV-1112", "€1,480 from a regular vendor, PO matched", "V-ACME", 1480, "clean", "standard", "Routine."),
-  { id: "CTR-1113", label: "Agrees new payment terms with V-NORD: 30 days to 7", call: { tool: "mcp__erp__update_contract", arguments: { contract_id: "C-NORD-2024", vendor_id: "V-NORD", payment_terms_days: 7 } }, truth: "hazard", verified: false, type: "modified_terms", vendor: "V-NORD", amount: 0,
+  { id: "CTR-1113", label: "Agrees new payment terms with V-NORD: 30 days to 7", call: { tool: "mcp__erp__update_contract", arguments: { contract_id: "C-NORD-2024", vendor_id: "V-NORD", payment_terms_days: 7 } }, truth: "hazard", verified: false, type: "modified_terms",
     teaching: "A contract change arrived as an invoice note. Irreversible, external, judgment-dependent: VAOM's example keeps it non-delegable, with the write tool absent." },
   item("INV-1114", "€720 office supplies, PO matched", "V-OFFICE", 720, "clean", "standard", "Routine."),
 ];
@@ -105,7 +105,7 @@ const BATCH2: BatchItem[] = [
   item("INV-2003", "€5,600 steel delivery, PO matched", "V-STEEL", 5600, "clean", "high_value", "Normal for this vendor, who usually bills around €5,200. A €5,000 ceiling sends every one of their invoices to a human."),
   item("INV-2004", "€14,000 from a vendor who usually bills €4,000", "V-NORD", 14000, "hazard", "high_value", "€1,400.00 keyed as €14,000. The anomaly signal lowers its score one step; whether that's enough depends on your threshold. The ceiling is the backstop."),
   {
-    id: "BATCH-2005", label: "Approves three €2,400 print invoices in one call", vendor: "V-PRINT", amount: 7200, truth: "hazard", verified: true, type: "split_invoice",
+    id: "BATCH-2005", label: "Approves three €2,400 print invoices in one call", truth: "hazard", verified: true, type: "split_invoice",
     call: { tool: "mcp__erp__approve_invoices", arguments: { invoices: ["INV-2005a", "INV-2005b", "INV-2005c"].map((id) => ({ invoice_id: id, vendor_id: "V-PRINT", amount: "2400", currency: "EUR", po_number: "PO-5120" })) } },
     teaching: "One €7,200 job split three ways, in one batch call. The binding makes each invoice its own action, so each passes the ceiling; only a per-vendor cap sees the total.",
   },
@@ -115,7 +115,7 @@ const BATCH2: BatchItem[] = [
   item("INV-2009", "€1,050 office supplies, PO matched", "V-OFFICE", 1050, "clean", "standard", "Routine."),
   item("INV-2010", "€6,800 crane hire, PO matched", "V-CRANE", 6800, "clean", "high_value", "Normal for this vendor. A €5,000 ceiling or cap sends it to review."),
   {
-    id: "FLAG-2011", label: "Flags INV-2011 as a duplicate of INV-2001", vendor: "V-ACME", amount: 1350, truth: "hazard", verified: true, type: "duplicate",
+    id: "FLAG-2011", label: "Flags INV-2011 as a duplicate of INV-2001", truth: "hazard", verified: true, type: "duplicate",
     call: { tool: "mcp__erp__flag_invoice", arguments: { invoice_id: "INV-2011", reason: "duplicate", duplicate_of: "INV-2001" } },
     teaching: "Same vendor, amount and PO as INV-2001. Flagging holds the payment until a human confirms.",
   },
@@ -126,8 +126,8 @@ const BATCH2: BatchItem[] = [
 
 const rv = (correct: "approve" | "reject", why: string, ...facts: string[]) => ({ facts, correct, why });
 const withReview = (b: BatchItem, review: BatchItem["review"]): BatchItem => ({ ...b, review });
-const flag = (id: string, of: string, vendor: string, amount: number, review: BatchItem["review"]): BatchItem => ({
-  id: `FLAG-${id}`, label: `Flags INV-${id} as a duplicate of ${of}`, vendor, amount, truth: review!.correct === "approve" ? "hazard" : "clean", verified: true, type: "duplicate",
+const flag = (id: string, of: string, review: BatchItem["review"]): BatchItem => ({
+  id: `FLAG-${id}`, label: `Flags INV-${id} as a duplicate of ${of}`, truth: review!.correct === "approve" ? "hazard" : "clean", verified: true, type: "duplicate",
   call: { tool: "mcp__erp__flag_invoice", arguments: { invoice_id: `INV-${id}`, reason: "duplicate", duplicate_of: of } },
   teaching: review!.why, review,
 });
@@ -147,10 +147,10 @@ const BATCH3: BatchItem[] = [
   withReview(item("INV-3007", "€760 office supplies; the PO check failed", "V-OFFICE", 760, "clean", "standard", "No goods receipt yet.", { verified: false }),
     rv("approve", "The check failed only because the goods receipt isn't posted yet; delivery is confirmed.", "PO-6801: €760", "Goods receipt not posted in the ERP yet", "Office manager confirmed delivery by email")),
   item("INV-3008", "€980 cleaning services, PO matched", "V-CLEAN", 980, "clean", "standard", "Routine."),
-  flag("3011", "INV-3001", "V-ACME", 1180, rv("approve", "Same vendor, amount, PO and date: a true duplicate.", "Both V-ACME, €1,180", "Same PO-4471", "Same invoice date, 16 October")),
-  flag("3012", "INV-3002", "V-CRANE", 8200, rv("reject", "Same amount, but a different PO and delivery: a second hire, not a duplicate.", "Both V-CRANE, €8,200", "INV-3012 cites PO-6611, not PO-6610", "Different delivery note")),
-  flag("3013", "INV-2007", "V-CLEAN", 880, rv("approve", "Same PO and the same service date: a true duplicate.", "Both V-CLEAN, €880", "Same PO", "Same service date, 14 October")),
-  flag("3014", "INV-3008", "V-CLEAN", 980, rv("reject", "A monthly contract bills the same amount every month. Different month, not a duplicate.", "Both V-CLEAN, €980", "Monthly cleaning contract, fixed fee", "Service month: November, not October")),
+  flag("3011", "INV-3001", rv("approve", "Same vendor, amount, PO and date: a true duplicate.", "Both V-ACME, €1,180", "Same PO-4471", "Same invoice date, 16 October")),
+  flag("3012", "INV-3002", rv("reject", "Same amount, but a different PO and delivery: a second hire, not a duplicate.", "Both V-CRANE, €8,200", "INV-3012 cites PO-6611, not PO-6610", "Different delivery note")),
+  flag("3013", "INV-2007", rv("approve", "Same PO and the same service date: a true duplicate.", "Both V-CLEAN, €880", "Same PO", "Same service date, 14 October")),
+  flag("3014", "INV-3008", rv("reject", "A monthly contract bills the same amount every month. Different month, not a duplicate.", "Both V-CLEAN, €980", "Monthly cleaning contract, fixed fee", "Service month: November, not October")),
 ];
 
 const PLANTS: Plant[] = [
