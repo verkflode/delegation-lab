@@ -74,7 +74,7 @@ export function ReviewShift() {
         <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint">Thursday. You are the accounts payable clerk.</h1>
         <p className="text-[13px] text-muted mt-2">
           Thursday&apos;s batch ran under your matrix: {shift.elsewhere.A} executed in Band A, {shift.elsewhere.C} went to the
-          financial controller, {shift.elsewhere.held} were held. {asks.length} {asks.length === 1 ? "ask is" : "asks are"} waiting for you.
+          financial controller, {shift.elsewhere.held} {shift.elsewhere.held === 1 ? "was" : "were"} held. {asks.length} {asks.length === 1 ? "ask is" : "asks are"} waiting for you.
         </p>
 
         {phase === "brief" && (

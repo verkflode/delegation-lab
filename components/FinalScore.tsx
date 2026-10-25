@@ -145,7 +145,7 @@ export function FinalScore() {
               sub="vaom.ai"
             />
             <CTA
-              href="https://vaom.ai"
+              href="https://vaom.ai/whitepaper.pdf"
               icon={<ArrowRight size={14} />}
               label="Download the whitepaper"
               sub="VAOM 5.0 · PDF · CC BY 4.0"

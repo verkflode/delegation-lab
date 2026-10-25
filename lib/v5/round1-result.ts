@@ -70,7 +70,7 @@ export function round1Debrief(result: RoundResult, policy: Round1Policy): string
   const out: string[] = [];
 
   out.push(
-    `Your matrix named ${inMatrix.length} of the ${DECISIONS.length} decisions in this workflow. Of ${p.length} calls, ${n("auto_approve")} ran in Band A, ${n("human_review")} went to a reviewer, ${n("escalation")} were escalated and ${n("blocked")} were held. ` +
+    `Your matrix named ${inMatrix.length} of the ${DECISIONS.length} decisions in this workflow. Of ${p.length} calls, ${n("auto_approve")} ran in Band A, ${n("human_review")} went to a reviewer, ${n("escalation")} ${n("escalation") === 1 ? "was" : "were"} escalated and ${n("blocked")} ${n("blocked") === 1 ? "was" : "were"} held. ` +
       (risky.length ? `${risky[0].invoice.id} is among the ones that ran, and it should not have.` : "Nothing ran that should not have."),
   );
 
