@@ -9,7 +9,9 @@ import { judgeShift, lintReview, reviewTweak, startShift, startingReview, type C
 import { round3Result } from "../lib/v5/round3-result.ts";
 import { lintNight, runNight, startingNight, type NightChoice } from "../lib/v5/round4.ts";
 import { round4Result } from "../lib/v5/round4-result.ts";
-import { exportFiles, finalScorecard, wireOf } from "../lib/v5/final.ts";
+import { exportFiles, finalScorecard, GUARDIAN_COMMIT, SCHEMA_BASE, wireOf } from "../lib/v5/final.ts";
+import { lintBinding, lintMatrix } from "@verkflode/vaom-guardian-core";
+import { readFileSync } from "node:fs";
 import { BRIEFING_PROMPTS_V5, VAOM_SYSTEM_V5 } from "../lib/v5/prompts.ts";
 import { chooseArchetypeV5 } from "../lib/v5/archetypes.ts";
 
@@ -109,6 +111,14 @@ const review = reviewTweak(goodReview);
   eq("export files", ex.files.map((f) => f.name), ["matrix.json", "binding.json", "invoice-standard.scoring.json", "invoice-duplicate.scoring.json", "seeds.json", "guardian.config.json"]);
   const naiveEx = exportFiles({});
   eq("a naive game exports too", naiveEx.ok, true);
+  // Each exported file but the config names its schema at the vendored Guardian commit, and still lints with it.
+  const vendored = readFileSync(new URL("../vendor/vaom-guardian/VENDORED.md", import.meta.url), "utf8").match(/Commit: `([0-9a-f]{40})`/)?.[1];
+  eq("the schema pin is the vendored commit", GUARDIAN_COMMIT, vendored);
+  eq("every file but the config names its schema", ex.files.filter((f) => f.name !== "guardian.config.json").every((f) => String(f.doc.$schema).startsWith(SCHEMA_BASE)), true);
+  eq("the config names none (no schema exists for it)", ex.files.find((f) => f.name === "guardian.config.json")?.doc.$schema, undefined);
+  const mFile = ex.files.find((f) => f.name === "matrix.json")!.doc, bFile = ex.files.find((f) => f.name === "binding.json")!.doc;
+  eq("the exported matrix lints with its $schema", lintMatrix(mFile).ok, true);
+  eq("the exported binding lints with its $schema", lintBinding(bFile, mFile).ok, true);
 
   const shift = startShift(good, gate, goodReview);
   const clicks: Record<string, Click> = Object.fromEntries(shift.asks.map((a) => [a.key, { decision: a.correct, realMs: 16_000 } as Click]));

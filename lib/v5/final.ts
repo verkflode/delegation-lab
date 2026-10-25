@@ -15,6 +15,12 @@ export interface Choices { v5r1?: Round1Policy; v5r2?: GateChoice; v5r3?: Review
 export const EXPORT_VERSION = "1.3.0";
 const GUARDIAN_CONFIG_FORMAT = "vaom-guardian.config/0.1";
 
+/** The VAOM Guardian commit vendored in vendor/vaom-guardian; tests/v5.test.mts checks it matches VENDORED.md. */
+export const GUARDIAN_COMMIT = "08ad17fb4d64e3c08fca0fa3ce2c6236775a9dfc";
+/** Exported files name the schema they follow at that commit, so an editor can check them as they change. */
+export const SCHEMA_BASE = `https://raw.githubusercontent.com/verkflode/vaom-guardian/${GUARDIAN_COMMIT}/schema/`;
+const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; delete rest.$schema; return { $schema: SCHEMA_BASE + schema, ...rest }; };
+
 /** The matrix as it stood after the night: every round's choices applied. */
 export function finalMatrix(c: Choices): Doc {
   const policy = c.v5r1 ?? startingPolicy();
@@ -59,13 +65,12 @@ export function exportFiles(c: Choices): { files: ExportFile[]; ok: boolean; pro
     port: 7311,
     activation: { "ap-agent": { rows: decisionRows } },
   };
-  const strip = (d: Doc) => { const rest = { ...d }; delete rest.$schema; return rest; };
   const files: ExportFile[] = [
-    { name: "matrix.json", doc: matrix, lint: mLint, what: "Your delegation matrix, vaom.matrix/0.2" },
-    { name: "binding.json", doc: binding, lint: bLint, what: "How tool calls map to the matrix's capabilities, vaom.binding/0.1" },
-    { name: "invoice-standard.scoring.json", doc: strip(standard), what: "The controller's scoring policy for approvals" },
-    { name: "invoice-duplicate.scoring.json", doc: strip(duplicate), what: "The scoring policy for duplicate flags" },
-    ...(hasSeeds ? [{ name: "seeds.json", doc: seeds, ...(sLint ? { lint: sLint } : {}), what: "Your planted review cases, with their disclosure" }] : []),
+    { name: "matrix.json", doc: withSchema(matrix, "vaom-matrix-0.2.schema.json"), lint: mLint, what: "Your delegation matrix, in the draft format vaom.matrix/0.2" },
+    { name: "binding.json", doc: withSchema(binding, "vaom-binding.schema.json"), lint: bLint, what: "How tool calls map to the matrix's capabilities, vaom.binding/0.1" },
+    { name: "invoice-standard.scoring.json", doc: withSchema(standard, "vaom-scoring-0.1.schema.json"), what: "The controller's scoring policy for approvals" },
+    { name: "invoice-duplicate.scoring.json", doc: withSchema(duplicate, "vaom-scoring-0.1.schema.json"), what: "The scoring policy for duplicate flags" },
+    ...(hasSeeds ? [{ name: "seeds.json", doc: withSchema(seeds, "vaom-seeds-0.1.schema.json"), ...(sLint ? { lint: sLint } : {}), what: "Your planted review cases, with their disclosure" }] : []),
     { name: "guardian.config.json", doc: config, what: "A VAOM Guardian config that loads all of the above" },
   ];
   return { files, ok: problems.length === 0, problems };

@@ -175,6 +175,11 @@ function ExportPanel({ choices }: { choices: Choices }) {
         calls, the scoring policies it cites, your planted cases, and a config that loads them. Checked here the way the
         Guardian checks them on startup.
       </p>
+      <p className="text-[12px] text-muted-2 mt-2 max-w-2xl">
+        The matrix uses <span className="font-mono">vaom.matrix/0.2</span>, a draft format: it can still change before it is
+        frozen, as 0.1 was. Each file names the schema it follows, at the Guardian version this game runs, so an editor can
+        check it as you change it.
+      </p>
       <div className={`mt-3 inline-flex items-center gap-2 font-mono text-[11px] ${ex.ok ? "text-band-a" : "text-red"}`}>
         {ex.ok ? <Check size={13} /> : <X size={13} />}
         {ex.ok ? "Lints, compiles and loads" : `${ex.problems.length} problems`}
