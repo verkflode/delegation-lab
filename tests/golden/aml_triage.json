@@ -39939,7 +39939,7 @@
       {
        "name": "matrix.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-matrix-0.2.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-matrix-0.2.schema.json",
         "format": "vaom.matrix/0.2",
         "id": "lab.aml.triage",
         "version": "1.3.0",
@@ -40208,7 +40208,7 @@
       {
        "name": "binding.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-binding.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-binding.schema.json",
         "format": "vaom.binding/0.1",
         "id": "lab.aml.triage.mcp",
         "version": "1.1.0",
@@ -40334,7 +40334,7 @@
       {
        "name": "aml-dismissal.scoring.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-scoring-0.1.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-scoring-0.1.schema.json",
         "format": "vaom.scoring/0.1",
         "id": "aml-dismissal",
         "version": "2.0",
@@ -85715,7 +85715,7 @@
       {
        "name": "matrix.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-matrix-0.2.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-matrix-0.2.schema.json",
         "format": "vaom.matrix/0.2",
         "id": "lab.aml.triage",
         "version": "1.3.0",
@@ -86025,7 +86025,7 @@
       {
        "name": "binding.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-binding.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-binding.schema.json",
         "format": "vaom.binding/0.1",
         "id": "lab.aml.triage.mcp",
         "version": "1.1.0",
@@ -86151,7 +86151,7 @@
       {
        "name": "aml-dismissal.scoring.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-scoring-0.1.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-scoring-0.1.schema.json",
         "format": "vaom.scoring/0.1",
         "id": "aml-dismissal",
         "version": "2.0",
@@ -125712,7 +125712,7 @@
       {
        "name": "matrix.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-matrix-0.2.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-matrix-0.2.schema.json",
         "format": "vaom.matrix/0.2",
         "id": "lab.aml.triage",
         "version": "1.3.0",
@@ -126017,7 +126017,7 @@
       {
        "name": "binding.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-binding.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-binding.schema.json",
         "format": "vaom.binding/0.1",
         "id": "lab.aml.triage.mcp",
         "version": "1.1.0",
@@ -126143,7 +126143,7 @@
       {
        "name": "aml-dismissal.scoring.json",
        "doc": {
-        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.1.0/schema/vaom-scoring-0.1.schema.json",
+        "$schema": "https://raw.githubusercontent.com/verkflode/vaom-guardian/v0.2.0/schema/vaom-scoring-0.1.schema.json",
         "format": "vaom.scoring/0.1",
         "id": "aml-dismissal",
         "version": "2.0",

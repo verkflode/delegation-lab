@@ -15,9 +15,9 @@ export const EXPORT_VERSION = "1.3.0";
 const GUARDIAN_CONFIG_FORMAT = "vaom-guardian.config/0.1";
 
 /** The VAOM Guardian commit vendored in vendor/vaom-guardian; tests/v5.test.mts checks it matches VENDORED.md. */
-export const GUARDIAN_COMMIT = "9521859822f80afc92a09779ef765a6cd624daea";
+export const GUARDIAN_COMMIT = "af9e0d1ab30963c38a50c66690bfdb20a5c128d3";
 /** The release tag on that commit; tests/v5.test.mts checks VENDORED.md names it too. */
-export const GUARDIAN_TAG = "v0.1.0";
+export const GUARDIAN_TAG = "v0.2.0";
 /** Exported files name the schema they follow at that release, so an editor can check them as they change. */
 export const SCHEMA_BASE = `https://raw.githubusercontent.com/verkflode/vaom-guardian/${GUARDIAN_TAG}/schema/`;
 const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; delete rest.$schema; return { $schema: SCHEMA_BASE + schema, ...rest }; };
