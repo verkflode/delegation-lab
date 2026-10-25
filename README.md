@@ -137,7 +137,6 @@ at [vaom.ai](https://vaom.ai), published by Verkflöde AB under
 
 ## Licence
 
-The VAOM Guardian code in `vendor/vaom-guardian/` and the example documents in `data/v5/` come from the
-[VAOM Guardian](https://github.com/verkflode/vaom-guardian) and are Apache-2.0 (see
-`vendor/vaom-guardian/LICENSE` and `NOTICE`). The VAOM framework the game teaches is CC BY 4.0. The rest of
-this repository doesn't carry a licence yet.
+Apache-2.0: see `LICENSE` and `NOTICE`. The vendored VAOM Guardian code in `vendor/vaom-guardian/` and the
+example documents in `data/v5/` come from the [VAOM Guardian](https://github.com/verkflode/vaom-guardian),
+also Apache-2.0. The VAOM framework the game teaches is CC BY 4.0.

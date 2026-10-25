@@ -1,0 +1,12 @@
+Delegation Lab
+Copyright 2026 Verkflöde
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes the VAOM Guardian (https://github.com/verkflode/vaom-guardian), Copyright 2026
+Verkflöde, licensed under the Apache License, Version 2.0: its core and ACS translation in
+vendor/vaom-guardian/ (with its own LICENSE and NOTICE there), and its example matrices, bindings and
+scoring policies in data/v5/.
+
+The Verkflöde Agent Operating Model (VAOM) it teaches is published at https://vaom.ai under the
+Creative Commons Attribution 4.0 International licence (CC BY 4.0).
