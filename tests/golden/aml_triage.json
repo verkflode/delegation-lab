@@ -34398,7 +34398,7 @@
       "seeds": []
      }
     },
-    "debrief": "You decided 3 asks and got 2 right. Your median review took 32 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\nDismisses a utility payment the provider's billing doesn't show executed on your approval. The provider has no account for this customer, and the payee changed last week to an account abroad. Not a utility bill. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "You decided 3 asks and got 2 right. Your median review took 32 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum.\n\nDismisses a utility payment the provider's billing doesn't show executed on your approval. The provider has no account for this customer, and the payee changed last week to an account abroad. Not a utility bill. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {

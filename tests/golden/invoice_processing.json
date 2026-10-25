@@ -19328,7 +19328,7 @@
       "seeds": []
      }
     },
-    "debrief": "You decided 2 asks and got 1 right. Your median review took 16 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\n€1,300 from a regular vendor; the PO check failed executed on your approval. The PO is for €1,030. The invoice asks for €270 more. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "You decided 2 asks and got 1 right. Your median review took 16 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum.\n\n€1,300 from a regular vendor; the PO check failed executed on your approval. The PO is for €1,030. The invoice asks for €270 more. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {

@@ -36746,7 +36746,7 @@
       ]
      }
     },
-    "debrief": "You decided 8 asks and got 8 right. Your median review took 64 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\nYou caught 2 of 2 planted cases. You were told they existed; disclosure is the rule, and it doesn't make them easier to spot.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "You decided 8 asks and got 8 right. Your median review took 64 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum.\n\nYou caught 2 of 2 planted cases. You were told they existed; disclosure is the rule, and it doesn't make them easier to spot.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {

@@ -39,7 +39,7 @@ export function round3Debrief(result: RoundResult, verdict: ShiftResult, choice:
 
   const diag = Object.entries(verdict.engagement).filter(([, m]) => m.diagnosis);
   if (diag.length) out.push(`The scorecard's verdict on review engagement: ${diag.map(([row, m]) => `${row}, ${m.diagnosis}`).join("; ")}. It reads only the records, aggregated per row, never per person. It doesn't need to know who you are to see it.`);
-  else if (Object.values(verdict.engagement).some((m) => m.status === "insufficient-sample")) out.push("The scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.");
+  else if (Object.values(verdict.engagement).some((m) => m.status === "insufficient-sample")) out.push(`The scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum.${expired ? " Expired asks aren't reviews." : ""}`);
   else out.push("The scorecard found review engaged: approvals weren't automatic, and reviews took plausible time. On a sample this small that's a hint, not proof; the Guardian's defaults need twenty decided reviews before they give a verdict.");
 
   if (verdict.executedBad.length) {
