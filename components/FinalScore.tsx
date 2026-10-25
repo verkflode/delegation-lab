@@ -8,13 +8,13 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import { useGame } from "../lib/game-state";
+import { useGame, useScenario } from "../lib/game-state";
 import { totalScore, totalNumeric } from "../lib/score";
 import { ProfileCard } from "./ProfileCard";
 import { VAOMVoice } from "./VAOMVoice";
 import { ScoreBar } from "./Debrief";
 import { FinalV5 } from "./v5/FinalV5";
-import { ARCHETYPES_V5, chooseArchetypeV5 } from "../lib/v5/archetypes";
+import { chooseArchetypeV5 } from "../lib/v5/archetypes";
 
 /**
  * Final dashboard and shareable profile card. The profile is scripted from the game (lib/v5/archetypes.ts).
@@ -23,7 +23,7 @@ export function FinalScore() {
   const { state, reset } = useGame();
   const totals = totalScore(state.results);
   const totalN = totalNumeric(totals);
-  const profile = ARCHETYPES_V5[chooseArchetypeV5(state.results)];
+  const profile = useScenario().archetypes[chooseArchetypeV5(state.results)];
 
   return (
     <div className="min-h-screen px-6 py-12 animate-fade-in">

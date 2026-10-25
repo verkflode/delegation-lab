@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useGame } from "../../lib/game-state";
-import { DECISIONS, startingPolicy, type RowId } from "../../lib/v5/round1";
+import { useGame, useScenario } from "../../lib/game-state";
 import { startingGate, toGate } from "../../lib/v5/round2";
 import { lintReview, secondsPerAsk, SEED_RATES, startingReview, type ReviewChoice } from "../../lib/v5/round3";
 import { explain } from "../../lib/v5/explain";
@@ -15,13 +14,14 @@ import { LintPanel, LoadBar, Segmented } from "./MatrixBuilder";
  */
 export function ReviewSetup() {
   const { state, setV5R3, advance } = useGame();
-  const policy = state.v5r1 ?? startingPolicy();
-  const gate = useMemo(() => toGate(state.v5r2 ?? startingGate()), [state.v5r2]);
+  const sc = useScenario();
+  const policy = state.v5r1 ?? sc.round1.startingPolicy();
+  const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
   const [choice, setChoice] = useState<ReviewChoice>(() => state.v5r3 ?? startingReview());
-  const { matrix, lint, hours, funded } = useMemo(() => lintReview(policy, gate, choice), [policy, gate, choice]);
-  const explained = useMemo(() => explain(lint, matrix, policy), [lint, matrix, policy]);
+  const { matrix, lint, hours, funded } = useMemo(() => lintReview(sc, policy, gate, choice), [sc, policy, gate, choice]);
+  const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
   const set = (patch: Partial<ReviewChoice>) => setChoice((c) => ({ ...c, ...patch }));
-  const seedable = DECISIONS.filter((d) => policy[d.id].included && policy[d.id].kind === "delegable");
+  const seedable = sc.round1.decisions.filter((d) => policy[d.id].included && policy[d.id].kind === "delegable");
   const anySeeds = Object.values(choice.seedRows).some(Boolean);
 
   const start = () => {
@@ -36,7 +36,7 @@ export function ReviewSetup() {
         <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">Fund the review, then do it.</h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
           Your matrix and limits stand. Decide how many reviewer hours to fund and how you will know whether review
-          works. Then you take Thursday&apos;s queue yourself.
+          works. Then you take {sc.ui.days[2]}&apos;s queue yourself.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-6 mt-8 items-start">
@@ -66,7 +66,7 @@ export function ReviewSetup() {
                     <input
                       type="checkbox" className="accent-cyan w-4 h-4"
                       checked={!!choice.seedRows[d.id]}
-                      onChange={(e) => set({ seedRows: { ...choice.seedRows, [d.id as RowId]: e.target.checked } })}
+                      onChange={(e) => set({ seedRows: { ...choice.seedRows, [d.id]: e.target.checked } })}
                     />
                     {d.title}
                   </label>
@@ -112,7 +112,7 @@ export function ReviewSetup() {
               disabled={!lint.ok}
               className="cta w-full group inline-flex items-center justify-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-4 focus-ring disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {lint.ok ? "Start Thursday's shift" : "Fix the plan to start"}
+              {lint.ok ? `Start ${sc.ui.days[2]}'s shift` : "Fix the plan to start"}
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>

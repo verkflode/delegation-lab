@@ -5,7 +5,7 @@
  * the game works end to end with no model key present. The model is enrichment, not the floor.
  */
 
-import type { RoundNumber } from "./types";
+import type { RoundNumber, ScenarioDomain } from "./types";
 
 const TIMEOUT_MS = 8000;
 
@@ -40,9 +40,9 @@ async function callClaude(payload: unknown): Promise<unknown> {
 // a reply the server rejected), and the caller keeps its scripted text.
 // ────────────────────────────────────────────────────────────────────────────
 
-export async function fetchBriefingV5(round: RoundNumber): Promise<string | null> {
+export async function fetchBriefingV5(round: RoundNumber, scenario: ScenarioDomain): Promise<string | null> {
   try {
-    const data = (await withTimeout(callClaude({ kind: "briefing", edition: "v5", round }), TIMEOUT_MS)) as { text?: string };
+    const data = (await withTimeout(callClaude({ kind: "briefing", edition: "v5", round, scenario }), TIMEOUT_MS)) as { text?: string };
     return typeof data?.text === "string" && data.text.length > 150 ? data.text : null;
   } catch {
     return null;

@@ -6,15 +6,17 @@ import type { Metric, Scorecard } from "@verkflode/vaom-guardian-core";
 import type { RoundResult } from "../../lib/types";
 import { evidence, exportFiles, finalScorecard, GAME_MIN_SAMPLE, wireOf, type Choices } from "../../lib/v5/final";
 import { track } from "../../lib/analytics";
+import { useScenario } from "../../lib/game-state";
 
 /**
  * The final screen's v5 panels: the core's Delegation Scorecard over the game's four days, every decision
  * as the Guardian answered it on the ACS wire, and the player's files to take away.
  */
 export function FinalV5({ choices, results }: { choices: Choices; results: RoundResult[] }) {
+  const sc = useScenario();
   const card = useMemo(() => {
-    try { return finalScorecard(choices, results); } catch { return null; }
-  }, [choices, results]);
+    try { return finalScorecard(sc, choices, results); } catch { return null; }
+  }, [sc, choices, results]);
   return (
     <div className="space-y-8">
       {card && <ScorecardPanel card={card} />}
@@ -110,9 +112,9 @@ function ScorecardPanel({ card }: { card: Scorecard }) {
 
 // ── On the wire ────────────────────────────────────────────────────────────
 
-const DAYS: Record<number, string> = { 1: "Tuesday", 2: "Wednesday", 3: "Thursday", 4: "The night" };
-
 function WirePanel({ results }: { results: RoundResult[] }) {
+  const sc = useScenario();
+  const DAYS: Record<number, string> = { 1: sc.ui.days[0], 2: sc.ui.days[1], 3: sc.ui.days[2], 4: "The night" };
   const [open, setOpen] = useState(false);
   const total = evidence(results).records.length;
   return (
@@ -135,7 +137,7 @@ function WirePanel({ results }: { results: RoundResult[] }) {
                   const p = rec.decision.placements[0];
                   return (
                     <li key={rec.id} className="font-mono text-[11px] text-ink break-words">
-                      <span className="text-muted-2">{rec.request.ts.slice(11, 16)}</span> {rec.request.action.tool.replace("mcp__erp__", "")}
+                      <span className="text-muted-2">{rec.request.ts.slice(11, 16)}</span> {rec.request.action.tool.replace(sc.ui.toolPrefix, "")}
                       {" → "}<b>{w.decision}</b>
                       {w.ask_details?.approver?.id ? ` · approver: ${w.ask_details.approver.id}` : ""}
                       {p?.band ? ` · band ${p.band}` : ""}
@@ -165,7 +167,8 @@ function download(name: string, doc: unknown) {
 }
 
 function ExportPanel({ choices }: { choices: Choices }) {
-  const ex = useMemo(() => exportFiles(choices), [choices]);
+  const sc = useScenario();
+  const ex = useMemo(() => exportFiles(sc, choices), [sc, choices]);
   return (
     <div className="surface-strong px-6 py-5">
       <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-cyan font-bold mb-1">Export your matrix</div>

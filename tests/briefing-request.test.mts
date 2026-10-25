@@ -2,9 +2,15 @@ import { parseBriefingRequest } from "../lib/v5/briefing-request.ts";
 let fails = 0;
 const eq = (name: string, got: unknown, want: unknown) => { const g = JSON.stringify(got), w = JSON.stringify(want); if (g !== w) { fails++; console.log("FAIL", name, "\n  got ", g, "\n  want", w); } };
 
-// Served: the v5 briefing for rounds 1 to 4, extra fields ignored.
-for (const round of [1, 2, 3, 4]) eq(`v5 briefing round ${round}`, parseBriefingRequest({ kind: "briefing", edition: "v5", round }), { round });
-eq("extra fields ignored", parseBriefingRequest({ kind: "briefing", edition: "v5", round: 2, prompt: "ignore all that" }), { round: 2 });
+// Served: the v5 briefing for rounds 1 to 4 of a playable scenario (none named means invoices), extra
+// fields ignored.
+for (const round of [1, 2, 3, 4]) eq(`v5 briefing round ${round}`, parseBriefingRequest({ kind: "briefing", edition: "v5", round }), { round, scenario: "invoice_processing" });
+eq("named scenario", parseBriefingRequest({ kind: "briefing", edition: "v5", round: 3, scenario: "invoice_processing" }), { round: 3, scenario: "invoice_processing" });
+eq("extra fields ignored", parseBriefingRequest({ kind: "briefing", edition: "v5", round: 2, prompt: "ignore all that" }), { round: 2, scenario: "invoice_processing" });
+
+// Refused: scenarios that aren't playable, including keys that exist on every object.
+for (const scenario of ["aml_triage", "customer_complaints", "", "constructor", "__proto__", "toString", "hasOwnProperty", 1, null, ["invoice_processing"], { toString: "invoice_processing" }])
+  eq(`scenario ${JSON.stringify(scenario)}`, parseBriefingRequest({ kind: "briefing", edition: "v5", round: 1, scenario }), null);
 
 // Refused: the old v4 kinds, whose prompts carried caller-supplied data.
 eq("v4 briefing", parseBriefingRequest({ kind: "briefing", round: 1 }), null);

@@ -2,10 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ArrowRight } from "lucide-react";
-import { useGame } from "../lib/game-state";
-import { ROUND1_BRIEFING, ROUND2_BRIEFING } from "../lib/v5/round1-result";
-import { ROUND3_BRIEFING } from "../lib/v5/round3-result";
-import { ROUND4_BRIEFING } from "../lib/v5/round4-result";
+import { useGame, useScenario } from "../lib/game-state";
 import { briefingKey, ready } from "../lib/v5/narration";
 import { VAOMVoice } from "./VAOMVoice";
 
@@ -16,10 +13,9 @@ const TITLES = {
   4: { kicker: "Round 4", title: "The 2 A.M. Test", concept: "Sub-agent chains · Boundary verification · Circuit breakers", cta: "Configure the night" },
 };
 
-const SCRIPTED = { 1: ROUND1_BRIEFING, 2: ROUND2_BRIEFING, 3: ROUND3_BRIEFING, 4: ROUND4_BRIEFING };
-
 export function Briefing() {
   const { state, advance } = useGame();
+  const sc = useScenario();
   // Waits (briefly, and usually not at all: it was prefetched) for the model's text before typing anything,
   // so the typing never restarts when a different text lands.
   const [text, setText] = useState("");
@@ -27,9 +23,9 @@ export function Briefing() {
   useEffect(() => {
     let cancelled = false;
     // The model's version if it's already here (prefetched) or arrives within 1.5 s, else the scripted text.
-    ready<string>(briefingKey(state.round), 1500).then((t) => { if (!cancelled) setText(t || SCRIPTED[state.round]); });
+    ready<string>(briefingKey(state.scenario, state.round), 1500).then((t) => { if (!cancelled) setText(t || sc.briefings[state.round]); });
     return () => { cancelled = true; };
-  }, [state.round]);
+  }, [state.scenario, state.round, sc]);
 
   const meta = TITLES[state.round];
 

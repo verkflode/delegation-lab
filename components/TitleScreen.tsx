@@ -4,26 +4,27 @@ import { useState } from "react";
 import { ArrowRight, Cpu, FileText, Lock, Moon, ServerCrash, ShieldCheck, ShoppingCart, Workflow } from "lucide-react";
 import { VerkflodeLogo } from "./VerkflodeLogo";
 import { useGame } from "../lib/game-state";
+import { SCENARIOS as PLAYABLE } from "../lib/v5/scenarios";
 import type { ScenarioDomain } from "../lib/types";
 
-// What the picker offers. Playable entries are game scenarios; the ones coming later are the next v5
-// domains in the Lab plan, each with a finished matrix, binding and scoring policies in the VAOM Guardian's
-// examples (the whitepaper's worked examples 7B, 7D and 7E). They aren't game scenarios yet, so they carry
-// no ScenarioDomain until their rounds exist.
+// What the picker offers. Playable entries are the scenarios in lib/v5/scenarios, named in their own
+// words; the ones coming later are the next v5 domains in the Lab plan, each with a finished matrix,
+// binding and scoring policies in the VAOM Guardian's examples (the whitepaper's worked examples 7B, 7D and
+// 7E). They aren't game scenarios yet, so they carry no ScenarioDomain until their rounds exist.
 type Entry = { label: string; sub: string; icon: React.ReactNode } & (
   | { available: true; id: ScenarioDomain }
   | { available: false; id: string }
 );
 
 const SCENARIOS: Entry[] = [
-  { id: "invoice_processing", label: "Invoice processing", sub: "Accounts payable at a European financial services firm", icon: <FileText size={14} />, available: true },
+  { id: "invoice_processing", ...PLAYABLE.invoice_processing.ui.title, icon: <FileText size={14} />, available: true },
   { id: "aml_triage", label: "AML triage", sub: "Transaction monitoring alerts at a European bank · coming later", icon: <ShieldCheck size={14} />, available: false },
   { id: "incident_remediation", label: "Incident remediation", sub: "A SaaS provider's agent restarting services during incidents · coming later", icon: <ServerCrash size={14} />, available: false },
   { id: "delegated_purchasing", label: "Delegated purchasing", sub: "A manufacturer's agent reordering supplies under a monthly mandate · coming later", icon: <ShoppingCart size={14} />, available: false },
 ];
 
 export function TitleScreen() {
-  const { start, setScenario } = useGame();
+  const { start } = useGame();
   const [selectedScenario, setSelectedScenario] = useState<ScenarioDomain>("invoice_processing");
 
   const handleStart = () => {
@@ -58,7 +59,7 @@ export function TitleScreen() {
               for AI governance.
             </h1>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl mb-3">
-              You are the new Head of AI Operations at a European enterprise. The board has approved an AI agent for accounts payable. Your job: write its delegation matrix, put the VAOM Guardian in front of it, run the workflow, and live with the consequences.
+              You are the new Head of AI Operations at a European enterprise. The board has approved an AI agent for {PLAYABLE[selectedScenario].ui.team}. Your job: write its delegation matrix, put the VAOM Guardian in front of it, run the workflow, and live with the consequences.
             </p>
             <p className="text-[15px] leading-[1.75] text-muted max-w-xl">
               Four rounds. About ten minutes. One delegation design, tested at 2 a.m.

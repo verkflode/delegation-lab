@@ -2,8 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight, Moon } from "lucide-react";
-import { useGame } from "../../lib/game-state";
-import { ROLES, startingPolicy, type RoleId } from "../../lib/v5/round1";
+import { useGame, useScenario } from "../../lib/game-state";
 import { startingGate, toGate } from "../../lib/v5/round2";
 import { reviewTweak } from "../../lib/v5/round3";
 import { lintNight, startingNight, type NightChoice } from "../../lib/v5/round4";
@@ -11,21 +10,23 @@ import { explain } from "../../lib/v5/explain";
 import { LintPanel, Segmented } from "./MatrixBuilder";
 
 /**
- * Round 4 (v5), "The 2 a.m. Test", setup: the sub-agent chain, the bank-details boundary and how it is
- * verified, and the circuit breakers with who they wake.
+ * Round 4 (v5), "The 2 a.m. Test", setup: the sub-agent chain, the scenario's boundary under test and how
+ * it is verified, and the circuit breakers with who they wake.
  */
 export function NightSetup() {
   const { state, setV5R4, advance } = useGame();
-  const policy = state.v5r1 ?? startingPolicy();
-  const gate = useMemo(() => toGate(state.v5r2 ?? startingGate()), [state.v5r2]);
+  const sc = useScenario();
+  const N = sc.ui.night;
+  const policy = state.v5r1 ?? sc.round1.startingPolicy();
+  const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
   const review = useMemo(() => (state.v5r3 ? reviewTweak(state.v5r3) : undefined), [state.v5r3]);
-  const [c, setC] = useState<NightChoice>(() => state.v5r4 ?? startingNight());
-  const { matrix, lint } = useMemo(() => lintNight(policy, gate, review, c), [policy, gate, review, c]);
-  const explained = useMemo(() => explain(lint, matrix, policy), [lint, matrix, policy]);
+  const [c, setC] = useState<NightChoice>(() => state.v5r4 ?? startingNight(sc));
+  const { matrix, lint } = useMemo(() => lintNight(sc, policy, gate, review, c), [sc, policy, gate, review, c]);
+  const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
   const chain = (patch: Partial<NightChoice["chain"]>) => setC((x) => ({ ...x, chain: { ...x.chain, ...patch } }));
-  const bank = (patch: Partial<NightChoice["bank"]>) => setC((x) => ({ ...x, bank: { ...x.bank, ...patch } }));
+  const boundary = (patch: Partial<NightChoice["boundary"]>) => setC((x) => ({ ...x, boundary: { ...x.boundary, ...patch } }));
   const brk = (patch: Partial<NightChoice["breakers"]>) => setC((x) => ({ ...x, breakers: { ...x.breakers, ...patch } }));
-  const approveDelegable = policy["invoice.approve"].kind === "delegable";
+  const approveDelegable = policy[sc.round1.gatedRow].kind === "delegable";
   const actions = [{ value: "off", label: "Off" }, { value: "alert", label: "Alert" }, { value: "suspend", label: "Suspend the agent" }];
 
   const sleep = () => {
@@ -46,7 +47,7 @@ export function NightSetup() {
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-6 mt-8 items-start">
           <div className="space-y-4 min-w-0">
             <Card kicker="Sub-agents" title="How far may authority travel?">
-              {!approveDelegable && <p className="text-[13px] text-muted mb-3">Your matrix keeps approval with a human, so the agent has no authority to pass on.</p>}
+              {!approveDelegable && <p className="text-[13px] text-muted mb-3">{N.noAuthority}</p>}
               <div className="space-y-3">
                 <Row label="Depth">
                   <Segmented options={[0, 1, 2, 3].map((n) => ({ value: String(n), label: n === 0 ? "No sub-agents" : `${n} ${n === 1 ? "level" : "levels"}` }))} value={String(c.chain.maxDepth)} onChange={(v) => chain({ maxDepth: Number(v) })} />
@@ -56,35 +57,33 @@ export function NightSetup() {
                 </Row>
                 <Row label="Allowed types">
                   <div className="space-y-1.5">
-                    <Check checked={c.chain.vendorCheck} onChange={(v) => chain({ vendorCheck: v })}>vendor-check: reads invoices and vendors</Check>
-                    <Check checked={c.chain.batchApprover} onChange={(v) => chain({ batchApprover: v })}>batch-approver: approves invoices</Check>
+                    {Object.keys(sc.round4.subagents).map((type) => (
+                      <Check key={type} checked={!!c.chain.subagents[type]} onChange={(v) => chain({ subagents: { ...c.chain.subagents, [type]: v } })}>{N.subagentLabels[type] ?? type}</Check>
+                    ))}
                   </div>
                 </Row>
                 <Row label="Children's ceiling">
-                  <Check checked={c.chain.childCeilingB} onChange={(v) => chain({ childCeilingB: v })}>A sub-agent may only ask: approvals capped at Band B</Check>
+                  <Check checked={c.chain.childCeilingB} onChange={(v) => chain({ childCeilingB: v })}>{N.childCeiling}</Check>
                 </Row>
               </div>
               <p className="text-[12px] text-muted-2 mt-3">A child only ever gets a subset of its parent&apos;s authority. A spawn outside the allowed types escalates to Band C; past the depth or fan-out it is refused.</p>
             </Card>
 
-            <Card kicker="Boundary" title="Vendor bank details">
-              <p className="text-[13px] text-muted mb-3">
-                Changing where a vendor is paid is non-delegable. What keeps it out of the agent&apos;s reach, and how
-                often does anyone check?
-              </p>
+            <Card kicker="Boundary" title={N.boundaryTitle}>
+              <p className="text-[13px] text-muted mb-3">{N.boundaryIntro}</p>
               <div className="space-y-3">
                 <Row label="Claimed as">
                   <Segmented
                     options={[{ value: "absent", label: "Absent: no such tool" }, { value: "scope-denied", label: "Scope-denied" }, { value: "policy", label: "Policy: the Guardian refuses" }]}
-                    value={c.bank.mechanism}
-                    onChange={(v) => bank({ mechanism: v as NightChoice["bank"]["mechanism"] })}
+                    value={c.boundary.mechanism}
+                    onChange={(v) => boundary({ mechanism: v as NightChoice["boundary"]["mechanism"] })}
                   />
                 </Row>
                 <Row label="Probe every">
-                  <Segmented options={[{ value: "P1D", label: "Day" }, { value: "P7D", label: "Week" }, { value: "P30D", label: "30 days" }]} value={c.bank.every} onChange={(v) => bank({ every: v as NightChoice["bank"]["every"] })} />
+                  <Segmented options={[{ value: "P1D", label: "Day" }, { value: "P7D", label: "Week" }, { value: "P30D", label: "30 days" }]} value={c.boundary.every} onChange={(v) => boundary({ every: v as NightChoice["boundary"]["every"] })} />
                 </Row>
                 <Row label="Also probe">
-                  <Check checked={c.bank.onManifest} onChange={(v) => bank({ onManifest: v })}>whenever the agent&apos;s tools or deployment change</Check>
+                  <Check checked={c.boundary.onManifest} onChange={(v) => boundary({ onManifest: v })}>whenever the agent&apos;s tools or deployment change</Check>
                 </Row>
               </div>
               <p className="text-[12px] text-muted-2 mt-3">A probe attempts the forbidden action against a canary. A boundary counts at the strength it was last shown to have.</p>
@@ -101,11 +100,11 @@ export function NightSetup() {
                 <Row label="Who is woken">
                   <select
                     value={c.breakers.notify}
-                    onChange={(e) => brk({ notify: e.target.value as RoleId | "" })}
+                    onChange={(e) => brk({ notify: e.target.value })}
                     className="w-full sm:w-auto bg-surface border border-border rounded-lg px-3 py-1.5 text-[13px] text-ink focus-ring"
                   >
                     <option value="">Nobody</option>
-                    {Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+                    {Object.entries(sc.roles).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
                   </select>
                 </Row>
               </div>

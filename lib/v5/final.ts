@@ -2,13 +2,12 @@
 // Delegation Scorecard over all four days, and every decision as it went out on the ACS wire.
 import { compilePolicy, lintBinding, lintMatrix, lintSeeds, scorecard, type DecisionRecord, type LintResult, type ProbeResult, type Scorecard, type SeedOutcome, type SpawnOutcome } from "@verkflode/vaom-guardian-core";
 import { toResult } from "@verkflode/vaom-guardian-acs";
-import standard from "../../data/v5/invoice-standard.scoring.json";
-import duplicate from "../../data/v5/invoice-duplicate.scoring.json";
 import type { RoundResult } from "../types";
-import { buildBinding, buildMatrix, startingPolicy, type Doc, type Round1Policy } from "./round1";
+import { buildBinding, buildMatrix, type Doc, type Round1Policy } from "./round1";
 import { startingGate, toGate, type GateChoice } from "./round2";
 import { reviewTweak, seedsDoc, startingReview, type ReviewChoice } from "./round3";
-import { nightTweak, NIGHT_END, startingNight, type NightChoice } from "./round4";
+import { nightTweak, startingNight, type NightChoice } from "./round4";
+import type { V5Scenario } from "./scenario";
 
 export interface Choices { v5r1?: Round1Policy; v5r2?: GateChoice; v5r3?: ReviewChoice; v5r4?: NightChoice }
 
@@ -22,11 +21,11 @@ export const SCHEMA_BASE = `https://raw.githubusercontent.com/verkflode/vaom-gua
 const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; delete rest.$schema; return { $schema: SCHEMA_BASE + schema, ...rest }; };
 
 /** The matrix as it stood after the night: every round's choices applied. */
-export function finalMatrix(c: Choices): Doc {
-  const policy = c.v5r1 ?? startingPolicy();
-  const m = buildMatrix(policy, toGate(c.v5r2 ?? startingGate()));
+export function finalMatrix(sc: V5Scenario, c: Choices): Doc {
+  const policy = c.v5r1 ?? sc.round1.startingPolicy();
+  const m = buildMatrix(sc, policy, toGate(sc, c.v5r2 ?? startingGate(sc)));
   reviewTweak(c.v5r3 ?? startingReview())(m);
-  nightTweak(c.v5r4 ?? startingNight())(m);
+  nightTweak(sc, c.v5r4 ?? startingNight(sc))(m);
   m.version = EXPORT_VERSION;
   m.description = "Built in the Delegation Lab (lab.vaom.ai): the four rounds' choices, as one matrix. A Delegation Authority Matrix in the Verkflöde Agent Operating Model (VAOM) 5.0, https://vaom.ai.";
   return m;
@@ -35,13 +34,13 @@ export function finalMatrix(c: Choices): Doc {
 export interface ExportFile { name: string; doc: Doc; lint?: LintResult; what: string }
 
 /** The files a Guardian needs to enforce the player's design, each checked as createGuardian checks it. */
-export function exportFiles(c: Choices): { files: ExportFile[]; ok: boolean; problems: string[] } {
-  const policy = c.v5r1 ?? startingPolicy();
-  const matrix = finalMatrix(c);
-  const binding = buildBinding(policy, matrix);
-  binding.id = "lab.ap.invoice.claude-code";
-  binding.title = "Your matrix on Claude Code, via a placeholder ERP MCP server";
-  const seeds = seedsDoc(c.v5r3 ?? startingReview());
+export function exportFiles(sc: V5Scenario, c: Choices): { files: ExportFile[]; ok: boolean; problems: string[] } {
+  const policy = c.v5r1 ?? sc.round1.startingPolicy();
+  const matrix = finalMatrix(sc, c);
+  const binding = buildBinding(sc, policy, matrix);
+  binding.id = sc.exportFiles.bindingId;
+  binding.title = sc.exportFiles.bindingTitle;
+  const seeds = seedsDoc(sc, c.v5r3 ?? startingReview());
   const hasSeeds = (seeds.seeds as Doc[]).length > 0;
 
   const problems: string[] = [];
@@ -49,7 +48,7 @@ export function exportFiles(c: Choices): { files: ExportFile[]; ok: boolean; pro
   const bLint = lintBinding(binding, matrix);
   if (!mLint.ok) problems.push(...mLint.findings.filter((f) => f.severity === "error").map((f) => `matrix ${f.path}: ${f.message}`));
   if (!bLint.ok) problems.push(...bLint.findings.filter((f) => f.severity === "error").map((f) => `binding ${f.path}: ${f.message}`));
-  const compiled = mLint.ok ? compilePolicy(matrix, binding, [standard, duplicate]) : null;
+  const compiled = mLint.ok ? compilePolicy(matrix, binding, sc.docs.scoring) : null;
   if (compiled && !compiled.ok) problems.push(...compiled.findings.map((f) => `policy ${f.path}: ${f.message}`));
   const sLint = hasSeeds && compiled?.ok ? lintSeeds(seeds, compiled.policy) : undefined;
   if (sLint && !sLint.ok) problems.push(...sLint.findings.map((f) => `seeds ${f.path}: ${f.message}`));
@@ -59,17 +58,16 @@ export function exportFiles(c: Choices): { files: ExportFile[]; ok: boolean; pro
     format: GUARDIAN_CONFIG_FORMAT,
     matrix: "matrix.json",
     binding: "binding.json",
-    scoring: ["invoice-standard.scoring.json", "invoice-duplicate.scoring.json"],
+    scoring: sc.exportFiles.scoringNames,
     ...(hasSeeds ? { seeds: "seeds.json" } : {}),
     dataDir: "./guardian-data",
     port: 7311,
-    activation: { "ap-agent": { rows: decisionRows } },
+    activation: { [sc.agent]: { rows: decisionRows } },
   };
   const files: ExportFile[] = [
     { name: "matrix.json", doc: withSchema(matrix, "vaom-matrix-0.2.schema.json"), lint: mLint, what: "Your delegation matrix, in the draft format vaom.matrix/0.2" },
     { name: "binding.json", doc: withSchema(binding, "vaom-binding.schema.json"), lint: bLint, what: "How tool calls map to the matrix's capabilities, vaom.binding/0.1" },
-    { name: "invoice-standard.scoring.json", doc: withSchema(standard, "vaom-scoring-0.1.schema.json"), what: "The controller's scoring policy for approvals" },
-    { name: "invoice-duplicate.scoring.json", doc: withSchema(duplicate, "vaom-scoring-0.1.schema.json"), what: "The scoring policy for duplicate flags" },
+    ...sc.docs.scoring.map((s, i) => ({ name: sc.exportFiles.scoringNames[i], doc: withSchema(s, "vaom-scoring-0.1.schema.json"), what: sc.exportFiles.scoringWhat[i] })),
     ...(hasSeeds ? [{ name: "seeds.json", doc: withSchema(seeds, "vaom-seeds-0.1.schema.json"), ...(sLint ? { lint: sLint } : {}), what: "Your planted review cases, with their disclosure" }] : []),
     { name: "guardian.config.json", doc: config, what: "A VAOM Guardian config that loads all of the above" },
   ];
@@ -90,10 +88,10 @@ export function evidence(results: RoundResult[]): { records: DecisionRecord[]; s
 /** The core's Delegation Scorecard over the game's four days. A game is tiny, so the minimum samples are
  *  lowered (the Guardian's defaults are 20 placements and 10 seeds), and the screen says so. */
 export const GAME_MIN_SAMPLE = 3;
-export function finalScorecard(c: Choices, results: RoundResult[]): Scorecard {
+export function finalScorecard(sc: V5Scenario, c: Choices, results: RoundResult[]): Scorecard {
   const ev = evidence(results);
-  return scorecard(finalMatrix(c), ev.records, {
-    from: "2026-10-14T00:00:00Z", to: NIGHT_END, minSample: GAME_MIN_SAMPLE, seedMinSample: 1,
+  return scorecard(finalMatrix(sc, c), ev.records, {
+    from: `${sc.round1.date}T00:00:00Z`, to: sc.round4.night.end, minSample: GAME_MIN_SAMPLE, seedMinSample: 1,
     seeds: ev.seeds, spawns: ev.spawns, probes: ev.probes,
   });
 }

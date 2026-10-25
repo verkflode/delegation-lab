@@ -1,7 +1,7 @@
 // Model-written briefings for v5, fetched ahead of the screen that shows them. The briefing waits briefly
 // for its text, then keeps the scripted text if the model hasn't answered (or can't: no key, bad reply).
 import { fetchBriefingV5 } from "../api";
-import type { RoundNumber } from "../types";
+import type { RoundNumber, ScenarioDomain } from "../types";
 
 const cache = new Map<string, Promise<unknown>>();
 
@@ -16,10 +16,10 @@ export async function ready<T>(key: string, waitMs: number): Promise<T | null> {
   return Promise.race([p, new Promise<null>((r) => setTimeout(() => r(null), waitMs))]);
 }
 
-export const briefingKey = (round: RoundNumber) => `briefing:${round}`;
+export const briefingKey = (scenario: ScenarioDomain, round: RoundNumber) => `briefing:${scenario}:${round}`;
 
-export function prefetchBriefing(round: RoundNumber): void {
-  once(briefingKey(round), () => fetchBriefingV5(round));
+export function prefetchBriefing(scenario: ScenarioDomain, round: RoundNumber): void {
+  once(briefingKey(scenario, round), () => fetchBriefingV5(round, scenario));
 }
 
 /** A new game starts with nothing cached. */

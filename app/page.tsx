@@ -41,9 +41,9 @@ function Router() {
   // v5 briefings are fetched ahead of the screen that shows them (lib/v5/narration.ts).
   useEffect(() => {
     if (state.phase === "title") clearNarration();
-    if (state.phase === "briefing" && state.round === 1) prefetchBriefing(1);
-    if (state.phase === "debrief" && state.round < 4) prefetchBriefing((state.round + 1) as 2 | 3 | 4);
-  }, [state.phase, state.round]);
+    if (state.phase === "briefing" && state.round === 1) prefetchBriefing(state.scenario, 1);
+    if (state.phase === "debrief" && state.round < 4) prefetchBriefing(state.scenario, (state.round + 1) as 2 | 3 | 4);
+  }, [state.phase, state.round, state.scenario]);
 
   return (
     <>

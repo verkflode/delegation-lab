@@ -2,16 +2,20 @@
 // interim (M4 replaces it with the scorecard); the verdicts quoted in the debrief are the core's.
 import type { Invoice, ProcessedInvoice, RoundResult, ScoreBreakdown } from "../types";
 import type { Click, ReviewChoice, Shift, ShiftResult } from "./round3";
+import type { V5Scenario } from "./scenario";
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
 
-export function round3Result(shift: Shift, clicks: Record<string, Click>, verdict: ShiftResult, choice: ReviewChoice, neededHours: number): RoundResult {
+export function round3Result(sc: V5Scenario, shift: Shift, clicks: Record<string, Click>, verdict: ShiftResult, choice: ReviewChoice, neededHours: number): RoundResult {
+  // The kind the screens show: a duplicate flag, or anything else.
+  const kind = (a: (typeof shift.asks)[number]) =>
+    (a.seed ? sc.round3.plants.find((p) => p.id === a.seed!.id)?.type : sc.round3.batch.find((b) => `lab-${b.id}` === a.key)?.type) === "duplicate" ? "duplicate" : "standard";
   const processed: ProcessedInvoice[] = shift.asks.map((a) => {
     const c = clicks[a.key]?.decision ?? "expired";
     const outcome: ProcessedInvoice["outcome"] = c === "expired" ? "missed" : c === a.correct ? "good" : c === "approve" ? "risky" : "wasteful";
     const invoice: Invoice = {
       id: a.seed ? `SEED · ${a.seed.id}` : a.record.id.replace(/^lab-/, ""),
-      vendor: "", amount: 0, type: a.label.startsWith("Flags") ? "duplicate" : "standard", poMatch: "yes",
+      vendor: "", amount: 0, type: kind(a), poMatch: "yes",
       confidence: { modelCertainty: 0, ruleMatch: 0, dataCompleteness: 0, anomalySignal: 0 }, composite: 0,
       hiddenFlags: a.correct === "reject" ? ["review_error"] : [], description: a.label, teachingPoint: a.why,
     };
@@ -31,12 +35,6 @@ export function round3Result(shift: Shift, clicks: Record<string, Click>, verdic
   };
   return { round: 3, processed, score, incidents: verdict.executedBad.map((a) => a.record.id), antiPatterns: [], v5Evidence: { records: verdict.records, seeds: verdict.seeds } };
 }
-
-export const ROUND3_BRIEFING = [
-  "Every Band B ask lands on a person. Today that person is you.",
-  "Fund the review first: the hours, and whether planted cases with a known error go into the queue to test whether review catches anything. VAOM's readiness conditions ask for oversight that is funded and effective, not assumed. Some rows can't be tested that way, and the matrix will tell you which.",
-  "Then work Thursday's queue as the accounts payable clerk. The clock runs four times faster than yours. Approve what deserves it, reject what doesn't. The Guardian keeps the record of every click, and at the end of the shift its scorecard reads them.",
-].join("\n\n");
 
 export function round3Debrief(result: RoundResult, verdict: ShiftResult, choice: ReviewChoice): string {
   const out: string[] = [];

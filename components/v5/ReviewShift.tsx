@@ -2,29 +2,32 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
-import { useGame } from "../../lib/game-state";
-import { startingPolicy } from "../../lib/v5/round1";
+import { useGame, useScenario } from "../../lib/game-state";
 import { startingGate, toGate } from "../../lib/v5/round2";
 import { judgeShift, lintReview, secondsPerAsk, SPEED, startShift, startingReview, type Ask, type Click, type ShiftResult } from "../../lib/v5/round3";
 import { round3Debrief, round3Result } from "../../lib/v5/round3-result";
 
 /**
- * Round 3 (v5): the player works Thursday's Band B queue as the accounts payable clerk. Each click is a
+ * Round 3 (v5): the player works the day's Band B queue as the scenario's reviewer. Each click is a
  * resolution on a real decision record (or a planted case's outcome); the core's scorecard reads them.
  */
 export function ReviewShift() {
   const { state, recordResult, advance } = useGame();
-  const policy = state.v5r1 ?? startingPolicy();
-  const gate = useMemo(() => toGate(state.v5r2 ?? startingGate()), [state.v5r2]);
+  const sc = useScenario();
+  const policy = state.v5r1 ?? sc.round1.startingPolicy();
+  const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
   const choice = state.v5r3 ?? startingReview();
+  const reviewer = sc.roles[sc.round3.reviewer].toLowerCase();
+  const escalatedTo = sc.roles[sc.fallbackAuthority.escalation.role].toLowerCase();
+  const day = sc.ui.days[2];
   const setup = useMemo(() => {
     try {
-      const { hours, funded } = lintReview(policy, gate, choice);
-      return { shift: startShift(policy, gate, choice), seconds: secondsPerAsk(hours, funded), hours };
+      const { hours, funded } = lintReview(sc, policy, gate, choice);
+      return { shift: startShift(sc, policy, gate, choice), seconds: secondsPerAsk(hours, funded), hours };
     } catch (e) {
       return { error: (e as Error).message };
     }
-  }, [policy, gate, choice]);
+  }, [sc, policy, gate, choice]);
 
   const [phase, setPhase] = useState<"brief" | "queue" | "done">("brief");
   const [index, setIndex] = useState(0);
@@ -39,13 +42,13 @@ export function ReviewShift() {
   const onShow = useCallback((t: number) => { shownAt.current = t; }, []);
   const finish = useCallback((all: Record<string, Click>) => {
     if (!shift) return;
-    const v = judgeShift(shift, all);
-    const result = round3Result(shift, all, v, choice, setup.hours!);
+    const v = judgeShift(sc, shift, all);
+    const result = round3Result(sc, shift, all, v, choice, setup.hours!);
     result.v5Debrief = round3Debrief(result, v, choice);
     setVerdict(v);
     recordResult(result);
     setPhase("done");
-  }, [shift, choice, setup.hours, recordResult]);
+  }, [sc, shift, choice, setup.hours, recordResult]);
 
   const decide = useCallback((decision: Click["decision"]) => {
     if (!current) return;
@@ -71,10 +74,10 @@ export function ReviewShift() {
     <div className="min-h-screen px-4 sm:px-6 py-12 animate-fade-in">
       <div className="max-w-3xl mx-auto">
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">Round 3 · The shift</div>
-        <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint">Thursday. You are the accounts payable clerk.</h1>
+        <h1 className="font-serif text-[24px] md:text-[30px] font-normal text-mint">{day}. You are the {reviewer}.</h1>
         <p className="text-[13px] text-muted mt-2">
-          Thursday&apos;s batch ran under your matrix: {shift.elsewhere.A} executed in Band A, {shift.elsewhere.C} went to the
-          financial controller, {shift.elsewhere.held} {shift.elsewhere.held === 1 ? "was" : "were"} held. {asks.length} {asks.length === 1 ? "ask is" : "asks are"} waiting for you.
+          {day}&apos;s batch ran under your matrix: {shift.elsewhere.A} executed in Band A, {shift.elsewhere.C} went to the
+          {" "}{escalatedTo}, {shift.elsewhere.held} {shift.elsewhere.held === 1 ? "was" : "were"} held. {asks.length} {asks.length === 1 ? "ask is" : "asks are"} waiting for you.
         </p>
 
         {phase === "brief" && (
@@ -98,12 +101,12 @@ export function ReviewShift() {
               Open the queue
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>
-            {asks.length === 0 && <p className="text-[13px] text-muted">Your design sent nothing to the clerk today. Go to the debrief.</p>}
+            {asks.length === 0 && <p className="text-[13px] text-muted">Your design sent nothing to the {reviewer} today. Go to the debrief.</p>}
           </div>
         )}
 
         {phase === "queue" && current && (
-          <AskCard key={current.key} ask={current} n={index + 1} of={asks.length} seconds={setup.seconds!} onShow={onShow} onDecide={decide} />
+          <AskCard key={current.key} ask={current} n={index + 1} of={asks.length} approver={sc.round3.reviewer} seconds={setup.seconds!} onShow={onShow} onDecide={decide} />
         )}
 
         {phase === "done" && verdict && (
@@ -117,7 +120,7 @@ export function ReviewShift() {
   );
 }
 
-function AskCard({ ask, n, of, seconds, onShow, onDecide }: { ask: Ask; n: number; of: number; seconds: number; onShow: (t: number) => void; onDecide: (d: Click["decision"]) => void }) {
+function AskCard({ ask, n, of, approver, seconds, onShow, onDecide }: { ask: Ask; n: number; of: number; approver: string; seconds: number; onShow: (t: number) => void; onDecide: (d: Click["decision"]) => void }) {
   const [left, setLeft] = useState(seconds * 1000);
   const [elapsed, setElapsed] = useState(0);
   useEffect(() => {
@@ -136,7 +139,7 @@ function AskCard({ ask, n, of, seconds, onShow, onDecide }: { ask: Ask; n: numbe
   return (
     <div className="surface-strong mt-6 px-5 py-5 animate-fade-up">
       <div className="flex items-baseline justify-between gap-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">Ask {n} of {of} · approver: ap-clerk</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2">Ask {n} of {of} · approver: {approver}</span>
         <span className="font-mono text-[12px] text-ink tabular-nums">{Math.floor(game / 60)}:{String(game % 60).padStart(2, "0")} reviewing</span>
       </div>
       <div className="h-1.5 rounded-full bg-ink/8 mt-2 overflow-hidden">

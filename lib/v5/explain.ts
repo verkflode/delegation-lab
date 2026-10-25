@@ -6,12 +6,13 @@
 // player's choices for that row break, each quoting the rule's comment in the matrix schema. If none
 // matches, the core's own messages are shown unchanged.
 import type { Finding, LintResult } from "@verkflode/vaom-guardian-core";
-import { DECISIONS, reachesA, type Round1Policy, type RowId } from "./round1";
+import { reachesA, type Round1Policy } from "./round1";
+import type { V5Scenario } from "./scenario";
 
 export interface Explained {
   severity: "error" | "warning";
   /** The row it's about, if any. */
-  row?: RowId;
+  row?: string;
   /** What VAOM says. */
   text: string;
   /** The core's findings behind it, verbatim. */
@@ -27,7 +28,7 @@ const RULE_TEXT: Record<string, string> = {
 type Doc = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
 
 /** The schema rules a row's choices break, in the schema's own words (its $comment), shortened. */
-function schemaRulesBroken(id: RowId, policy: Round1Policy, row: Doc | undefined): string[] {
+function schemaRulesBroken(sc: V5Scenario, id: string, policy: Round1Policy, row: Doc | undefined): string[] {
   const c = policy[id];
   const p = c.profile;
   const out: string[] = [];
@@ -41,7 +42,7 @@ function schemaRulesBroken(id: RowId, policy: Round1Policy, row: Doc | undefined
   if (reachesA(c)) {
     if (p.confidenceMeasurability === "judgment-dependent" || p.regulatoryExposure === "prohibited-from-full-automation") out.push("No Band A where regulation requires human involvement, or where confidence cannot be measured.");
     if (p.regulatoryExposure === "regulated-decision") out.push("A regulated decision reaches Band A only with a written justification, and this matrix has none.");
-    if (!row?.authority?.confidence?.calibration) out.push(id === "invoice.approve"
+    if (!row?.authority?.confidence?.calibration) out.push(id === sc.round1.gatedRow
       ? "Band A needs calibrated confidence, and your calibration test passed no threshold at the error target you chose."
       : "Band A needs calibrated confidence. Nobody has calibrated this decision yet.");
     if (p.consequenceScope !== "internal-operational" && !row?.authority?.valueCeiling && !row?.authority?.noValueCeiling) out.push("A row that can act on its own with financial or external consequences states its value limit. This one has none, so Band A would be unbounded.");
@@ -54,12 +55,12 @@ function workflowRulesBroken(matrix: Doc): string[] {
   return m?.enabled && !m.approvalRef ? ["Per-reviewer metrics are employee monitoring. Turning them on needs a recorded approval, such as a DPIA."] : [];
 }
 
-export function explain(lint: LintResult, matrix: Doc, policy: Round1Policy): Explained[] {
+export function explain(sc: V5Scenario, lint: LintResult, matrix: Doc, policy: Round1Policy): Explained[] {
   const out: Explained[] = [];
-  const rowAt = (path: string): { id?: RowId; row?: Doc } => {
+  const rowAt = (path: string): { id?: string; row?: Doc } => {
     const m = /^\/rows\/(\d+)/.exec(path);
     const row = m ? (matrix.rows as Doc[])[Number(m[1])] : undefined;
-    return { id: DECISIONS.some((d) => d.id === row?.id) ? (row!.id as RowId) : undefined, row };
+    return { id: sc.round1.decisions.some((d) => d.id === row?.id) ? (row!.id as string) : undefined, row };
   };
 
   const bySchemaRow = new Map<string, Finding[]>();
@@ -74,7 +75,7 @@ export function explain(lint: LintResult, matrix: Doc, policy: Round1Policy): Ex
   }
   for (const [key, findings] of bySchemaRow) {
     const { id, row } = rowAt(key);
-    const rules = id ? schemaRulesBroken(id, policy, row) : workflowRulesBroken(matrix);
+    const rules = id ? schemaRulesBroken(sc, id, policy, row) : workflowRulesBroken(matrix);
     if (rules.length === 0) out.push({ severity: "error", ...(id ? { row: id } : {}), text: "The matrix doesn't pass its schema here, for a reason the Lab can't put in plain words.", findings });
     else rules.forEach((text, i) => out.push({ severity: "error", ...(id ? { row: id } : {}), text, findings: i === 0 ? findings : [] }));
   }

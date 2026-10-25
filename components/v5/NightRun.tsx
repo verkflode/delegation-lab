@@ -2,8 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ArrowRight, Moon, Sun } from "lucide-react";
-import { useGame } from "../../lib/game-state";
-import { startingPolicy } from "../../lib/v5/round1";
+import { useGame, useScenario } from "../../lib/game-state";
 import { startingGate, toGate } from "../../lib/v5/round2";
 import { reviewTweak } from "../../lib/v5/round3";
 import { lintNight, runNight, startingNight, type Night, type NightEvent } from "../../lib/v5/round4";
@@ -19,18 +18,19 @@ const TONE: Record<NightEvent["verdict"], string> = { good: "text-mint", wastefu
 
 export function NightRun() {
   const { state, recordResult, advance } = useGame();
-  const policy = state.v5r1 ?? startingPolicy();
-  const gate = useMemo(() => toGate(state.v5r2 ?? startingGate()), [state.v5r2]);
+  const sc = useScenario();
+  const policy = state.v5r1 ?? sc.round1.startingPolicy();
+  const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
   const review = useMemo(() => (state.v5r3 ? reviewTweak(state.v5r3) : undefined), [state.v5r3]);
-  const choice = state.v5r4 ?? startingNight();
+  const choice = state.v5r4 ?? startingNight(sc);
   const out = useMemo(() => {
     try {
-      const warnings = lintNight(policy, gate, review, choice).lint.findings.filter((f) => f.severity === "warning").length;
-      return { night: runNight(policy, gate, review, choice), warnings };
+      const warnings = lintNight(sc, policy, gate, review, choice).lint.findings.filter((f) => f.severity === "warning").length;
+      return { night: runNight(sc, policy, gate, review, choice), warnings };
     } catch (e) {
       return { error: (e as Error).message };
     }
-  }, [policy, gate, review, choice]);
+  }, [sc, policy, gate, review, choice]);
 
   const [shown, setShown] = useState(0);
   const recorded = useRef(false);
@@ -52,10 +52,10 @@ export function NightRun() {
   useEffect(() => {
     if (!done || recorded.current || !night) return;
     recorded.current = true;
-    const result = round4Result(night, choice, out.warnings ?? 0);
-    result.v5Debrief = round4Debrief(night, choice);
+    const result = round4Result(sc, night, choice, out.warnings ?? 0);
+    result.v5Debrief = round4Debrief(sc, night, choice);
     recordResult(result);
-  }, [done, night, choice, out.warnings, recordResult]);
+  }, [sc, done, night, choice, out.warnings, recordResult]);
 
   if (out.error || !night) {
     return (
@@ -136,12 +136,13 @@ export function NightRun() {
 }
 
 function Chain({ events }: { events: NightEvent[] }) {
+  const sc = useScenario();
   const spawns = events.filter((e) => e.kind === "spawn");
   const suspended = events.find((e) => e.kind === "breaker" && e.text.includes("suspended"));
   return (
     <div className="surface-strong px-5 py-4">
       <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-3">The agent chain</div>
-      <div className={`font-mono text-[12px] ${suspended ? "text-red-bright" : "text-mint"}`}>ap-agent {suspended ? "· suspended" : "· working"}</div>
+      <div className={`font-mono text-[12px] ${suspended ? "text-red-bright" : "text-mint"}`}>{sc.agent} {suspended ? "· suspended" : "· working"}</div>
       <ul className="mt-2 space-y-1.5 border-l border-ink/15 pl-3">
         {spawns.length === 0 && <li className="font-mono text-[11px] text-muted-2">no sub-agents yet</li>}
         {spawns.map((s) => {
@@ -158,6 +159,7 @@ function Chain({ events }: { events: NightEvent[] }) {
 }
 
 function Morning({ night, onNext }: { night: Night; onNext: () => void }) {
+  const sc = useScenario();
   const metric = (label: string, m: { status: string; diagnosis?: string }) => (
     <div className="font-mono text-[11px] break-words">
       <span className="text-muted-2">{label}:</span>{" "}
@@ -179,7 +181,7 @@ function Morning({ night, onNext }: { night: Night; onNext: () => void }) {
           ))}
         </div>
         {night.pre.toolPresent && (
-          <p className="text-[12px] text-amber mt-3">The bank-details tool was in the agent&apos;s manifest all night.</p>
+          <p className="text-[12px] text-amber mt-3">{sc.ui.night.toolAllNight}</p>
         )}
         {night.paged.length > 0 && <p className="font-mono text-[10px] text-muted mt-2">Paged: {night.paged.join("; ")}</p>}
       </div>

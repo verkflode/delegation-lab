@@ -2,7 +2,7 @@
  * /api/claude — server-side proxy for VAOM's round briefings.
  *
  * Serves exactly one request: a v5 round briefing (lib/v5/briefing-request.ts). Its prompt is fixed per
- * round (lib/v5/prompts.ts), so nothing a caller sends reaches the model; everything else is refused,
+ * scenario and round (lib/v5/prompts.ts, lib/v5/scenarios), so nothing a caller sends reaches the model; everything else is refused,
  * including the v4 kinds (scenario, debrief, profile) whose prompts carried caller-supplied data. The
  * model provider is a setting (LLM_PROVIDER, see lib/llm.ts); the route keeps its old name because the
  * client calls /api/claude.
@@ -15,7 +15,8 @@ import { NextResponse } from "next/server";
 import { complete, llmConfigFromEnv } from "../../../lib/llm";
 import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
 import { parseBriefingRequest } from "../../../lib/v5/briefing-request";
-import { BRIEFING_PROMPTS_V5, VAOM_SYSTEM_V5 } from "../../../lib/v5/prompts";
+import { vaomSystem } from "../../../lib/v5/prompts";
+import { SCENARIOS } from "../../../lib/v5/scenarios";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -50,8 +51,8 @@ export async function POST(req: Request) {
 
   try {
     const { text, truncated } = await complete(llm, {
-      system: VAOM_SYSTEM_V5,
-      prompt: BRIEFING_PROMPTS_V5[request.round],
+      system: vaomSystem(SCENARIOS[request.scenario]),
+      prompt: SCENARIOS[request.scenario].prompts.briefings[request.round],
       maxTokens: 900,
     });
     // Replies cut off at maxTokens may read as unfinished.

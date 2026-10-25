@@ -10,6 +10,8 @@ import {
 import type { GamePhase, GameState, RoundNumber, RoundResult, ScenarioDomain } from "./types";
 import type { Round1Policy } from "./v5/round1";
 import type { GateChoice } from "./v5/round2";
+import type { V5Scenario } from "./v5/scenario";
+import { SCENARIOS } from "./v5/scenarios";
 import type { ReviewChoice } from "./v5/round3";
 import type { NightChoice } from "./v5/round4";
 
@@ -107,6 +109,11 @@ export function useGame(): GameContextValue {
   const ctx = useContext(GameContext);
   if (!ctx) throw new Error("useGame must be used inside <GameProvider>");
   return ctx;
+}
+
+/** The scenario being played: its workflow, calls and words (lib/v5/scenarios). */
+export function useScenario(): V5Scenario {
+  return SCENARIOS[useGame().state.scenario];
 }
 
 /** Convenience hook so screen components don't need to destructure twice. */

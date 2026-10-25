@@ -9,7 +9,8 @@
 // Keys come only from the environment and are never written to the report.
 import { mkdirSync, writeFileSync } from "node:fs";
 import { complete, type LlmConfig, type Provider } from "../lib/llm.ts";
-import { BRIEFING_PROMPTS_V5, VAOM_SYSTEM_V5, type Round } from "../lib/v5/prompts.ts";
+import { vaomSystem, type Round } from "../lib/v5/prompts.ts";
+import { INVOICE } from "../lib/v5/scenarios/invoice.ts";
 const [outDir, ...specs] = process.argv.slice(2);
 if (!outDir || specs.length === 0) { console.error("usage: compare-models.mts out-dir provider:model [...]"); process.exit(2); }
 
@@ -18,7 +19,7 @@ if (!outDir || specs.length === 0) { console.error("usage: compare-models.mts ou
 type Job = { id: string; system: string; prompt: string; maxTokens: number; json?: boolean; check: (text: string) => string | null };
 const jobs: Job[] = [];
 for (const round of [1, 2, 3, 4] as Round[]) {
-  jobs.push({ id: `briefing-r${round}`, system: VAOM_SYSTEM_V5, prompt: BRIEFING_PROMPTS_V5[round], maxTokens: 900, check: (t) => (t.trim().length < 150 ? "too short" : null) });
+  jobs.push({ id: `briefing-r${round}`, system: vaomSystem(INVOICE), prompt: INVOICE.prompts.briefings[round], maxTokens: 900, check: (t) => (t.trim().length < 150 ? "too short" : null) });
 }
 
 // ── Run ────────────────────────────────────────────────────────────────────

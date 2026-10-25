@@ -1,7 +1,7 @@
 "use client";
 
 import { ArrowRight, Trophy } from "lucide-react";
-import { useGame } from "../lib/game-state";
+import { useGame, useScenario } from "../lib/game-state";
 import { round1Debrief, round2Debrief } from "../lib/v5/round1-result";
 import { calibrate } from "../lib/v5/round2";
 import { VAOMVoice } from "./VAOMVoice";
@@ -14,12 +14,13 @@ import type { ScoreBreakdown } from "../lib/types";
  */
 export function Debrief() {
   const { state, advance, setRound } = useGame();
+  const sc = useScenario();
   const result = state.results[state.results.length - 1];
   // Rounds 3 and 4 store their debrief with the result; rounds 1 and 2 write it from the player's choices.
   const text = !result ? ""
     : result.v5Debrief ? result.v5Debrief
-    : state.round === 2 && state.v5r2 ? round2Debrief(result, state.v5r2, calibrate(state.v5r2.errorTarget).threshold)
-    : state.round === 1 && state.v5r1 ? round1Debrief(result, state.v5r1)
+    : state.round === 2 && state.v5r2 ? round2Debrief(sc, result, state.v5r2, calibrate(sc, state.v5r2.errorTarget).threshold)
+    : state.round === 1 && state.v5r1 ? round1Debrief(sc, result, state.v5r1)
     : "";
 
   if (!result) return null;

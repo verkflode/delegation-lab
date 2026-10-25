@@ -2,25 +2,28 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, X } from "lucide-react";
-import { useGame } from "../../lib/game-state";
-import { lintPolicy, reviewHours, startingPolicy, type Level, type Round1Policy } from "../../lib/v5/round1";
-import { CONFIDENCE, ERROR_TARGETS, MEDIUM_OPTIONS, SAMPLE_SIZE, shareOver, startingGate, toGate, type GateChoice } from "../../lib/v5/round2";
+import { useGame, useScenario } from "../../lib/game-state";
+import { lintPolicy, reviewHours, type Level, type Round1Policy } from "../../lib/v5/round1";
+import { CONFIDENCE, ERROR_TARGETS, MEDIUM_OPTIONS, sampleSize, shareOver, startingGate, toGate, type GateChoice } from "../../lib/v5/round2";
 import { explain } from "../../lib/v5/explain";
 import { BandPicker, LintPanel, LoadBar, Segmented } from "./MatrixBuilder";
 
 /**
- * Round 2 (v5), "The Gate": the player sets invoice approval's limits. The Band A threshold comes out of a
+ * Round 2 (v5), "The Gate": the player sets the gated decision's limits. The Band A threshold comes out of a
  * learn-then-test calibration at the player's error target; the linter decides whether the result runs.
  */
 export function GateBuilder() {
   const { state, setV5R1, setV5R2, advance } = useGame();
-  const [policy, setPolicy] = useState<Round1Policy>(() => state.v5r1 ?? startingPolicy());
-  const [choice, setChoice] = useState<GateChoice>(() => state.v5r2 ?? startingGate());
-  const gate = useMemo(() => toGate(choice), [choice]);
-  const { matrix, lint } = useMemo(() => lintPolicy(policy, gate), [policy, gate]);
-  const explained = useMemo(() => explain(lint, matrix, policy), [lint, matrix, policy]);
-  const load = useMemo(() => reviewHours(policy, gate), [policy, gate]);
-  const approve = policy["invoice.approve"];
+  const sc = useScenario();
+  const G = sc.ui.gate;
+  const gated = sc.round1.gatedRow;
+  const [policy, setPolicy] = useState<Round1Policy>(() => state.v5r1 ?? sc.round1.startingPolicy());
+  const [choice, setChoice] = useState<GateChoice>(() => state.v5r2 ?? startingGate(sc));
+  const gate = useMemo(() => toGate(sc, choice), [sc, choice]);
+  const { matrix, lint } = useMemo(() => lintPolicy(sc, policy, gate), [sc, policy, gate]);
+  const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
+  const load = useMemo(() => reviewHours(sc, policy, gate), [sc, policy, gate]);
+  const approve = policy[gated];
   const set = (patch: Partial<GateChoice>) => setChoice((c) => ({ ...c, ...patch }));
 
   const run = () => {
@@ -36,24 +39,20 @@ export function GateBuilder() {
     <div className="min-h-screen px-4 sm:px-6 py-12 animate-fade-in">
       <div className="max-w-6xl mx-auto">
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">Round 2 · The Gate</div>
-        <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">Set the limits on invoice approval.</h1>
-        <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
-          Your matrix from round 1 stands. Now the limits on approving invoices are yours: how many wrong approvals you
-          can tolerate, where medium confidence ends, the most one invoice may be, and the most one vendor may be paid
-          in a day.
-        </p>
+        <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">{G.title}</h1>
+        <p className="text-[14px] text-muted leading-relaxed max-w-2xl">{G.intro}</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-6 mt-8 items-start">
           <div className="space-y-4 min-w-0">
             {approve.kind !== "delegable" && (
               <div className="vaom-panel px-4 py-3 pl-5 text-[13px] text-ink">
-                Your matrix keeps invoice approval with a human, so these limits have nothing to limit. The batch still runs.
+                {G.keptWithHuman}
               </div>
             )}
 
             <Card kicker="Calibration" title="How many wrong approvals can you tolerate?">
               <p className="text-[13px] text-muted mb-3">
-                Choose an error target for Band A. A learn-then-test on {SAMPLE_SIZE} past approvals, checked by hand,
+                Choose an error target for Band A. A learn-then-test on {sampleSize(sc)} past approvals, checked by hand,
                 finds the lowest threshold whose error rate stays under it with {CONFIDENCE * 100}% confidence.
               </p>
               <Segmented
@@ -102,22 +101,22 @@ export function GateBuilder() {
                     </span>
                     <BandPicker
                       value={approve.routing[lvl]}
-                      onChange={(b) => setPolicy((p) => ({ ...p, "invoice.approve": { ...p["invoice.approve"], routing: { ...p["invoice.approve"].routing, [lvl]: b } } }))}
+                      onChange={(b) => setPolicy((p) => ({ ...p, [gated]: { ...p[gated], routing: { ...p[gated].routing, [lvl]: b } } }))}
                     />
                   </div>
                 ))}
               </div>
             </Card>
 
-            <Card kicker="Value ceiling" title={`At most €${choice.ceiling.toLocaleString("en-IE")} per invoice`}>
+            <Card kicker="Value ceiling" title={`At most ${G.money(choice.ceiling)} ${G.per}`}>
               <input
-                type="range" min={1000} max={20000} step={500} value={choice.ceiling}
+                type="range" min={G.ceilingRange[0]} max={G.ceilingRange[1]} step={G.ceilingRange[2]} value={choice.ceiling}
                 onChange={(e) => set({ ceiling: Number(e.target.value) })}
-                aria-label="Value ceiling in euros"
+                aria-label={`Value ceiling ${G.unitAria}`}
                 className="w-full accent-cyan cursor-pointer"
               />
               <div className="flex items-center justify-between gap-3 flex-wrap mt-2">
-                <span className="font-mono text-[11px] text-muted">about {Math.round(1520 * shareOver(choice.ceiling))} invoices a week are above it</span>
+                <span className="font-mono text-[11px] text-muted">about {Math.round(sc.round2.weekly * shareOver(sc, choice.ceiling))} {G.overNote}</span>
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] text-muted">above it:</span>
                   <Segmented options={[{ value: "B", label: "Band B at best" }, { value: "C", label: "Band C" }]} value={choice.onExceed} onChange={(v) => set({ onExceed: v as "B" | "C" })} />
@@ -125,17 +124,17 @@ export function GateBuilder() {
               </div>
             </Card>
 
-            <Card kicker="Cumulative cap" title={choice.cap === null ? "No per-vendor cap" : `At most €${choice.cap.toLocaleString("en-IE")} per vendor per day`}>
+            <Card kicker="Cumulative cap" title={choice.cap === null ? G.capNone : `At most ${G.money(choice.cap)} ${G.capPer}`}>
               <Segmented
-                options={[{ value: "off", label: "No cap" }, { value: "on", label: "Cap per vendor per day" }]}
+                options={[{ value: "off", label: "No cap" }, { value: "on", label: G.capOn }]}
                 value={choice.cap === null ? "off" : "on"}
                 onChange={(v) => set({ cap: v === "off" ? null : choice.ceiling })}
               />
               {choice.cap !== null && (
                 <input
-                  type="range" min={2500} max={20000} step={500} value={choice.cap}
+                  type="range" min={G.capRange[0]} max={G.capRange[1]} step={G.capRange[2]} value={choice.cap}
                   onChange={(e) => set({ cap: Number(e.target.value) })}
-                  aria-label="Per-vendor daily cap in euros"
+                  aria-label={`${G.capOn} ${G.unitAria}`}
                   className="w-full accent-cyan cursor-pointer mt-3"
                 />
               )}
@@ -151,7 +150,7 @@ export function GateBuilder() {
               disabled={!lint.ok}
               className="cta w-full group inline-flex items-center justify-center gap-3 rounded-full font-bold font-mono uppercase tracking-[0.18em] text-[11px] px-6 py-4 focus-ring disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              {lint.ok ? "Run Wednesday's batch" : "Fix the matrix to run it"}
+              {lint.ok ? `Run ${sc.ui.days[1]}'s batch` : "Fix the matrix to run it"}
               <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </button>
           </div>

@@ -2,10 +2,10 @@
 
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, Plus, X } from "lucide-react";
-import { useGame } from "../../lib/game-state";
+import { useGame, useScenario } from "../../lib/game-state";
 import {
-  DECISIONS, DIMENSIONS, lintPolicy, PATTERNS, reviewHours, ROLES, startingPolicy,
-  type Band, type DecisionMeta, type Level, type Pattern, type Profile, type RoleId, type Round1Policy, type RowChoice,
+  DIMENSIONS, lintPolicy, PATTERNS, reviewHours,
+  type Band, type DecisionMeta, type Level, type Pattern, type Profile, type Round1Policy, type RowChoice,
 } from "../../lib/v5/round1";
 import { explain, type Explained } from "../../lib/v5/explain";
 
@@ -15,10 +15,11 @@ import { explain, type Explained } from "../../lib/v5/explain";
  */
 export function MatrixBuilder() {
   const { state, setV5R1, advance } = useGame();
-  const [policy, setPolicy] = useState<Round1Policy>(() => state.v5r1 ?? startingPolicy());
-  const { matrix, lint } = useMemo(() => lintPolicy(policy), [policy]);
-  const explained = useMemo(() => explain(lint, matrix, policy), [lint, matrix, policy]);
-  const load = useMemo(() => reviewHours(policy), [policy]);
+  const sc = useScenario();
+  const [policy, setPolicy] = useState<Round1Policy>(() => state.v5r1 ?? sc.round1.startingPolicy());
+  const { matrix, lint } = useMemo(() => lintPolicy(sc, policy), [sc, policy]);
+  const explained = useMemo(() => explain(sc, lint, matrix, policy), [sc, lint, matrix, policy]);
+  const load = useMemo(() => reviewHours(sc, policy), [sc, policy]);
 
   const update = (id: DecisionMeta["id"], patch: Partial<RowChoice>) =>
     setPolicy((p) => ({ ...p, [id]: { ...p[id], ...patch } }));
@@ -34,15 +35,14 @@ export function MatrixBuilder() {
         <div className="font-mono text-[10px] uppercase tracking-[0.32em] text-cyan font-bold mb-2">Round 1 · The Matrix</div>
         <h1 className="font-serif text-[28px] md:text-[36px] leading-[1.1] font-normal text-mint mb-3">Build the delegation matrix.</h1>
         <p className="text-[14px] text-muted leading-relaxed max-w-2xl">
-          Your agent works accounts payable: it reads invoices, matches them to purchase orders and approves them for
-          payment. For each decision it makes, set the profile, the pattern, whether it can be delegated at all, which
+          {sc.ui.matrixIntro} For each decision it makes, set the profile, the pattern, whether it can be delegated at all, which
           band each confidence level lands in, and who owns it. The VAOM Guardian checks the matrix as you build it.
           If it doesn&apos;t pass, it doesn&apos;t run.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-[1.55fr_1fr] gap-6 mt-8 items-start">
           <div className="space-y-4 min-w-0">
-            {DECISIONS.map((d) => (
+            {sc.round1.decisions.map((d) => (
               <DecisionCard key={d.id} meta={d} choice={policy[d.id]} onChange={(p) => update(d.id, p)} issues={explained.filter((e) => e.row === d.id)} />
             ))}
           </div>
@@ -69,6 +69,7 @@ export function MatrixBuilder() {
 // ── One decision ───────────────────────────────────────────────────────────
 
 function DecisionCard({ meta, choice, onChange, issues }: { meta: DecisionMeta; choice: RowChoice; onChange: (p: Partial<RowChoice>) => void; issues: Explained[] }) {
+  const sc = useScenario();
   if (!choice.included) {
     return (
       <div className="rounded-2xl border border-dashed border-ink/25 px-5 py-4">
@@ -91,7 +92,7 @@ function DecisionCard({ meta, choice, onChange, issues }: { meta: DecisionMeta; 
       <div className="flex items-start justify-between gap-4">
         <div className="min-w-0">
           <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-1">
-            {meta.id} · <span className="text-muted">mcp__erp__{meta.tool}</span>
+            {meta.id} · <span className="text-muted">{sc.ui.toolPrefix}{meta.tool}</span>
           </div>
           <div className="font-serif text-[22px] text-mint leading-tight">{meta.title}</div>
           <p className="text-[13px] text-muted mt-1">{meta.blurb}</p>
@@ -150,10 +151,10 @@ function DecisionCard({ meta, choice, onChange, issues }: { meta: DecisionMeta; 
           <Row label="Owner">
             <select
               value={choice.owner}
-              onChange={(e) => onChange({ owner: e.target.value as RoleId })}
+              onChange={(e) => onChange({ owner: e.target.value })}
               className="w-full sm:w-auto bg-surface border border-border rounded-lg px-3 py-1.5 text-[13px] text-ink focus-ring"
             >
-              {Object.entries(ROLES).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+              {Object.entries(sc.roles).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
             </select>
           </Row>
         </div>
@@ -231,7 +232,8 @@ export function BandPicker({ value, onChange }: { value: Band; onChange: (b: Ban
 export function LintPanel({ ok, explained }: { ok: boolean; explained: Explained[] }) {
   const errors = explained.filter((e) => e.severity === "error").length;
   const warnings = explained.length - errors;
-  const rowTitle = (id?: string) => DECISIONS.find((d) => d.id === id)?.title;
+  const sc = useScenario();
+  const rowTitle = (id?: string) => sc.round1.decisions.find((d) => d.id === id)?.title;
   return (
     <div className="surface-strong px-5 py-4" aria-live="polite">
       <div className="flex items-center gap-2">
@@ -273,6 +275,7 @@ export function LintPanel({ ok, explained }: { ok: boolean; explained: Explained
 }
 
 export function LoadBar({ hours, funded }: { hours: number; funded: number }) {
+  const sc = useScenario();
   const over = hours > funded;
   const pct = Math.min(100, (hours / funded) * 100);
   return (
@@ -286,20 +289,18 @@ export function LoadBar({ hours, funded }: { hours: number; funded: number }) {
       <div className="h-2 rounded-full bg-ink/8 mt-2 overflow-hidden">
         <div className={`h-full rounded-full ${over ? "bg-band-held" : "bg-band-b"}`} style={{ width: `${pct}%` }} />
       </div>
-      <p className="text-[11px] text-muted-2 mt-2">{Math.round(funded / 0.8)} reviewer hours funded, at most 80% used. Every invoice you route to a human costs minutes here.</p>
+      <p className="text-[11px] text-muted-2 mt-2">{Math.round(funded / 0.8)} reviewer hours funded, at most 80% used. {sc.ui.loadNote}</p>
     </div>
   );
 }
 
 function FixedThisRound() {
+  const sc = useScenario();
   return (
     <div className="surface px-5 py-4">
       <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-muted-2 mb-2">Already set by the controller</div>
       <ul className="text-[12px] text-muted space-y-1">
-        <li>Confidence: high from 0.92, medium from 0.70, scored by policy invoice-standard 3.2</li>
-        <li>Value ceiling €5,000 per invoice; above it, Band B at best</li>
-        <li>Per-vendor cap €5,000 a day</li>
-        <li>Band A needs a passing PO match</li>
+        {sc.ui.controllerLimits.map((l) => <li key={l}>{l}</li>)}
       </ul>
       <p className="text-[11px] text-muted-2 mt-2">They become yours in round 2.</p>
     </div>
