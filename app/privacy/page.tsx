@@ -9,7 +9,8 @@ export const metadata: Metadata = {
 };
 
 // Keep this page true to the code and the server: lib/analytics.ts and app/layout.tsx (what's counted),
-// lib/v5/prompts.ts (what the model is sent), infra's compose.yaml and Caddyfile (where it all runs).
+// lib/v5/prompts.ts (what the model is sent), infra's compose.yaml and Caddyfile (where it all runs),
+// infra's umami-retention (12 months) and the Studio's receive-backup (14 backups).
 // Change the date below whenever the substance changes.
 const UPDATED = "25 October 2026";
 
@@ -53,8 +54,8 @@ export default function Privacy() {
         </p>
         <p>
           We use these statistics to see whether the Lab works and where players stop, which is our legitimate interest
-          under Article 6(1)(f) GDPR. They stay in our analytics database while the Lab runs, and in encrypted backups on
-          our own equipment for up to 13 months.
+          under Article 6(1)(f) GDPR. They are deleted automatically after 12 months. Encrypted backups of them, on our
+          own equipment, are kept for two weeks.
         </p>
         <p>
           Browsers that send a Do Not Track signal aren&apos;t counted. You can also switch counting off for this browser
