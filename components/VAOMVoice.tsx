@@ -12,6 +12,11 @@ import { useVAOMVoice } from "../hooks/useVAOMVoice";
  * clips. Text is the baseline; voice is the enrichment.
  */
 
+// Live speech needs /api/voice, which stays off (and blocked at the server's proxy) until the Voxtral voice
+// with narration signing ships. Until then the Listen button shows only where a recording exists; set
+// NEXT_PUBLIC_VOICE=1 at build time to show it everywhere.
+const LIVE_VOICE = process.env.NEXT_PUBLIC_VOICE === "1";
+
 type Props = {
   text: string;
   moment: GameMoment;
@@ -78,7 +83,7 @@ export function VAOMVoice({
             {label}
           </div>
         </div>
-        <ListenButton status={status} onClick={handleListen} />
+        {(LIVE_VOICE || cachedAudioUrl) && <ListenButton status={status} onClick={handleListen} />}
       </div>
       <div className="font-mono text-[13.5px] leading-[1.75] text-ink whitespace-pre-wrap">
         {shown}
