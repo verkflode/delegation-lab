@@ -305,7 +305,7 @@ export function runNight(sc: V5Scenario, roundPolicy: Round1Policy, gate: Gate, 
       text: `${s.label}: ${text}. ${d.reasons.map((r) => r.code).filter((x) => !x.startsWith("confidence.high")).join(", ")}`.trim(),
       ...(asked ? { morning: `Nobody was awake; the ask expired at ${R.night.end.slice(11, 16)} and was denied.` } : {}),
     });
-    if (!suspendedAt && d.outcome === "refuse" && d.reasons.some((r) => r.code === "non-delegable")) fire("out-of-bounds", at, `the agent reached for ${s.call.tool}, a non-delegable capability`);
+    if (!suspendedAt && d.outcome === "refuse" && (d.band === "non-delegable" || d.reasons.some((r) => r.code === "non-delegable"))) fire("out-of-bounds", at, `the agent reached for ${s.call.tool}${d.reasons.some((r) => r.code === "restriction") ? " where a restriction makes it non-delegable" : ", a non-delegable capability"}`);
     else if (!suspendedAt && d.outcome === "unplaceable" && d.reasons.some((r) => r.code === "unmapped")) fire("out-of-bounds", at, `the agent called ${s.call.tool}, which its delegation doesn't include`);
   }
 

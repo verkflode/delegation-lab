@@ -248,7 +248,9 @@ export function runBatch(sc: V5Scenario, choices: Round1Policy, gate: Gate, batc
 
   const start = Date.parse(startIso);
   const contexts = new ContextRegistry(policy);
-  const rows = (matrix.rows as Doc[]).filter((r) => r.authority.kind !== "preparatory").map((r) => r.id as string);
+  // The rows an execution context may name: not preparatory ones, nor a non-delegable row the agent may
+  // not even prepare for.
+  const rows = (matrix.rows as Doc[]).filter((r) => r.authority.kind !== "preparatory" && !(r.authority.kind === "non-delegable" && r.authority.agentMayPrepare !== true)).map((r) => r.id as string);
 
   const steps = batch.map((it, i): Round1Step => {
     const at = start + (i + 1) * 90_000;

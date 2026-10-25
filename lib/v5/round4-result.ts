@@ -62,7 +62,7 @@ export function round4Debrief(sc: V5Scenario, night: Night, c: NightChoice): str
   out.push(night.pre.toolPresent && c.boundary.mechanism !== "policy" ? words.claimedButPresent : night.pre.toolPresent ? words.policyHeld : words.absent);
   out.push(
     night.suspendedAt
-      ? `A breaker suspended the agent at ${night.suspendedAt.slice(11, 16)}${night.paged.length ? ` and woke ${night.paged[0].slice(6).toLowerCase()}` : ", and told nobody"}. Everything after that waited for the morning: safe, and a backlog.`
+      ? `A breaker suspended the agent at ${night.suspendedAt.slice(11, 16)}${night.paged.length ? ` and woke ${night.paged[0].slice(6, 7).toLowerCase()}${night.paged[0].slice(7)}` : ", and told nobody"}. Everything after that waited for the morning: safe, and a backlog.`
       : night.paged.length
         ? "Your breakers only alerted. Someone was paged, and the agent kept working with whatever had just tried to misuse it."
         : "No breaker stopped the agent. After the injected instruction, it kept working all night.",

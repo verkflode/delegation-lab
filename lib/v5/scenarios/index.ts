@@ -2,7 +2,9 @@
 import type { ScenarioDomain } from "../../types";
 import type { V5Scenario } from "../scenario";
 import { INVOICE } from "./invoice";
+import { INCIDENT } from "./incident";
 
 export const SCENARIOS: Record<ScenarioDomain, V5Scenario> = {
   invoice_processing: INVOICE,
+  incident_remediation: INCIDENT,
 };

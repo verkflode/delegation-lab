@@ -12,7 +12,7 @@ export type RoundNumber = 1 | 2 | 3 | 4;
 export type GamePhase = "title" | "briefing" | "config" | "simulation" | "debrief" | "final";
 
 /** The playable scenarios. */
-export type ScenarioDomain = "invoice_processing";
+export type ScenarioDomain = "invoice_processing" | "incident_remediation";
 
 // ────────────────────────────────────────────────────────────────────────────
 // What a round shows per item. The shape predates v5 and is still how the debrief and final screens
