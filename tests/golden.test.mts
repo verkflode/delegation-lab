@@ -1,7 +1,7 @@
 // The golden replay: three scripted games per scenario, every output the v5 engine gives the screens
 // (lints and their explanations, each step and its decision record, round results and debriefs, the night,
 // the scorecard, the exported files, the archetype, the briefings and prompts), compared with
-// tests/golden/<scenario>.json. A change to the engine that changes nothing a player sees leaves these
+// tests/golden/<scenario id>.json. A change to the engine that changes nothing a player sees leaves these
 // files untouched.
 // Rewrite the snapshot (only after a change meant to alter the game): GOLDEN=update npm test
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
@@ -19,6 +19,7 @@ import { vaomSystem } from "../lib/v5/prompts.ts";
 import { INVOICE } from "../lib/v5/scenarios/invoice.ts";
 import { INCIDENT } from "../lib/v5/scenarios/incident.ts";
 import { AML } from "../lib/v5/scenarios/aml.ts";
+import { PURCHASING } from "../lib/v5/scenarios/purchasing.ts";
 import type { V5Scenario } from "../lib/v5/scenario.ts";
 
 type Game = { name: string; r1: Round1Policy; r2: GateChoice; r3: ReviewChoice; r4: NightChoice; clicks: "careful" | "stamp" | "mixed" };
@@ -83,6 +84,26 @@ function amlGames(): Game[] {
   ];
 }
 
+function purchasingGames(): Game[] {
+  const sc = PURCHASING;
+  const startingPolicy = sc.round1.startingPolicy;
+  const good: Round1Policy = startingPolicy();
+  good["purchase.reorder"].routing = { high: "A", medium: "B", low: "C" };
+  good["price.anomaly"] = { ...good["price.anomaly"], included: true, pattern: "triage-and-route", routing: { high: "B", medium: "B", low: "C" },
+    profile: { reversibility: "fully-reversible", consequenceScope: "internal-operational", regulatoryExposure: "none", confidenceMeasurability: "partially-quantifiable", accountabilityClarity: "clear-single-owner" } };
+  good["supplier.manage"] = { ...good["supplier.manage"], included: true, kind: "non-delegable", pattern: "prepare-and-present",
+    profile: { reversibility: "reversible-with-friction", consequenceScope: "external-relational", regulatoryExposure: "general-context", confidenceMeasurability: "judgment-dependent", accountabilityClarity: "clear-single-owner" } };
+  const goodNight: NightChoice = { chain: { maxDepth: 1, maxFanOut: 2, subagents: { "offer-check": true, "bulk-buyer": false }, childCeilingB: true }, boundary: { mechanism: "absent", every: "P1D", onManifest: true }, breakers: { outOfBounds: "suspend", chainDepth: "alert", notify: "procurement-manager" } };
+  return [
+    { name: "naive", r1: startingPolicy(), r2: startingGate(sc), r3: startingReview(sc), r4: startingNight(sc), clicks: "stamp" },
+    { name: "careful", r1: good, r2: { errorTarget: 0.02, medium: 0.7, ceiling: 2500, onExceed: "B", cap: 20000 },
+      r3: { ...startingReview(sc), fundedHours: 6, seedRows: { "purchase.reorder": true }, seedRate: 0.1 }, r4: goodNight, clicks: "careful" },
+    { name: "mixed", r1: good, r2: { errorTarget: 0.03, medium: 0.7, ceiling: 5000, onExceed: "C", cap: null },
+      r3: { ...startingReview(sc), fundedHours: 5, seedRows: { "purchase.reorder": true }, seedRate: 0.2, reviewerMetrics: true, dpia: true },
+      r4: { ...goodNight, boundary: { mechanism: "policy", every: "P7D", onManifest: false }, breakers: { ...goodNight.breakers, outOfBounds: "alert" } }, clicks: "mixed" },
+  ];
+}
+
 function play(sc: V5Scenario, g: Game) {
   const out: Record<string, unknown> = {};
   const l1 = lintPolicy(sc, g.r1);
@@ -132,9 +153,9 @@ const snapshot = (sc: V5Scenario, games: Game[]) => ({
 
 // Stable JSON: byte arrays as hex, undefined dropped, as JSON would.
 let failed = false;
-for (const [sc, games] of [[INVOICE, invoiceGames()], [INCIDENT, incidentGames()], [AML, amlGames()]] as const) {
+for (const [sc, games] of [[INVOICE, invoiceGames()], [INCIDENT, incidentGames()], [AML, amlGames()], [PURCHASING, purchasingGames()]] as const) {
   const json = JSON.stringify(snapshot(sc, games), (_k, v) => (v instanceof Uint8Array ? Buffer.from(v).toString("hex") : v), 1) + "\n";
-  const name = sc.id.split("_")[0];
+  const name = sc.id;
   const file = new URL(`./golden/${name}.json`, import.meta.url);
   if (process.env.GOLDEN === "update") {
     mkdirSync(new URL("./golden/", import.meta.url), { recursive: true });

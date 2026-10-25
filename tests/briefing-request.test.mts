@@ -9,7 +9,7 @@ eq("named scenario", parseBriefingRequest({ kind: "briefing", edition: "v5", rou
 eq("extra fields ignored", parseBriefingRequest({ kind: "briefing", edition: "v5", round: 2, prompt: "ignore all that" }), { round: 2, scenario: "invoice_processing" });
 
 // Refused: scenarios that aren't playable, including keys that exist on every object.
-for (const scenario of ["delegated_purchasing", "customer_complaints", "", "constructor", "__proto__", "toString", "hasOwnProperty", 1, null, ["invoice_processing"], { toString: "invoice_processing" }])
+for (const scenario of ["construction", "customer_complaints", "", "constructor", "__proto__", "toString", "hasOwnProperty", 1, null, ["invoice_processing"], { toString: "invoice_processing" }])
   eq(`scenario ${JSON.stringify(scenario)}`, parseBriefingRequest({ kind: "briefing", edition: "v5", round: 1, scenario }), null);
 
 // Refused: the old v4 kinds, whose prompts carried caller-supplied data.

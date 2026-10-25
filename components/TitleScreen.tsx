@@ -20,7 +20,7 @@ const SCENARIOS: Entry[] = [
   { id: "invoice_processing", ...PLAYABLE.invoice_processing.ui.title, icon: <FileText size={14} />, available: true },
   { id: "aml_triage", ...PLAYABLE.aml_triage.ui.title, icon: <ShieldCheck size={14} />, available: true },
   { id: "incident_remediation", ...PLAYABLE.incident_remediation.ui.title, icon: <ServerCrash size={14} />, available: true },
-  { id: "delegated_purchasing", label: "Delegated purchasing", sub: "A manufacturer's agent reordering supplies under a monthly mandate · coming later", icon: <ShoppingCart size={14} />, available: false },
+  { id: "delegated_purchasing", ...PLAYABLE.delegated_purchasing.ui.title, icon: <ShoppingCart size={14} />, available: true },
 ];
 
 export function TitleScreen() {
