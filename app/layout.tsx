@@ -13,6 +13,8 @@ export const metadata: Metadata = {
   description:
     "Take the helm as Head of AI Operations. Write the delegation matrix, run the workflow under the VAOM Guardian, and learn the Verkflöde Agent Operating Model (VAOM), Verkflöde's open framework for AI delegation, by play.",
   metadataBase: new URL("https://lab.vaom.ai"),
+  // The home page's; pages with their own (privacy) set it themselves.
+  alternates: { canonical: "/" },
   openGraph: {
     title: "Delegation Lab: the Verkflöde Agent Operating Model (VAOM) by play",
     description:
@@ -45,7 +47,7 @@ const STRUCTURED_DATA = {
   inLanguage: "en",
   isAccessibleForFree: true,
   description: "A browser simulation that teaches the Verkflöde Agent Operating Model (VAOM) by play: the player writes a delegation matrix and every agent decision is made by the VAOM Guardian.",
-  about: { "@type": "TechArticle", "@id": "https://vaom.ai/#vaom", name: "The Verkflöde Agent Operating Model (VAOM)", url: "https://vaom.ai", sameAs: ["https://verkflode.com/vaom"] },
+  about: { "@type": "TechArticle", "@id": "https://vaom.ai/", name: "The Verkflöde Agent Operating Model (VAOM)", url: "https://vaom.ai", sameAs: ["https://verkflode.com/vaom"] },
   publisher: { "@type": "Organization", "@id": "https://verkflode.com/#org", name: "Verkflöde AB", url: "https://verkflode.com" },
 };
 
