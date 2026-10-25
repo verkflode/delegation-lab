@@ -15,9 +15,11 @@ export const EXPORT_VERSION = "1.3.0";
 const GUARDIAN_CONFIG_FORMAT = "vaom-guardian.config/0.1";
 
 /** The VAOM Guardian commit vendored in vendor/vaom-guardian; tests/v5.test.mts checks it matches VENDORED.md. */
-export const GUARDIAN_COMMIT = "08ad17fb4d64e3c08fca0fa3ce2c6236775a9dfc";
-/** Exported files name the schema they follow at that commit, so an editor can check them as they change. */
-export const SCHEMA_BASE = `https://raw.githubusercontent.com/verkflode/vaom-guardian/${GUARDIAN_COMMIT}/schema/`;
+export const GUARDIAN_COMMIT = "a71ecac996676067cc2117a5232efb5e4e19c6bf";
+/** The release tag on that commit; tests/v5.test.mts checks VENDORED.md names it too. */
+export const GUARDIAN_TAG = "v0.1.0";
+/** Exported files name the schema they follow at that release, so an editor can check them as they change. */
+export const SCHEMA_BASE = `https://raw.githubusercontent.com/verkflode/vaom-guardian/${GUARDIAN_TAG}/schema/`;
 const withSchema = (d: Doc, schema: string): Doc => { const rest = { ...d }; delete rest.$schema; return { $schema: SCHEMA_BASE + schema, ...rest }; };
 
 /** The matrix as it stood after the night: every round's choices applied. */

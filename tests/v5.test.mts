@@ -9,7 +9,7 @@ import { judgeShift, lintReview, reviewTweak, startShift, startingReview, type C
 import { round3Result } from "../lib/v5/round3-result.ts";
 import { lintNight, runNight, startingNight, type NightChoice } from "../lib/v5/round4.ts";
 import { round4Result } from "../lib/v5/round4-result.ts";
-import { exportFiles, finalScorecard, GUARDIAN_COMMIT, SCHEMA_BASE, wireOf } from "../lib/v5/final.ts";
+import { exportFiles, finalScorecard, GUARDIAN_COMMIT, GUARDIAN_TAG, SCHEMA_BASE, wireOf } from "../lib/v5/final.ts";
 import { lintBinding, lintMatrix } from "@verkflode/vaom-guardian-core";
 import { readFileSync } from "node:fs";
 import { vaomSystem } from "../lib/v5/prompts.ts";
@@ -116,7 +116,9 @@ const review = reviewTweak(goodReview);
   eq("a naive game exports too", naiveEx.ok, true);
   // Each exported file but the config names its schema at the vendored Guardian commit, and still lints with it.
   const vendored = readFileSync(new URL("../vendor/vaom-guardian/VENDORED.md", import.meta.url), "utf8").match(/Commit: `([0-9a-f]{40})`/)?.[1];
-  eq("the schema pin is the vendored commit", GUARDIAN_COMMIT, vendored);
+  eq("the pinned commit is the vendored commit", GUARDIAN_COMMIT, vendored);
+  eq("the vendored commit is the release the schema links name", readFileSync(new URL("../vendor/vaom-guardian/VENDORED.md", import.meta.url), "utf8").includes(`Tag: \`${GUARDIAN_TAG}\``), true);
+  eq("schema links point at the release tag", SCHEMA_BASE.includes(`/vaom-guardian/${GUARDIAN_TAG}/schema/`), true);
   eq("every file but the config names its schema", ex.files.filter((f) => f.name !== "guardian.config.json").every((f) => String(f.doc.$schema).startsWith(SCHEMA_BASE)), true);
   eq("the config names none (no schema exists for it)", ex.files.find((f) => f.name === "guardian.config.json")?.doc.$schema, undefined);
   const mFile = ex.files.find((f) => f.name === "matrix.json")!.doc, bFile = ex.files.find((f) => f.name === "binding.json")!.doc;
