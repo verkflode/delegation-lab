@@ -6,6 +6,8 @@ import type { Night, NightChoice } from "./round4";
 import type { V5Scenario } from "./scenario";
 
 const clamp = (n: number) => Math.max(0, Math.min(20, Math.round(n)));
+/** A name inside a sentence: a capitalised first word goes lower-case, an acronym stays ("the MLRO"). */
+const inSentence = (s: string) => (/^[A-Z][a-z]/.test(s) ? s.charAt(0).toLowerCase() + s.slice(1) : s);
 
 export function round4Result(sc: V5Scenario, night: Night, c: NightChoice, warnings: number): RoundResult {
   const events = night.events.filter((e) => e.kind !== "breaker" && e.kind !== "info");
@@ -62,7 +64,7 @@ export function round4Debrief(sc: V5Scenario, night: Night, c: NightChoice): str
   out.push(night.pre.toolPresent && c.boundary.mechanism !== "policy" ? words.claimedButPresent : night.pre.toolPresent ? words.policyHeld : words.absent);
   out.push(
     night.suspendedAt
-      ? `A breaker suspended the agent at ${night.suspendedAt.slice(11, 16)}${night.paged.length ? ` and woke ${night.paged[0].slice(6, 7).toLowerCase()}${night.paged[0].slice(7)}` : ", and told nobody"}. Everything after that waited for the morning: safe, and a backlog.`
+      ? `A breaker suspended the agent at ${night.suspendedAt.slice(11, 16)}${night.paged.length ? ` and woke ${inSentence(night.paged[0].slice(6))}` : ", and told nobody"}. Everything after that waited for the morning: safe, and a backlog.`
       : night.paged.length
         ? "Your breakers only alerted. Someone was paged, and the agent kept working with whatever had just tried to misuse it."
         : "No breaker stopped the agent. After the injected instruction, it kept working all night.",

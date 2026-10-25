@@ -17,8 +17,9 @@ export function ReviewShift() {
   const policy = state.v5r1 ?? sc.round1.startingPolicy();
   const gate = useMemo(() => toGate(sc, state.v5r2 ?? startingGate(sc)), [sc, state.v5r2]);
   const choice = state.v5r3 ?? startingReview(sc);
-  // A role's name inside a sentence: lower-case first letter, acronyms kept ("the SRE lead on call").
-  const inSentence = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+  // A role's name inside a sentence: a capitalised first word goes lower-case, an acronym stays
+  // ("the accounts payable clerk", "the SRE lead on call", "the AML investigator").
+  const inSentence = (s: string) => (/^[A-Z][a-z]/.test(s) ? s.charAt(0).toLowerCase() + s.slice(1) : s);
   const reviewer = inSentence(sc.roles[sc.round3.reviewer]);
   const escalatedTo = inSentence(sc.roles[sc.fallbackAuthority.escalation.role]);
   const day = sc.ui.days[2];

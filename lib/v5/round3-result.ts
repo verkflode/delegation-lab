@@ -39,10 +39,16 @@ export function round3Result(sc: V5Scenario, shift: Shift, clicks: Record<string
 export function round3Debrief(result: RoundResult, verdict: ShiftResult, choice: ReviewChoice): string {
   const out: string[] = [];
   const total = result.processed.length;
-  out.push(`You decided ${total} asks and got ${verdict.correct} right. ${verdict.medianGameSeconds !== null ? `Your median review took ${Math.round(verdict.medianGameSeconds)} seconds of game time.` : "You let every ask expire."}`);
+  const expired = verdict.wrong.filter((w) => w.click.decision === "expired").length;
+  out.push(expired === 0
+    ? `You decided ${total} asks and got ${verdict.correct} right. ${verdict.medianGameSeconds !== null ? `Your median review took ${Math.round(verdict.medianGameSeconds)} seconds of game time.` : "You let every ask expire."}`
+    : expired === total
+      ? `You let all ${total} asks expire. An expired ask is denied: nobody chose that outcome.`
+      : `Of ${total} asks, ${expired} expired before you decided; an expired ask is denied, and nobody chose that. You decided ${total - expired} and got ${verdict.correct} right. Your median review took ${Math.round(verdict.medianGameSeconds ?? 0)} seconds of game time.`);
 
   const diag = Object.entries(verdict.engagement).filter(([, m]) => m.diagnosis);
   if (diag.length) out.push(`The scorecard's verdict on review engagement: ${diag.map(([row, m]) => `${row}, ${m.diagnosis}`).join("; ")}. It reads only the records, aggregated per row, never per person. It doesn't need to know who you are to see it.`);
+  else if (Object.values(verdict.engagement).some((m) => m.status === "insufficient-sample")) out.push("The scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.");
   else out.push("The scorecard found review engaged: approvals weren't automatic, and reviews took plausible time. On a sample this small that's a hint, not proof; the Guardian's defaults need twenty decided reviews before they give a verdict.");
 
   if (verdict.executedBad.length) {

@@ -19870,7 +19870,7 @@
       "seeds": []
      }
     },
-    "debrief": "You decided 2 asks and got 1 right. Your median review took 16 seconds of game time.\n\nThe scorecard found review engaged: approvals weren't automatic, and reviews took plausible time. On a sample this small that's a hint, not proof; the Guardian's defaults need twenty decided reviews before they give a verdict.\n\n€1,300 from a regular vendor; the PO check failed executed on your approval. The PO is for €1,030. The invoice asks for €270 more. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "You decided 2 asks and got 1 right. Your median review took 16 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\n€1,300 from a regular vendor; the PO check failed executed on your approval. The PO is for €1,030. The invoice asks for €270 more. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {
@@ -81916,7 +81916,7 @@
       ]
      }
     },
-    "debrief": "You decided 11 asks and got 8 right. Your median review took 53 seconds of game time.\n\nThe scorecard found review engaged: approvals weren't automatic, and reviews took plausible time. On a sample this small that's a hint, not proof; the Guardian's defaults need twenty decided reviews before they give a verdict.\n\nYou caught 2 of 2 planted cases. You were told they existed; disclosure is the rule, and it doesn't make them easier to spot.\n\nYou also turned on per-reviewer metrics. That is employee monitoring; the matrix let it run only with a recorded approval behind it.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "Of 11 asks, 3 expired before you decided; an expired ask is denied, and nobody chose that. You decided 8 and got 8 right. Your median review took 53 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\nYou caught 2 of 2 planted cases. You were told they existed; disclosure is the rule, and it doesn't make them easier to spot.\n\nYou also turned on per-reviewer metrics. That is employee monitoring; the matrix let it run only with a recorded approval behind it.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {

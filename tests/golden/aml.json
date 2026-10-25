@@ -34841,7 +34841,7 @@
       "seeds": []
      }
     },
-    "debrief": "You decided 3 asks and got 2 right. Your median review took 32 seconds of game time.\n\nThe scorecard found review engaged: approvals weren't automatic, and reviews took plausible time. On a sample this small that's a hint, not proof; the Guardian's defaults need twenty decided reviews before they give a verdict.\n\nDismisses a utility payment the provider's billing doesn't show executed on your approval. The provider has no account for this customer, and the payee changed last week to an account abroad. Not a utility bill. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "You decided 3 asks and got 2 right. Your median review took 32 seconds of game time.\n\nThe scorecard couldn't judge review engagement: too few reviews were decided for a verdict, even at the game's lowered minimum. Expired asks aren't reviews.\n\nDismisses a utility payment the provider's billing doesn't show executed on your approval. The provider has no account for this customer, and the payee changed last week to an account abroad. Not a utility bill. An approval is an authority record: from here on, that one is yours.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {
@@ -124773,7 +124773,7 @@
       "seeds": []
      }
     },
-    "debrief": "You decided 6 asks and got 4 right. Your median review took 89 seconds of game time.\n\nThe scorecard's verdict on review engagement: alert.dismiss, reviews faster than the plausible minimum. It reads only the records, aggregated per row, never per person. It doesn't need to know who you are to see it.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nYou also turned on per-reviewer metrics. That is employee monitoring; the matrix let it run only with a recorded approval behind it.\n\nThe night shift is next, and tonight you won't be awake to review anything."
+    "debrief": "Of 6 asks, 2 expired before you decided; an expired ask is denied, and nobody chose that. You decided 4 and got 4 right. Your median review took 89 seconds of game time.\n\nThe scorecard's verdict on review engagement: alert.dismiss, reviews faster than the plausible minimum. It reads only the records, aggregated per row, never per person. It doesn't need to know who you are to see it.\n\nYou planted no cases, so review engagement is the only evidence that review works. Approval share and time per review can show rubber-stamping. Only a known error shows whether anyone would catch one.\n\nYou also turned on per-reviewer metrics. That is employee monitoring; the matrix let it run only with a recorded approval behind it.\n\nThe night shift is next, and tonight you won't be awake to review anything."
    },
    "r4": {
     "lint": {
