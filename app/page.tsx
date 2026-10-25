@@ -1,16 +1,11 @@
 "use client";
 
 import { useEffect } from "react";
-import { GameProvider, isV5Round, useGame } from "../lib/game-state";
+import { GameProvider, useGame } from "../lib/game-state";
 import { clearNarration, prefetchBriefing } from "../lib/v5/narration";
 import { pageview, track } from "../lib/analytics";
 import { TitleScreen } from "../components/TitleScreen";
 import { Briefing } from "../components/Briefing";
-import { ConfigBasic } from "../components/ConfigBasic";
-import { ConfigMatrix } from "../components/ConfigMatrix";
-import { ConfigAudit } from "../components/ConfigAudit";
-import { ConfigSwarm } from "../components/ConfigSwarm";
-import { Simulation } from "../components/Simulation";
 import { Debrief } from "../components/Debrief";
 import { FinalScore } from "../components/FinalScore";
 import { RestartButton } from "../components/RestartButton";
@@ -32,7 +27,6 @@ export default function Page() {
 
 function Router() {
   const { state } = useGame();
-  const v5 = isV5Round(state.round, state.scenario);
 
   // How far visits get, for the Lab's analytics (lib/analytics.ts): a virtual page per stage (each round from
   // its briefing, and the final screen), plus a start, each round finished, and the end as events.
@@ -47,34 +41,28 @@ function Router() {
   // v5 briefings are fetched ahead of the screen that shows them (lib/v5/narration.ts).
   useEffect(() => {
     if (state.phase === "title") clearNarration();
-    if (!v5) return;
     if (state.phase === "briefing" && state.round === 1) prefetchBriefing(1);
     if (state.phase === "debrief" && state.round < 4) prefetchBriefing((state.round + 1) as 2 | 3 | 4);
-  }, [state.phase, state.round, v5]);
+  }, [state.phase, state.round]);
 
   return (
     <>
       {state.phase !== "title" && <RestartButton />}
-      <Screen phase={state.phase} round={state.round} v5={isV5Round(state.round, state.scenario)} />
+      <Screen phase={state.phase} round={state.round} />
     </>
   );
 }
 
-function Screen({ phase, round, v5 }: { phase: string; round: number; v5: boolean }) {
+function Screen({ phase, round }: { phase: string; round: number }) {
   switch (phase) {
     case "title":
       return <TitleScreen />;
     case "briefing":
       return <Briefing />;
     case "config":
-      if (v5) return round === 4 ? <NightSetup /> : round === 3 ? <ReviewSetup /> : round === 2 ? <GateBuilder /> : <MatrixBuilder />;
-      if (round === 1) return <ConfigBasic />;
-      if (round === 4) return <ConfigSwarm />;
-      return <ConfigMatrix key={phase + round} />;
-    case "preEvents":
-      return <ConfigAudit />;
+      return round === 4 ? <NightSetup /> : round === 3 ? <ReviewSetup /> : round === 2 ? <GateBuilder /> : <MatrixBuilder />;
     case "simulation":
-      return v5 ? (round === 4 ? <NightRun /> : round === 3 ? <ReviewShift /> : <BatchRun />) : <Simulation />;
+      return round === 4 ? <NightRun /> : round === 3 ? <ReviewShift /> : <BatchRun />;
     case "debrief":
       return <Debrief />;
     case "final":

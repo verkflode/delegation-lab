@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import {
   ArrowRight,
   ExternalLink,
@@ -9,65 +8,22 @@ import {
   RotateCcw,
   Sparkles,
 } from "lucide-react";
-import { isV5Round, useGame } from "../lib/game-state";
-import { totalScore, totalNumeric } from "../lib/scoring";
-import { ARCHETYPE_DETAILS, chooseArchetype } from "../data/vaom-text";
-import { computeScorecard } from "../lib/scorecard";
-import { fetchProfile } from "../lib/api";
+import { useGame } from "../lib/game-state";
+import { totalScore, totalNumeric } from "../lib/score";
 import { ProfileCard } from "./ProfileCard";
 import { VAOMVoice } from "./VAOMVoice";
 import { ScoreBar } from "./Debrief";
-import { Scorecard } from "./Scorecard";
 import { FinalV5 } from "./v5/FinalV5";
 import { ARCHETYPES_V5, chooseArchetypeV5 } from "../lib/v5/archetypes";
 
 /**
- * Final dashboard + shareable profile card. Tries to fetch a Claude-generated
- * profile (richer prose); falls back to the deterministic archetype assignment
- * based on score ranges.
+ * Final dashboard and shareable profile card. The profile is scripted from the game (lib/v5/archetypes.ts).
  */
 export function FinalScore() {
   const { state, reset } = useGame();
   const totals = totalScore(state.results);
   const totalN = totalNumeric(totals);
-  const v5 = isV5Round(4, state.scenario);
-  const fallbackArch = v5 ? chooseArchetypeV5(state.results) : chooseArchetype(state.results);
-  const fallbackDetails = (v5 ? ARCHETYPES_V5 : ARCHETYPE_DETAILS)[fallbackArch];
-
-  const [profile, setProfile] = useState({
-    archetype: fallbackArch,
-    name: fallbackDetails.name,
-    quote: fallbackDetails.quote,
-    assessment: fallbackDetails.assessment,
-  });
-
-  useEffect(() => {
-    let cancelled = false;
-    // v5 profiles are scripted from the game (lib/v5/archetypes.ts).
-    if (v5) return;
-    const t0 = Date.now();
-    fetchProfile({
-      totals,
-      rounds: state.results.map((r) => ({ round: r.round, score: r.score })),
-    }).then((p) => {
-      if (cancelled || !p) return;
-      // Only swap if Claude was fast enough (~1.5s) to avoid jarring mid-read resets
-      if (Date.now() - t0 > 1500) return;
-      setProfile((cur) => ({
-        ...cur,
-        name: typeof p.name === "string" && p.name ? p.name : cur.name,
-        quote: typeof p.quote === "string" && p.quote ? p.quote : cur.quote,
-        assessment:
-          typeof p.assessment === "string" && p.assessment
-            ? p.assessment
-            : cur.assessment,
-      }));
-    });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const profile = ARCHETYPES_V5[chooseArchetypeV5(state.results)];
 
   return (
     <div className="min-h-screen px-6 py-12 animate-fade-in">
@@ -91,19 +47,9 @@ export function FinalScore() {
           totalN={totalN}
         />
 
-        {/* The Delegation Scorecard: the core's for v5 games, with the wire view and the export */}
+        {/* The Delegation Scorecard from the Guardian core, the wire view and the export */}
         <div className="mt-8">
-          {isV5Round(4, state.scenario) ? (
-            <FinalV5 choices={{ v5r1: state.v5r1, v5r2: state.v5r2, v5r3: state.v5r3, v5r4: state.v5r4 }} results={state.results} />
-          ) : (
-            <Scorecard
-              metrics={computeScorecard({
-                results: state.results,
-                r2: state.r2,
-                r4: state.r4,
-              })}
-            />
-          )}
+          <FinalV5 choices={{ v5r1: state.v5r1, v5r2: state.v5r2, v5r3: state.v5r3, v5r4: state.v5r4 }} results={state.results} />
         </div>
 
         {/* VAOM final assessment */}

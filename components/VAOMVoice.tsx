@@ -23,7 +23,7 @@ type Props = {
   /** Seconds the typing takes at most, whatever the text's length; 0 shows the text at once. */
   typingSeconds?: number;
   label?: string;
-  /** Pre-generated audio URL (e.g. /audio/briefing-r1-invoice.mp3). Instant playback. */
+  /** A pre-recorded reading of the text, played instead of live speech. */
   cachedAudioUrl?: string;
 };
 
