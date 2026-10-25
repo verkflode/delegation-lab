@@ -1,6 +1,6 @@
 # Container image for self-hosting (Next.js standalone output).
 # Build: docker build -t delegation-lab .   Run: node server.js on port 3000.
-# Secrets (ANTHROPIC_API_KEY, optional AZURE_SPEECH_*) come from the environment at run time,
+# Secrets (the model provider's API key, see .env.example) come from the environment at run time,
 # never from the image.
 
 FROM node:22-bookworm-slim AS deps
