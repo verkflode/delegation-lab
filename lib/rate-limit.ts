@@ -15,6 +15,10 @@
  * too). X-Forwarded-For is deliberately not read: its first entry is whatever
  * the caller chose to send.
  *
+ * The per-IP maps are bounded (MAX_KEYS, or the `maxKeys` limit). When they are full of live
+ * windows, a request from a new IP is refused as "global_hour" instead of growing the maps, so
+ * many distinct addresses can't exhaust the process's memory. Known IPs keep their own counting.
+ *
  * Being limited is not an outage: the client falls back to the built-in text
  * bank (see lib/api.ts), so the game keeps working.
  */
@@ -25,12 +29,15 @@ export type Limits = {
   perMinute: number;
   perHour: number;
   globalPerHour: number;
+  /** Most distinct IPs tracked at once; defaults to MAX_KEYS. */
+  maxKeys?: number;
 };
 
 export type LimitReason = "ip_minute" | "ip_hour" | "global_hour";
 
 const MINUTE = 60_000;
 const HOUR = 60 * MINUTE;
+export const MAX_KEYS = 20_000;
 
 function envInt(name: string, fallback: number): number {
   const v = Number.parseInt(process.env[name] ?? "", 10);
@@ -67,8 +74,10 @@ export function createLimiter(limits: Limits) {
   const global: Window = { count: 0, reset: 0 };
   let lastPrune = 0;
 
-  function prune(now: number) {
-    if (now - lastPrune < MINUTE) return;
+  const maxKeys = limits.maxKeys ?? MAX_KEYS;
+
+  function prune(now: number, force = false) {
+    if (!force && now - lastPrune < MINUTE) return;
     lastPrune = now;
     for (const map of [perMinute, perHour]) {
       for (const [k, w] of map) if (now >= w.reset) map.delete(k);
@@ -79,6 +88,10 @@ export function createLimiter(limits: Limits) {
   return function limited(req: Request, now = Date.now()): LimitReason | null {
     prune(now);
     const ip = clientIp(req);
+    if (!perHour.has(ip) && perHour.size >= maxKeys) {
+      prune(now, true);
+      if (perHour.size >= maxKeys) return "global_hour";
+    }
     // Evaluate both per-IP windows so each keeps counting, then decide.
     const minuteOver = over(perMinute, ip, limits.perMinute, MINUTE, now);
     const hourOver = over(perHour, ip, limits.perHour, HOUR, now);

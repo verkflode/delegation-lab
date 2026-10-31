@@ -64,7 +64,7 @@ until it is ready.
 
 ## Running locally
 
-Requires Node.js 22.
+Requires Node.js 22.15 or later.
 
 ```bash
 git clone https://github.com/verkflode/delegation-lab.git
@@ -86,6 +86,7 @@ Copy `.env.example` to `.env.local` and set what you need. Everything is optiona
 | `MISTRAL_API_KEY`, `MISTRAL_MODEL`, `MISTRAL_BASE_URL` | Key, model and endpoint for Mistral (for example `https://api.eu.mistral.ai`). |
 | `CLAUDE_RATE_PER_MINUTE`, `CLAUDE_RATE_PER_HOUR`, `CLAUDE_RATE_GLOBAL_PER_HOUR` | Rate limits on the briefing endpoint, per IP and overall. |
 | `NEXT_PUBLIC_VOICE` | `1` at build time shows the experimental voice narration. |
+| `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`, `AZURE_SPEECH_VOICE` | Azure Speech for the experimental narration (`/api/voice`); without a key and voice it answers 503 and the game stays text-only. `VOICE_RATE_*` limits it like the briefing endpoint. |
 
 `/api/claude` serves exactly one request, a round briefing (`lib/v5/briefing-request.ts`). It keeps its old
 name because the client calls it; the model provider is a setting.
@@ -94,7 +95,11 @@ name because the client calls it; the model provider is a setting.
 
 ```bash
 npm test
+npm run audit    # production dependencies, fails on high or critical advisories
 ```
+
+CI (`.github/workflows/ci.yml`) runs lint, type check, tests and the audit on every push and pull
+request. `GOLDEN=update` is refused there: rewrite goldens locally and review the diff.
 
 The heart of it is the golden replay (`tests/golden.test.mts`): three scripted games per scenario (naive,
 careful and mixed), with every output the engine gives the screens pinned in

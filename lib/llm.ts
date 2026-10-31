@@ -67,7 +67,8 @@ export async function complete(cfg: LlmConfig, req: CompletionRequest): Promise<
 }
 
 async function completeAnthropic(cfg: LlmConfig, req: CompletionRequest): Promise<Completion> {
-  const client = new Anthropic({ apiKey: cfg.apiKey });
+  // Same 90 s bound as the Mistral path (the SDK default is 10 minutes).
+  const client = new Anthropic({ apiKey: cfg.apiKey, timeout: 90_000 });
   const msg = await client.messages.create({
     model: cfg.model,
     max_tokens: req.maxTokens,

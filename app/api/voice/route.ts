@@ -15,7 +15,7 @@
  */
 
 import { NextResponse } from "next/server";
-import { buildSSML, type GameMoment } from "../../../lib/ssml";
+import { buildSSML, GAME_MOMENTS, type GameMoment } from "../../../lib/ssml";
 import { createLimiter, limitsFromEnv } from "../../../lib/rate-limit";
 
 export const runtime = "nodejs";
@@ -24,6 +24,8 @@ export const dynamic = "force-dynamic";
 const REGION = process.env.AZURE_SPEECH_REGION ?? "swedencentral";
 // DragonHD voices don't support opus — use mp3 which works across all voice types
 const OUTPUT_FORMAT = "audio-24khz-96kbitrate-mono-mp3";
+// Azure bills per character; the longest built-in line is well under this.
+const MAX_TEXT = 2_000;
 
 // ── Rate limiting (per IP, plus a global hourly ceiling; see lib/rate-limit.ts) ──
 const rateLimited = createLimiter(
@@ -36,6 +38,15 @@ type VoicePayload = {
   text: string;
   moment: GameMoment;
 };
+
+/** The payload, or null unless `text` is a non-empty string within MAX_TEXT and `moment` a known one. */
+function parseVoicePayload(raw: unknown): VoicePayload | null {
+  if (!raw || typeof raw !== "object") return null;
+  const { text, moment } = raw as Record<string, unknown>;
+  if (typeof text !== "string" || !text.trim() || text.length > MAX_TEXT) return null;
+  if (typeof moment !== "string" || !(GAME_MOMENTS as readonly string[]).includes(moment)) return null;
+  return { text, moment: moment as GameMoment };
+}
 
 export async function POST(req: Request) {
   const limitedBy = rateLimited(req);
@@ -54,21 +65,21 @@ export async function POST(req: Request) {
     );
   }
 
-  let body: VoicePayload;
+  let raw: unknown;
   try {
-    body = (await req.json()) as VoicePayload;
+    raw = await req.json();
   } catch {
     return NextResponse.json({ error: "bad_json" }, { status: 400 });
   }
-  if (!body?.text || !body?.moment) {
-    return NextResponse.json({ error: "missing_fields" }, { status: 400 });
+  const body = parseVoicePayload(raw);
+  if (!body) {
+    return NextResponse.json({ error: "bad_fields" }, { status: 400 });
   }
-
-  const ssml = buildSSML({ voiceName, text: body.text, moment: body.moment });
 
   const endpoint = `https://${REGION}.tts.speech.microsoft.com/cognitiveservices/v1`;
 
   try {
+    const ssml = buildSSML({ voiceName, text: body.text, moment: body.moment });
     const azureRes = await fetch(endpoint, {
       method: "POST",
       headers: {

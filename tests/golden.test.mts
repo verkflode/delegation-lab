@@ -158,6 +158,7 @@ for (const [sc, games] of [[INVOICE, invoiceGames()], [INCIDENT, incidentGames()
   const name = sc.id;
   const file = new URL(`./golden/${name}.json`, import.meta.url);
   if (process.env.GOLDEN === "update") {
+    if (process.env.CI) throw new Error("GOLDEN=update is refused under CI: rewrite goldens locally and review the diff");
     mkdirSync(new URL("./golden/", import.meta.url), { recursive: true });
     writeFileSync(file, json);
     console.log(`golden: ${name}.json rewritten`);

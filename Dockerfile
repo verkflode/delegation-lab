@@ -6,7 +6,7 @@
 FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN npm ci --no-audit --no-fund
+RUN npm ci --no-fund && npm audit --omit=dev --audit-level=high
 
 FROM node:22-bookworm-slim AS build
 WORKDIR /app

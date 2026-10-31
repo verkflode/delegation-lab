@@ -19,13 +19,16 @@
  * which is the baseline experience anyway.
  */
 
-export type GameMoment =
-  | "title_welcome"
-  | "round_briefing"
-  | "mid_alert"
-  | "debrief_good"
-  | "debrief_missed"
-  | "final_assessment";
+export const GAME_MOMENTS = [
+  "title_welcome",
+  "round_briefing",
+  "mid_alert",
+  "debrief_good",
+  "debrief_missed",
+  "final_assessment",
+] as const;
+
+export type GameMoment = (typeof GAME_MOMENTS)[number];
 
 export type SSMLOptions = {
   voiceName: string;

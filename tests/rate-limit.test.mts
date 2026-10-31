@@ -29,5 +29,11 @@ eq("xff ignored", clientIp(req(undefined, "6.6.6.6")), "unknown");
 { const lim = createLimiter({ perMinute: 2, perHour: 100, globalPerHour: 100 });
   lim(req("4.4.4.4", "a")); lim(req("4.4.4.4", "b"));
   eq("forged xff can't dodge", lim(req("4.4.4.4", "c")), "ip_minute"); }
+// bounded key space: new IPs are refused once the maps are full of live windows
+{ const lim = createLimiter({ perMinute: 10, perHour: 100, globalPerHour: 1_000, maxKeys: 3 });
+  for (let i = 0; i < 3; i++) eq(`cap ok ${i}`, lim(req(`20.0.0.${i}`), t0), null);
+  eq("new ip refused when full", lim(req("20.0.0.9"), t0), "global_hour");
+  eq("known ip still counted", lim(req("20.0.0.1"), t0), null);
+  eq("expired windows make room", lim(req("20.0.0.9"), t0 + 3_600_000), null); }
 console.log(fails ? `${fails} failed` : "all limiter tests passed");
 process.exit(fails ? 1 : 0);
