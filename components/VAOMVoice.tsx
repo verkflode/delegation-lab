@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Play, Square, Volume2 } from "lucide-react";
+import { Loader2, Square, Volume2 } from "lucide-react";
 import type { GameMoment } from "../lib/ssml";
 import { useVAOMVoice } from "../hooks/useVAOMVoice";
 

@@ -12,6 +12,8 @@ type Props = {
 
 export function VerkflodeLogo({ height = 56, className }: Props) {
   return (
+    // An SVG: next/image would serve it unoptimised anyway, so it gains nothing here.
+    // eslint-disable-next-line @next/next/no-img-element
     <img
       src="/verkflode.svg"
       alt="Verkflöde"
